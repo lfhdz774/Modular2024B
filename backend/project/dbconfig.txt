@@ -1,0 +1,6 @@
+Install Migration
+
+set FLASK_APP=server.py
+flask db init
+flask db migrate -m "Some content"
+flask db upgrade

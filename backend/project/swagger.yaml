@@ -1,0 +1,90 @@
+swagger: '2.0'
+info:
+  title: Server Portal API documentation
+  version: '1.0'
+paths:
+  /signup:
+    get:
+      description: Signup for a new user
+      tags:
+        - Users
+      parameters:
+        - in: query
+          name: username
+          type: string
+          description: The username to find
+      responses:
+        200:
+          description: User found
+        404:
+          description: User not found
+    post:
+      tags:
+        - Users
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/UserCreateModel'
+      responses:
+        200:
+          description: User created
+    delete:
+      tags:
+        - Users
+      parameters:
+        - in: path
+          name: id
+          type: integer
+          description: The ID of the user to delete
+          required: true
+      responses:
+        200:
+          description: User deleted
+  /findUser:
+    get:
+      tags:
+        - Users
+      parameters:
+        - in: query
+          name: username
+          type: string
+          description: The username to find
+      responses:
+        200:
+          description: User found
+        404:
+          description: User not found
+  /allUsers:
+    get:
+      tags:
+        - Users
+      responses:
+        200:
+          description: All users retrieved
+
+definitions:
+    UserCreateModel:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          description: The user's username
+        password:
+          type: string
+          description: The user's password
+    UserLoginModel:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          description: The user's username
+        password:
+          type: string
+          description: The user's password

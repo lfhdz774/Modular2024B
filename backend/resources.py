@@ -1,6 +1,7 @@
 from flask_restful import Resource,reqparse
 from project.models import User
 from project import db
+from flasgger.utils import swag_from
 
 class Signup(Resource):
     def __init__(self):
@@ -8,6 +9,7 @@ class Signup(Resource):
         self.parser.add_argument('username', type=str, help='Username of the user', required=True)
         self.parser.add_argument('password', type=str, help='Password of the user', required=True)
 
+    @swag_from('project/swagger.yaml') 
     def get(self):
         args = self.parser.parse_args()
         username = args['username']
@@ -16,7 +18,8 @@ class Signup(Resource):
             return user.json()
         else:
             return {'username': 'not found'},404
-        
+    
+    @swag_from('project/swagger.yaml')  
     def post(self):
         args = self.parser.parse_args()
         username = args['username']
@@ -26,6 +29,7 @@ class Signup(Resource):
         db.session.commit()
         #return {'User Added'}
 
+    @swag_from('project/swagger.yaml') 
     def delete(self,id):
         user = db.session().query(User).filter_by(id=id).first()
         db.session.delete(user)
@@ -33,6 +37,7 @@ class Signup(Resource):
         #return {'User Deleted'}
 
 class AllUsersResource(Resource):
+    @swag_from('project/swagger.yaml') 
     def get(self):
         all_users = db.session.query(User).all()
         return[user.json() for user in all_users]
@@ -42,6 +47,7 @@ class getUser(Resource):
     def __init__(self):
         self.parser = reqparse.RequestParser()
         self.parser.add_argument('username', type=str, help='Username of the user', required=True)
+    @swag_from('project/swagger.yaml') 
     def get(self):
         args = self.parser.parse_args()
         username = args['username']

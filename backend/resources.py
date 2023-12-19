@@ -36,11 +36,6 @@ class AllUsersResource(Resource):
     def get(self):
         all_users = db.session.query(User).all()
         return[user.json() for user in all_users]
-
-class AllUsersResource(Resource):
-    def get(self):
-        all_users = db.session.query(User).all()
-        return[user.json() for user in all_users]
         
     
 class getUser(Resource):
@@ -50,7 +45,6 @@ class getUser(Resource):
     def get(self):
         args = self.parser.parse_args()
         username = args['username']
-        print (username)
         user = db.session().query(User).filter_by(username = username).first()
         if user:
             return user.json()

@@ -1,25 +1,15 @@
-import logo from './logo.svg';
-import './App.css';
 
-function App() {
+import { Router } from 'react-router-dom';
+import RouterComponent from './components/Router';
+import ThemeProvider from 'src/theme';
+
+// ----------------------------------------------------------------------
+
+export default function App() {
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ThemeProvider>
+        <RouterComponent />
+    </ThemeProvider>
   );
 }
-
-export default App;

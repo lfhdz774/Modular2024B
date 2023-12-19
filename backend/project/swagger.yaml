@@ -29,6 +29,7 @@ paths:
       responses:
         200:
           description: User created
+  /signup/{id}:
     delete:
       tags:
         - Users

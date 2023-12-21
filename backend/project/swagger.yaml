@@ -42,6 +42,32 @@ paths:
       responses:
         200:
           description: User deleted
+  /login:
+     post:
+      tags:
+        - Users
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/UserLoginModel'
+      responses:
+        200:
+            description: Successful login
+            schema:
+              type: object
+              properties:
+                access_token:
+                  type: string
+                  description: Access token for authentication
+        401:
+            description: Unauthorized
+            schema:
+              type: object
+              properties:
+                msg:
+                  type: string
+                  description: Error message
   /findUser:
     get:
       tags:
@@ -89,3 +115,23 @@ definitions:
         password:
           type: string
           description: The user's password
+    UserModel:
+      type: object
+      required:
+        - username
+        - token
+      properties:
+        username:
+          type: string
+          description: The user's username
+        token:
+          type: string
+          description: The user's token
+    TokenModel:
+      type: object
+      required:
+        - token
+      properties:
+        token:
+          type: string
+          description: The user's token

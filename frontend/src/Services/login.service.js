@@ -10,7 +10,7 @@ export const login = async (username, password) => {
                 'Content-Type': 'application/json',
             },
         });
-        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('token', response.data.access_token);
         return response;
     } catch (error) {
         console.log(error);

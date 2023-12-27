@@ -30,7 +30,7 @@ class Signup(Resource):
         user = User(username,password)
         db.session.add(user)
         db.session.commit()
-        #return {'User Added'}
+        return {'msg': 'User Added'}
 
     @swag_from('project/swagger.yaml') 
     def delete(self,id):

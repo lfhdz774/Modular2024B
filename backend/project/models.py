@@ -37,8 +37,10 @@ class Group(db.Model):
     group_id = db.Column(db.Integer, primary_key=True)
     group_name = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text)
-
     users = db.relationship('User', secondary='users_groups_server', back_populates='groups')
+
+    server_id = db.Column(db.Integer, db.ForeignKey('server.server_id'), nullable=False)
+
 class Server(db.Model):
     tablename = 'servers'
 
@@ -54,17 +56,17 @@ class Server(db.Model):
     accesses = db.relationship('Access', back_populates='server')
     
 class Access(db.Model):
-    tablename = 'accesses'
+    tablename = 'access'
 
     access_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
-    server_id = db.Column(db.Integer, db.ForeignKey('servers.server_id'), nullable=False)
+    server_id = db.Column(db.Integer, db.ForeignKey('server.server_id'), nullable=False)
     created_at = db.Column(db.TIMESTAMP)
     expires_at = db.Column(db.TIMESTAMP)
 
+    user_groups = db.Column(db.ARRAY(db.Integer))
     user = db.relationship('User', back_populates='accesses')
     server = db.relationship('Server', back_populates='accesses')
-
 
 
 class Notification(db.Model):
@@ -76,4 +78,5 @@ class Notification(db.Model):
     created_at = db.Column(db.TIMESTAMP)
     status = db.Column(db.String(20), nullable=False)
 
+    user_access = db.Column(db.Integer, db.ForeignKey('access.access_id'), nullable=False)
     user = db.relationship('User', back_populates='notifications')

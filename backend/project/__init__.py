@@ -20,4 +20,4 @@ Migrate(app,db)
 
 from project.login.view import login_blueprint
 
-app.register_blueprint(login_blueprint,url_prefix='/login')
+app.register_blueprint(login_blueprint)

@@ -11,8 +11,7 @@ class User(db.Model):
     employee_code = db.Column(db.String(20))
     role_in_application = db.Column(db.String(50))
 
-    approved_by = db.Column(db.Integer,db.ForeignKey('users.user_id'))
-    accesses = db.relationship('Access', back_populates='user')
+    accesses = db.relationship('Access', back_populates='user',foreign_keys='Access.user_id')
     notifications = db.relationship('Notification', back_populates='user')
 
     def __init__(self,username,password,email,first_name,last_name,employee_code,role_in_application):
@@ -25,11 +24,11 @@ class User(db.Model):
         self.role_in_application = role_in_application
 
     def json(self):
-        return {'id': self.id,
+        return {'user_id': self.user_id,
                 'username' : self.username}
 
     def __repr__(self):
-        return f"{self.id}. Username {self.username}"
+        return f"{self.user_id}. Username {self.username}"
     
 class Group(db.Model):
     tablename = 'groups'
@@ -37,7 +36,7 @@ class Group(db.Model):
     group_id = db.Column(db.Integer, primary_key=True)
     group_name = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text)
-    users = db.relationship('User', secondary='users_groups_server', back_populates='groups')
+    #users = db.relationship('User', secondary='users_groups_server', back_populates='groups')
 
     server_id = db.Column(db.Integer, db.ForeignKey('server.server_id'), nullable=False)
 
@@ -53,7 +52,7 @@ class Server(db.Model):
     user_groups = db.Column(db.ARRAY(db.Integer))
     operating_system = db.Column(db.String(50))
 
-    accesses = db.relationship('Access', back_populates='server')
+    accesses = db.relationship('Access', back_populates='server',foreign_keys='Access.server_id')
     
 class Access(db.Model):
     tablename = 'access'
@@ -67,7 +66,7 @@ class Access(db.Model):
     user_groups = db.Column(db.ARRAY(db.Integer))
     user = db.relationship('User', back_populates='accesses')
     server = db.relationship('Server', back_populates='accesses')
-
+    #approved_by = db.Column(db.Integer,db.ForeignKey('users.user_id'))  PENDING CHECK HOW TO DISPLAY WHO APPROVED THE REQUEST AND IF IS REQUIRED A DIFERENT TABLE? 
 
 class Notification(db.Model):
     tablename = 'notifications'

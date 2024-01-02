@@ -53,6 +53,20 @@ class Server(db.Model):
     operating_system = db.Column(db.String(50))
 
     accesses = db.relationship('Access', back_populates='server',foreign_keys='Access.server_id')
+
+    def __init__(self,name,ip_address,port,username,password,operating_system):
+        self.name = name
+        self.ip_address = ip_address
+        self.port = port
+        self.username = username
+        self.password = password
+        #self.user_groups = user_groups TODO: CHECK HOW TO RECEIVE THE references to the groups
+        self.operating_system = operating_system
+    
+    def json(self):
+        return {'server_id': self.server_id,
+                'name': self.name,
+                'ip_addresss': self.ip_address}
     
 class Access(db.Model):
     tablename = 'access'

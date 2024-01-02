@@ -19,5 +19,7 @@ db = SQLAlchemy(app)
 Migrate(app,db)
 
 from project.login.view import login_blueprint
+from project.serverAdmin.view import serverAdmin_blueprint
 
 app.register_blueprint(login_blueprint)
+app.register_blueprint(serverAdmin_blueprint)

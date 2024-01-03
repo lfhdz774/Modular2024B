@@ -1,6 +1,6 @@
 from project import db
 
-class User(db.Model):
+class UserModel(db.Model):
     __tablename__='users'
     user_id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(255), nullable=False)
@@ -25,7 +25,13 @@ class User(db.Model):
 
     def json(self):
         return {'user_id': self.user_id,
-                'username' : self.username}
+                'username' : self.username,
+                'email' : self.email,
+                'first_name' : self.first_name,
+                'last_name' : self.last_name,
+                'employee_code' : self.employee_code,
+                'role_in_application' : self.role_in_application
+                }
 
     def __repr__(self):
         return f"{self.user_id}. Username {self.username}"
@@ -36,7 +42,7 @@ class Group(db.Model):
     group_id = db.Column(db.Integer, primary_key=True)
     group_name = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text)
-    #users = db.relationship('User', secondary='users_groups_server', back_populates='groups')
+    #users = db.relationship('UserModel', secondary='users_groups_server', back_populates='groups')
 
     server_id = db.Column(db.Integer, db.ForeignKey('server.server_id'), nullable=False)
 
@@ -64,7 +70,7 @@ class Access(db.Model):
     expires_at = db.Column(db.TIMESTAMP)
 
     user_groups = db.Column(db.ARRAY(db.Integer))
-    user = db.relationship('User', back_populates='accesses')
+    user = db.relationship('UserModel', back_populates='accesses')
     server = db.relationship('Server', back_populates='accesses')
     #approved_by = db.Column(db.Integer,db.ForeignKey('users.user_id'))  PENDING CHECK HOW TO DISPLAY WHO APPROVED THE REQUEST AND IF IS REQUIRED A DIFERENT TABLE? 
 
@@ -78,4 +84,4 @@ class Notification(db.Model):
     status = db.Column(db.String(20), nullable=False)
 
     user_access = db.Column(db.Integer, db.ForeignKey('access.access_id'), nullable=False)
-    user = db.relationship('User', back_populates='notifications')
+    user = db.relationship('UserModel', back_populates='notifications')

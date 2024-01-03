@@ -1,23 +1,25 @@
-class InvalidEmailError(Exception):
+from Exceptions.BaseCustomError import BaseCustomError
+
+
+class InvalidEmailError(BaseCustomError):
     """Exception raised for invalid email errors."""
-    def __init__(self, email, message="Invalid email"):
+    def __init__(self, email):
+        super().__init__(message="Invalid Email", code=423)
         self.email = email
-        self.message = message
-        self.code = 422
-        super().__init__(self.message)
 
-class InvalidPasswordError(Exception):
-    """Exception raised for invalid password errors."""
-    def __init__(self, password, message="Invalid password"):
-        self.password = password
-        self.message = message
-        self.code = 423
-        super().__init__(self.message)
-
-class UserAlreadyExistsError(Exception):
-    """Exception raised for invalid password errors."""
-    def __init__(self, username, message="User already exists"):
+class UserAlreadyExistsError(BaseCustomError):
+    def __init__(self, username):
+        super().__init__(message="User already exists", code=424)
         self.username = username
-        self.message = message
-        self.code = 424
-        super().__init__(self.message)
+
+class UserNotFoundError(BaseCustomError):
+    """Exception raised when a user is not found."""
+    def __init__(self, username):
+        super().__init__(message="User not found", code=404)
+        self.username = username
+
+class UpdateUserInfoError(BaseCustomError):
+    """Exception raised for errors in updating user info."""
+    def __init__(self, username):
+        super().__init__(message="Error updating user info", code=500)
+        self.username = username

@@ -5,8 +5,8 @@ from flasgger import Swagger
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 
-#exceptions import
-from Exceptions.SignupExceptions import InvalidEmailError, InvalidPasswordError, UserAlreadyExistsError
+from Exceptions.BaseCustomError import BaseCustomError
+
 
 app = Flask(__name__)
 app.config['JWT_SECRET_KEY'] = 'your-secret-key'  # Change this!
@@ -21,23 +21,12 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 Migrate(app,db)
 
-@app.errorhandler(InvalidEmailError)
-def handle_invalid_email_error(error):
+@app.errorhandler(BaseCustomError)
+def handle_custom_exception(error):
     response = jsonify({'msg': error.message})
-    response.status_code = error.code  # Unprocessable Entity
+    response.status_code = error.code
     return response
 
-@app.errorhandler(InvalidPasswordError)
-def handle_invalid_password_error(error):
-    response = jsonify({'msg': error.message})
-    response.status_code = error.code  # Unprocessable Entity
-    return response
-
-@app.errorhandler(UserAlreadyExistsError)
-def handle_duplicated_user(error):
-    response = jsonify({'msg': error.message})
-    response.status_code = error.code  # Unprocessable Entity
-    return response
 
 from project.login.view import login_blueprint
 

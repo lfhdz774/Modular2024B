@@ -5,7 +5,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import unittest
 from flask_testing import TestCase
 from project import app, db
-from project.models import User
+from project.models import UserModel
 
 class TestSignup(TestCase):
     def create_app(self):
@@ -20,21 +20,7 @@ class TestSignup(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_signup_post_unseccure_password(self):
-        response = self.client.post('/signup', json=dict(
-            username="john_doe",
-            password="Unsecurepassword",
-            email="john.doe@example.com",
-            first_name="John",
-            last_name="Doe",
-            employee_code="EMP001",
-            role="admin"
-        ), follow_redirects=True)
-
-        print(response.data)
-        self.assertEqual(response.status_code, 423)
-
-    def test_signup_post_seccure_password(self):
+    def test_signup_post_valid_user(self):
         response = self.client.post('/signup', json=dict(
             username="john_doe",
             password="@Securepassword-123",
@@ -48,7 +34,7 @@ class TestSignup(TestCase):
         print(response.data)
         self.assertEqual(response.status_code, 200)
 
-        user = User.query.filter_by(username='john_doe').first()
+        user = UserModel.query.filter_by(username='john_doe').first()
         self.assertIsNotNone(user)
         self.assertEqual(user.username, 'john_doe')
 
@@ -64,11 +50,11 @@ class TestSignup(TestCase):
         ), follow_redirects=True)
 
         print(response.data)
-        self.assertEqual(response.status_code, 422)
+        self.assertEqual(response.status_code, 423)
 
     def test_signup_post_duplicate_username(self):
         # Create a user with the same username
-        user = User(username='john_doe', password='password123', email='john.doe@example.com',
+        user = UserModel(username='john_doe', password='password123', email='john.doe@example.com',
                     first_name='John', last_name='Doe', employee_code='EMP002', role_in_application='admin')
         db.session.add(user)
         db.session.commit()
@@ -87,8 +73,6 @@ class TestSignup(TestCase):
         print(response.data)
         self.assertEqual(response.status_code, 424)
 
-
-    
 
 if __name__ == '__main__':
     unittest.main()

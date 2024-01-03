@@ -29,6 +29,12 @@ paths:
       responses:
         200:
           description: User created
+        422:
+          description: Invalid email
+        423:
+          description: Invalid password
+        424:
+          description: User already exists
   /signup/{id}:
     delete:
       tags:
@@ -96,13 +102,33 @@ definitions:
       required:
         - username
         - password
+        - email
+        - first_name
+        - last_name
+        - employee_code
+        - role
       properties:
         username:
           type: string
-          description: The user's username
+          description: Username of the user
         password:
           type: string
-          description: The user's password
+          description: Password of the user
+        email:
+          type: string
+          description: Email of the user
+        first_name:
+          type: string
+          description: First name of the user
+        last_name:
+          type: string
+          description: Last name of the user
+        employee_code:
+          type: string
+          description: Employee code of the user
+        role:
+          type: string
+          description: Role of the user in the application
     UserLoginModel:
       type: object
       required:

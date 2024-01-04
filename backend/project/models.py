@@ -13,7 +13,8 @@ class User(db.Model):
 
     accesses = db.relationship('Access', back_populates='user',foreign_keys='Access.user_id')
     notifications = db.relationship('Notification', back_populates='user')
-
+    approver = db.relationship('Access', back_populates='user',foreign_keys='Access.approved_by')
+     #TODO: ERROR
     def __init__(self,username,password,email,first_name,last_name,employee_code,role_in_application):
         self.username = username
         self.password = password
@@ -54,19 +55,25 @@ class Server(db.Model):
 
     accesses = db.relationship('Access', back_populates='server',foreign_keys='Access.server_id')
 
-    def __init__(self,name,ip_address,port,username,password,operating_system):
+    def __init__(self,name,ip_address,port,username,password,user_groups,operating_system):
         self.name = name
         self.ip_address = ip_address
         self.port = port
         self.username = username
         self.password = password
-        #self.user_groups = user_groups TODO: CHECK HOW TO RECEIVE THE references to the groups
+        self.user_groups = user_groups
         self.operating_system = operating_system
     
     def json(self):
         return {'server_id': self.server_id,
                 'name': self.name,
-                'ip_addresss': self.ip_address}
+                'ip_addresss': self.ip_address,
+                'port': self.port,
+                'username': self.username,
+                'password': self.password,
+                'user_groups': self.user_groups,
+                'operating_system': self.operating_system,
+        }
     
 class Access(db.Model):
     tablename = 'access'
@@ -80,7 +87,9 @@ class Access(db.Model):
     user_groups = db.Column(db.ARRAY(db.Integer))
     user = db.relationship('User', back_populates='accesses')
     server = db.relationship('Server', back_populates='accesses')
-    #approved_by = db.Column(db.Integer,db.ForeignKey('users.user_id'))  PENDING CHECK HOW TO DISPLAY WHO APPROVED THE REQUEST AND IF IS REQUIRED A DIFERENT TABLE? 
+
+    approved_by = db.Column(db.Integer,db.ForeignKey('users.user_id'))
+    #TODO: ERROR 
 
 class Notification(db.Model):
     tablename = 'notifications'

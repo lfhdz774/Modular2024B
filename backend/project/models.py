@@ -1,4 +1,5 @@
 from project import db
+from sqlalchemy import and_
 
 class User(db.Model):
     __tablename__='users'
@@ -11,10 +12,10 @@ class User(db.Model):
     employee_code = db.Column(db.String(20))
     role_in_application = db.Column(db.String(50))
 
-    accesses = db.relationship('Access', back_populates='user',foreign_keys='Access.user_id')
+    accesses_requested = db.relationship('Access', back_populates='requester', foreign_keys='Access.requester_id')
+    accesses_approved = db.relationship('Access', back_populates='approver', foreign_keys='Access.approver_id')
     notifications = db.relationship('Notification', back_populates='user')
-    approver = db.relationship('Access', back_populates='user',foreign_keys='Access.approved_by')
-     #TODO: ERROR
+
     def __init__(self,username,password,email,first_name,last_name,employee_code,role_in_application):
         self.username = username
         self.password = password
@@ -77,18 +78,19 @@ class Server(db.Model):
     
 class Access(db.Model):
     tablename = 'access'
-
     access_id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
     server_id = db.Column(db.Integer, db.ForeignKey('server.server_id'), nullable=False)
     created_at = db.Column(db.TIMESTAMP)
     expires_at = db.Column(db.TIMESTAMP)
 
     user_groups = db.Column(db.ARRAY(db.Integer))
-    user = db.relationship('User', back_populates='accesses')
     server = db.relationship('Server', back_populates='accesses')
 
-    approved_by = db.Column(db.Integer,db.ForeignKey('users.user_id'))
+    requester_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+    approver_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
+
+    requester = db.relationship("User", foreign_keys=[requester_id])
+    approver = db.relationship("User", foreign_keys=[approver_id])
     #TODO: ERROR 
 
 class Notification(db.Model):

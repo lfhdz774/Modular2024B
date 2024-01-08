@@ -1,4 +1,5 @@
 from project import db
+from sqlalchemy import and_
 
 class UserModel(db.Model):
     __tablename__='users'
@@ -11,7 +12,8 @@ class UserModel(db.Model):
     employee_code = db.Column(db.String(20))
     role_in_application = db.Column(db.String(50))
 
-    accesses = db.relationship('Access', back_populates='user',foreign_keys='Access.user_id')
+    accesses_requested = db.relationship('Access', back_populates='requester', foreign_keys='Access.requester_id')
+    accesses_approved = db.relationship('Access', back_populates='approver', foreign_keys='Access.approver_id')
     notifications = db.relationship('Notification', back_populates='user')
 
     def __init__(self,username,password,email,first_name,last_name,employee_code,role_in_application):
@@ -59,20 +61,43 @@ class Server(db.Model):
     operating_system = db.Column(db.String(50))
 
     accesses = db.relationship('Access', back_populates='server',foreign_keys='Access.server_id')
+
+    def __init__(self,name,ip_address,port,username,password,user_groups,operating_system):
+        self.name = name
+        self.ip_address = ip_address
+        self.port = port
+        self.username = username
+        self.password = password
+        self.user_groups = user_groups
+        self.operating_system = operating_system
+    
+    def json(self):
+        return {'server_id': self.server_id,
+                'name': self.name,
+                'ip_addresss': self.ip_address,
+                'port': self.port,
+                'username': self.username,
+                'password': self.password,
+                'user_groups': self.user_groups,
+                'operating_system': self.operating_system,
+        }
     
 class Access(db.Model):
     tablename = 'access'
-
     access_id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
     server_id = db.Column(db.Integer, db.ForeignKey('server.server_id'), nullable=False)
     created_at = db.Column(db.TIMESTAMP)
     expires_at = db.Column(db.TIMESTAMP)
 
     user_groups = db.Column(db.ARRAY(db.Integer))
-    user = db.relationship('UserModel', back_populates='accesses')
     server = db.relationship('Server', back_populates='accesses')
-    #approved_by = db.Column(db.Integer,db.ForeignKey('users.user_id'))  PENDING CHECK HOW TO DISPLAY WHO APPROVED THE REQUEST AND IF IS REQUIRED A DIFERENT TABLE? 
+
+    requester_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+    approver_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
+
+    requester = db.relationship("User", foreign_keys=[requester_id])
+    approver = db.relationship("User", foreign_keys=[approver_id])
+    #TODO: ERROR 
 
 class Notification(db.Model):
     tablename = 'notifications'

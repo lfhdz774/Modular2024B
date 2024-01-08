@@ -1,5 +1,4 @@
 from flask import Blueprint
-from flask_restful import Resource
 from flask_restful import Api,Resource
 
 from project import app

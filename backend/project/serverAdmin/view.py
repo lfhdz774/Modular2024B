@@ -1,6 +1,6 @@
 from flask import Blueprint
 from flask_restful import Resource
-from project.models import User
+from project.models import UserModel
 from flask_restful import Api,Resource
 
 from project import app

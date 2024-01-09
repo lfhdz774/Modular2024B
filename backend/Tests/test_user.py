@@ -28,8 +28,7 @@ class TestUser(TestCase):
         db.session.commit()
 
         # Update the user's details
-        response = self.client.put(f'/user', json=dict(
-            username="john_doe",
+        response = self.client.put(f'/api/admin/user{"john_doe"}', json=dict(
             updates=dict(
                 username="new_john_doe",
                 password="UpdatedPassword123@",
@@ -53,24 +52,31 @@ class TestUser(TestCase):
         self.assertEqual(updated_user.employee_code, 'EMP002')
         self.assertEqual(updated_user.role_in_application, 'guest')
 
-    def test_get_specific_user(self):
+    def test_get_user(self):
         # Create a user
         user = UserModel(username='john_doe', password='password123', email='john.doe@example.com',
                     first_name='John', last_name='Doe', employee_code='EMP001', role_in_application='admin')
         db.session.add(user)
         db.session.commit()
 
-        # Get the specific user
-        response = self.client.get(f'/user', json=dict(
-                        username="john_doe") , follow_redirects=True)
+        # Send a GET request to retrieve the user
+        response = self.client.get(f'/api/user/{user.username}')
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json['username'], 'john_doe')
-        self.assertEqual(response.json['email'], 'john.doe@example.com')
-        self.assertEqual(response.json['first_name'], 'John')
-        self.assertEqual(response.json['last_name'], 'Doe')
-        self.assertEqual(response.json['employee_code'], 'EMP001')
-        self.assertEqual(response.json['role_in_application'], 'admin')
+        # Assert that the response status code is 200
+        self.assert200(response)
+
+        # Assert that the response contains the user's data
+        self.assertEqual(response.json, user.json())
+
+    def test_get_user_not_found(self):
+        # Send a GET request to retrieve a non-existent user
+        response = self.client.get('/api/user/nonexistent_user')
+
+        # Assert that the response status code is 404
+        self.assert404(response)
+
+        # Assert that the response contains the appropriate message
+        self.assertEqual(response.json, {'username': 'not found'})
 
 
     def test_delete_user(self):
@@ -81,7 +87,7 @@ class TestUser(TestCase):
         db.session.commit()
 
         # Delete the user
-        response = self.client.delete(f'/user', json=dict(
+        response = self.client.delete(f'/api/admin/user', json=dict(
             username="john_doe"
         ), follow_redirects=True)
 

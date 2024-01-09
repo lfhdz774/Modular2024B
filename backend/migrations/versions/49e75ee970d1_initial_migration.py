@@ -1,8 +1,8 @@
-"""DB INIT
+"""initial migration
 
-Revision ID: 31fc6c72f242
+Revision ID: 49e75ee970d1
 Revises: 
-Create Date: 2024-01-03 13:10:50.888361
+Create Date: 2024-01-08 18:27:51.022413
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '31fc6c72f242'
+revision = '49e75ee970d1'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -42,13 +42,15 @@ def upgrade():
     )
     op.create_table('access',
     sa.Column('access_id', sa.Integer(), nullable=False),
-    sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('server_id', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.TIMESTAMP(), nullable=True),
     sa.Column('expires_at', sa.TIMESTAMP(), nullable=True),
     sa.Column('user_groups', sa.ARRAY(sa.Integer()), nullable=True),
+    sa.Column('requester_id', sa.Integer(), nullable=False),
+    sa.Column('approver_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['approver_id'], ['users.user_id'], ),
+    sa.ForeignKeyConstraint(['requester_id'], ['users.user_id'], ),
     sa.ForeignKeyConstraint(['server_id'], ['server.server_id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['users.user_id'], ),
     sa.PrimaryKeyConstraint('access_id')
     )
     op.create_table('group',

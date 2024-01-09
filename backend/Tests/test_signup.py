@@ -21,7 +21,7 @@ class TestSignup(TestCase):
         db.drop_all()
 
     def test_signup_post_valid_user(self):
-        response = self.client.post('/signup', json=dict(
+        response = self.client.post('/api/admin/signup', json=dict(
             username="john_doe",
             password="@Securepassword-123",
             email="john.doe@example.com",
@@ -39,7 +39,7 @@ class TestSignup(TestCase):
         self.assertEqual(user.username, 'john_doe')
 
     def test_signup_post_invalid_mail(self):
-        response = self.client.post('/signup', json=dict(
+        response = self.client.post('/api/admin/signup', json=dict(
             username="john_doe",
             password="Unsecurepassword",
             email="not an email",
@@ -60,7 +60,7 @@ class TestSignup(TestCase):
         db.session.commit()
 
         # Try to create another user with the same username
-        response = self.client.post('/signup', json=dict(
+        response = self.client.post('/api/admin/signup', json=dict(
             username="john_doe",
             password="AnotherPassword123@",
             email="another.john.doe@example.com",

@@ -29,7 +29,7 @@ class TestLogin(TestCase):
                 'username': 'john_doe',
                 'password': 'password123'
             }
-        response = self.client.post('/login', json=credentials)
+        response = self.client.get('/api/login', json=credentials)
 
         print(response)
         self.assert200(response)
@@ -48,7 +48,7 @@ class TestLogin(TestCase):
                 'username': 'john_doe',
                 'password': 'wrong_password'
             }
-        response = self.client.post('/login', json=credentials)
+        response = self.client.get('/api/login', json=credentials)
 
         self.assert401(response)
         self.assertNotIn('access_token', response.json)

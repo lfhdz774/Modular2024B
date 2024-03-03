@@ -5,7 +5,7 @@ import http from './http';
 export const login = async (username, password) => {
     try {
         // Send a POST request with the appropriate headers
-        const response = await http.post('/login', { username, password }, {
+        const response = await http.post('/api/login', { username, password }, {
             headers: {
                 'Content-Type': 'application/json',
             },

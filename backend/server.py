@@ -1,7 +1,10 @@
+
 from flask import Flask
 
 
+
 from project import app
+
 
 @app.route('/')
 def index():

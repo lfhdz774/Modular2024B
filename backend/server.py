@@ -1,8 +1,5 @@
 
 from flask import Flask
-
-
-
 from project import app
 
 

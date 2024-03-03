@@ -4,7 +4,6 @@ from project.models import UserModel
 from project import db
 from flasgger.utils import swag_from
 from validate_email import validate_email
-
 #exceptions import
 from Exceptions.SignupExceptions import InvalidEmailError, UserAlreadyExistsError
 

@@ -1,23 +1,25 @@
-// Import your HTTP service
 import http from './http';
+import bcrypt from "bcryptjs";
 
-// Function to send login request
-export const login = async (username, password) => {
+export const login = async (username, unhashedpassword) => {
+    
     try {
-        // Send a POST request with the appropriate headers
+        const password = await bcrypt.hash(unhashedpassword, process.env.REACT_APP_PASSWORD_SALT);
+        console.log(password);
         const response = await http.post('/api/login', { username, password }, {
             headers: {
                 'Content-Type': 'application/json',
             },
         });
+
         localStorage.setItem('token', response.data.access_token);
         return response;
     } catch (error) {
         console.log(error);
+        // Manejar diferentes tipos de errores aquí
         throw new Error('Login failed', error);
     }
 };
-
 // Function to logout
 export const logout = async () => {
     localStorage.removeItem('token');

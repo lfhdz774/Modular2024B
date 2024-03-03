@@ -2,14 +2,18 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from flask import Flask
 from flask_testing import TestCase
-from project import app, db
+from project import db
 from project.models import UserModel
 
 class TestLogin(TestCase):
     def create_app(self):
+        app = Flask(__name__)
         app.config['TESTING'] = True
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:root@localhost/server_portal_test'
+        with app.app_context():
+            db.init_app(app)
         return app
 
     def setUp(self):
@@ -29,7 +33,7 @@ class TestLogin(TestCase):
                 'username': 'john_doe',
                 'password': 'password123'
             }
-        response = self.client.get('/api/login', json=credentials)
+        response = self.client.post('/api/login', json=credentials)
 
         print(response)
         self.assert200(response)
@@ -48,7 +52,7 @@ class TestLogin(TestCase):
                 'username': 'john_doe',
                 'password': 'wrong_password'
             }
-        response = self.client.get('/api/login', json=credentials)
+        response = self.client.post('/api/login', json=credentials)
 
         self.assert401(response)
         self.assertNotIn('access_token', response.json)

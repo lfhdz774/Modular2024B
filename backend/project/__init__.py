@@ -28,7 +28,6 @@ def handle_custom_exception(error):
     response.status_code = error.code
     return response
 
-
 from project.login.view import login_blueprint
 from project.serverAdmin.view import serverAdmin_blueprint
 from project.User.view import user_blueprint

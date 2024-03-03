@@ -4,21 +4,33 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from flask_testing import TestCase
-from project import app, db
+from flask import Flask
+from project import db
 from project.models import UserModel
+from testing.postgresql import Postgresql
 
 class TestUser(TestCase):
     def create_app(self):
-        app.config['TESTING'] = True
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-        return app
+        test_app = Flask(__name__)
+        test_app.config['TESTING'] = True
+        test_app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:root@localhost/server_portal_test'  # Replace 'testdb' with your desired test database name
+        test_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+        db.init_app(test_app)  # Initialize the SQLAlchemy extension with the testing app
+
+        return test_app
 
     def setUp(self):
-        db.create_all()
+        self.postgresql = Postgresql()
+        self.app.config['SQLALCHEMY_DATABASE_URI'] = self.postgresql.dsn()
+        with self.app.app_context():
+            db.create_all()
 
     def tearDown(self):
-        db.session.remove()
-        db.drop_all()
+        self.postgresql.stop()
+        with self.app.app_context():
+            db.session.remove()
+            db.drop_all()
 
     def test_user_put_valid_data(self):
         # Create a user

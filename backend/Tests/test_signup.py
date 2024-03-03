@@ -4,6 +4,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import unittest
 from flask_testing import TestCase
+from flask_sqlalchemy import SQLAlchemy
 from project import app, db
 from project.models import UserModel
 
@@ -11,6 +12,7 @@ class TestSignup(TestCase):
     def create_app(self):
         app.config['TESTING'] = True
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+        db = SQLAlchemy(app)
         return app
 
     def setUp(self):

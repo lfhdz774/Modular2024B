@@ -32,7 +32,10 @@ class Login(Resource):
             abort(e.code, description=e.message)
         
         if username == user.username and bcrypt.checkpw(password.encode(), user.password):
-            access_token = create_access_token(identity=username)
+            payload = {
+                'roles': [user.role_id]
+            }
+            access_token = create_access_token(identity=username, additional_claims=payload)
             return {'access_token': access_token}, 200
         else:
             return {'message': 'Invalid username or password'}, 401

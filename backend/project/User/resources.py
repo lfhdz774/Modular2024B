@@ -1,5 +1,7 @@
+from flask_jwt_extended import get_jwt, get_jwt_identity, jwt_required
 from flask_restful import Resource, reqparse
-from flask import abort
+from flask import abort, request
+from project.User.UserEnums import UserRoleEnum
 from project.models import UserModel
 from project import db
 from flasgger.utils import swag_from
@@ -19,25 +21,33 @@ class User(Resource):
         self.parser.add_argument('employee_code', type=str, help='Employee code of the user', required=False)
         self.parser.add_argument('role', type=str, help='Role of the user in the application', required=False)
 
-    @swag_from('project/swagger.yaml') 
-    def get(self, username):
-        
-        if not username:
-            return {'message': 'username is required'}, 400
+    @swag_from('project/swagger.yaml')
+    @jwt_required()
+    def get(self):
+        try:
+            current_user = get_jwt_identity()
+            claims = get_jwt()  # Get the payload from the token
+            roles = claims.get('roles', [])  # Access roles
+            # If the user is not an admin, they can only view their own profile
+            if UserRoleEnum.administrador.value not in roles and UserRoleEnum.superusuario.value not in roles:
+                return {'message': 'You are not authorized to view this user'}, 401
+
+            user = db.session().query(UserModel).filter_by(username=current_user).first()
+            if not user:
+                raise UserNotFoundError(current_user)
+        except Exception as e:
+            abort(500, description=str(e)) 
 
         try:
-            user = db.session().query(UserModel).filter_by(username=username).first()
+            user = db.session().query(UserModel).filter_by(username=current_user).first()
             if not user:
-                raise UserNotFoundError(username)
+                raise UserNotFoundError(current_user)
         except UserNotFoundError as e:
             abort(e.code, description=e.message)
         except Exception as e:
-            abort(500, description=e.message)
+            abort(500, description=str(e)) 
 
-        if user:
-            return user.json()
-        else:
-            return {'username': 'not found'}, 404
+        return user.json()
 
     @swag_from('project/swagger.yaml') 
     def put(self, username):

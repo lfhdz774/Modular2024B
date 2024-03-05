@@ -1,5 +1,7 @@
 import sys
 import os
+
+import bcrypt
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
@@ -28,9 +30,9 @@ def create_default_roles():
     db.session.commit()
 
 def create_superuser():
-    password_hash = hashpw(b'password', gensalt())  # Encripta la contraseña
-
-    new_user = UserModel(username='admin', password=password_hash, role_id=7, employee_code='0000', email="", first_name='Super', last_name='User', requester_id=0, approver_id=0)
+    passowrd = 'password'
+    hashed_password = bcrypt.hashpw(passowrd.encode('utf-8'), bcrypt.gensalt())
+    new_user = UserModel(username='admin', password=hashed_password, role_id=7, employee_code='0000', email="", first_name='Super', last_name='User')
     db.session.add(new_user)
     db.session.commit()
 
@@ -38,5 +40,5 @@ def create_superuser():
 
 if __name__ == '__main__':
     app.app_context().push()
-    #create_default_roles()
+    create_default_roles()
     create_superuser()

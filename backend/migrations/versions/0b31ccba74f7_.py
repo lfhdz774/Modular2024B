@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: c21fa7f1c822
+Revision ID: 0b31ccba74f7
 Revises: 
-Create Date: 2024-03-03 00:18:21.393549
+Create Date: 2024-03-04 20:22:46.494092
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'c21fa7f1c822'
+revision = '0b31ccba74f7'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -46,21 +46,16 @@ def upgrade():
     )
     op.create_table('users',
     sa.Column('user_id', sa.Integer(), nullable=False),
-    sa.Column('username', sa.String(length=255), nullable=False),
-    sa.Column('password', sa.String(length=255), nullable=False),
+    sa.Column('username', sa.String(length=80), nullable=True),
+    sa.Column('password', sa.LargeBinary(), nullable=True),
     sa.Column('email', sa.String(length=255), nullable=False),
     sa.Column('first_name', sa.String(length=100), nullable=True),
     sa.Column('last_name', sa.String(length=100), nullable=True),
     sa.Column('employee_code', sa.String(length=10), nullable=False),
-    sa.Column('role_in_application', sa.Integer(), nullable=False),
     sa.Column('role_id', sa.Integer(), nullable=False),
-    sa.Column('requester_id', sa.Integer(), nullable=False),
-    sa.Column('approver_id', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['approver_id'], ['users.user_id'], ),
-    sa.ForeignKeyConstraint(['requester_id'], ['users.user_id'], ),
     sa.ForeignKeyConstraint(['role_id'], ['roles.role_id'], ),
-    sa.ForeignKeyConstraint(['role_in_application'], ['roles.role_id'], ),
-    sa.PrimaryKeyConstraint('user_id')
+    sa.PrimaryKeyConstraint('user_id'),
+    sa.UniqueConstraint('username')
     )
     op.create_table('users_groups_server',
     sa.Column('user_id', sa.Integer(), nullable=False),

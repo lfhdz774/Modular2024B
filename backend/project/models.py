@@ -5,14 +5,14 @@ class UserModel(db.Model):
     __table_args__ = {'extend_existing': True}
     __tablename__='users'
     user_id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(255), nullable=False)
-    password = db.Column(db.String(255), nullable=False)
+    username = db.Column(db.String(80), unique=True)
+    password = db.Column(db.LargeBinary)
     email = db.Column(db.String(255), nullable=False)
     first_name = db.Column(db.String(100))
     last_name = db.Column(db.String(100))
     employee_code = db.Column(db.String(10), nullable=False)
 
-    def __init__(self,username,password,email,first_name,last_name,employee_code,role_id, requester_id, approver_id):
+    def __init__(self,username,password,email,first_name,last_name,employee_code,role_id):
         self.username = username
         self.password = password
         self.email = email
@@ -20,8 +20,6 @@ class UserModel(db.Model):
         self.last_name = last_name
         self.employee_code = employee_code
         self.role_id = role_id
-        self.requester_id = requester_id
-        self.approver_id = approver_id
 
     def json(self):
         return {'user_id': self.user_id,
@@ -83,7 +81,7 @@ class Role(db.Model):
 
 
 UserModel.role_id = db.Column(db.Integer, db.ForeignKey('roles.role_id'), nullable=False) 
-UserModel.requester_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=True) # 
-UserModel.approver_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=True) # 
+# UserModel.requester_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=True) # 
+# UserModel.approver_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=True) # 
 
 Group.server_id = db.Column(db.Integer, db.ForeignKey('servers.server_id'), nullable=False)

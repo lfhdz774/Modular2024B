@@ -1,3 +1,4 @@
+import bcrypt
 from flask_restful import Resource,reqparse
 from flask import abort
 from project.PasswordManagement.passwords import generar_hash_contrasena
@@ -23,13 +24,14 @@ class Login(Resource):
         username = args['username']
         password = args['password']
         try:
+            
             user = db.session().query(UserModel).filter_by(username=username).first()
             if not user:
                 raise UserNotFoundError(username)
         except UserNotFoundError as e:
             abort(e.code, description=e.message)
-
-        if username == user.username and password == user.password:
+        
+        if username == user.username and bcrypt.checkpw(password.encode(), user.password):
             access_token = create_access_token(identity=username)
             return {'access_token': access_token}, 200
         else:

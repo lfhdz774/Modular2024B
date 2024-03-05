@@ -1,3 +1,4 @@
+import bcrypt
 from flask_restful import Resource, reqparse
 from flask import abort
 from project.models import UserModel
@@ -45,7 +46,8 @@ class Signup(Resource):
         except UserAlreadyExistsError as e:
             abort(e.code, description=e.message)
 
-        user = UserModel(username, password, email, first_name, last_name, employee_code, role)
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+        user = UserModel(username, hashed_password, email, first_name, last_name, employee_code, role)
         db.session.add(user)
         db.session.commit()
         return {'msg': 'User Added'}

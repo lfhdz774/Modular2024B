@@ -1,11 +1,10 @@
 import http from './http';
-import bcrypt from "bcryptjs";
 
-export const login = async (username, unhashedpassword) => {
-    
+export const login = async (username, password) => {
     try {
-        const password = await bcrypt.hash(unhashedpassword, process.env.REACT_APP_PASSWORD_SALT);
-        console.log(password);
+        // Convert password to byte string
+        const passwordBytes = new TextEncoder().encode('password');
+        console.log('bytes', passwordBytes);
         const response = await http.post('/api/login', { username, password }, {
             headers: {
                 'Content-Type': 'application/json',
@@ -16,7 +15,7 @@ export const login = async (username, unhashedpassword) => {
         return response;
     } catch (error) {
         console.log(error);
-        // Manejar diferentes tipos de errores aquí
+        // Handle different types of errors here
         throw new Error('Login failed', error);
     }
 };

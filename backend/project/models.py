@@ -23,7 +23,13 @@ class UserModel(db.Model):
 
     def json(self):
         return {'user_id': self.user_id,
-                'username' : self.username}
+                'username' : self.username,
+                'email' : self.email,
+                'first_name' : self.first_name,
+                'last_name' : self.last_name,
+                'employee_code' : self.employee_code,
+                'role_id' : self.role_id
+                }
 
     def __repr__(self):
         return f"{self.user_id}. Username {self.username}"

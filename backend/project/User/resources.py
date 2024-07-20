@@ -10,6 +10,7 @@ from validate_email import validate_email
 #exceptions import
 from Exceptions.SignupExceptions import InvalidEmailError, UserNotFoundError
 
+
 class User(Resource):
     def __init__(self):
         self.parser = reqparse.RequestParser()

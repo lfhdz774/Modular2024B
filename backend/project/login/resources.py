@@ -36,6 +36,6 @@ class Login(Resource):
                 'roles': [user.role_id]
             }
             access_token = create_access_token(identity=username, additional_claims=payload)
-            return {'access_token': access_token}, 200
+            return {'access_token': access_token, 'user_role' : user.role_id}, 200
         else:
             return {'message': 'Invalid username or password'}, 401

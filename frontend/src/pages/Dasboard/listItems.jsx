@@ -10,6 +10,7 @@ import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import { Box } from '@mui/material';
 import { useNavigate, Link } from 'react-router-dom';
 import { logout } from 'src/Services/login.service';
+import ProtectedMenu from './ProtectedMenu';
 export const mainListItems = (
     <React.Fragment>
 
@@ -33,14 +34,17 @@ export const mainListItems = (
             </ListItemButton>
         </Link>
 
-        <Link to="/user-creation">
-            <ListItemButton>
-                <ListItemIcon>
-                    <SupervisorAccountIcon />
-                </ListItemIcon>
-                <ListItemText primary="User creation" />
-            </ListItemButton>
-        </Link>
+        <ProtectedMenu allowedRoles={[7]}>
+            <Link to="/user-creation">
+                <ListItemButton>
+                    <ListItemIcon>
+                        <SupervisorAccountIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="User creation" />
+                </ListItemButton>
+            </Link>
+        </ProtectedMenu>
+       
 
 
     </React.Fragment>

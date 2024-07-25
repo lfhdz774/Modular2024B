@@ -47,7 +47,7 @@ class User(Resource):
             abort(e.code, description=e.message)
         except Exception as e:
             abort(500, description=str(e)) 
-
+        user.password = None
         return user.json()
 
     @swag_from('project/swagger.yaml') 
@@ -101,7 +101,19 @@ class User(Resource):
         except Exception as e:
             abort(500, description=e.message)
         
+class GetUserRoles(Resource):
+    @swag_from('project/swagger.yaml')
+    @jwt_required()
+    def get(self):
+        try:
+            #current_user = get_jwt_identity()
+            claims = get_jwt()  # Get the payload from the token
+            roles = claims.get('roles', [])  # Access roles
 
+            return roles
+        except Exception as e:
+            abort(500, description=str(e)) 
+        
 
 
 

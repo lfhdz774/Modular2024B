@@ -19,10 +19,11 @@ class Signup(Resource):
         self.parser.add_argument('employee_code', type=str, help='Employee code of the user', required=True)
         self.parser.add_argument('role', type=str, help='Role of the user in the application', required=True)
 
-    
     @swag_from('project/swagger.yaml') 
     def post(self):
         args = self.parser.parse_args()
+        print(args) 
+
         username = args['username']
         password = args['password']
         email = args['email']
@@ -31,7 +32,6 @@ class Signup(Resource):
         employee_code = args['employee_code']
         role = args['role']
 
-        #validate email
         try:
             isValidEmail = validate_email(email)
             if not isValidEmail:
@@ -40,14 +40,16 @@ class Signup(Resource):
             abort(e.code, description=e.message)
 
         try:
-            user = db.session().query(UserModel).filter_by(username=username).first()
+            user = db.session.query(UserModel).filter_by(username=username).first()
             if user:
                 raise UserAlreadyExistsError(username)
         except UserAlreadyExistsError as e:
             abort(e.code, description=e.message)
 
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-        user = UserModel(username, hashed_password, email, first_name, last_name, employee_code, role)
+        user = UserModel(username=username, password=hashed_password, email=email, 
+                         first_name=first_name, last_name=last_name, 
+                         employee_code=employee_code, role=role)
         db.session.add(user)
         db.session.commit()
         return {'msg': 'User Added'}

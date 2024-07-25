@@ -7,8 +7,6 @@ import ProtectedRoute from 'src/components/ProtectedRoute';
 const HomePage = lazy(() => import('src/pages/Home'));
 
 const RouterComponent = () => {
-
-
     return (
         <Router>
             <Routes>
@@ -17,19 +15,18 @@ const RouterComponent = () => {
                     <Route path="/home" element={<Suspense fallback={<div>Loading...</div>}><HomePage /></Suspense>} />
                     <Route path="/reports" element={<h2>Reports</h2>} />
                     <Route path="/user" element={<Suspense fallback={<div>Loading...</div>}><UserAdministration /></Suspense>} />
-                    <Route path="/user-creation" element={
-                        <ProtectedRoute allowedRoles={[7]}>
-                            <Suspense fallback={<div>Loading...</div>}><UserAdministration /></Suspense>
-                        </ProtectedRoute>
-                    } />
+                    <Route path="/user-creation" element={<ProtectedRoute allowedRoles={[7]}>
+                        <Suspense fallback={<div>Loading...</div>}><UserAdministration /></Suspense>
+                    </ProtectedRoute>} />
 
                 </Route>
                 <Route path="/login" element={<Login />} />
+                <Route path="/unauthorized" element={<Navigate to="/home" />} />
             </Routes>
         </Router>
     );
 };
-
+{}
 const Dashboard = () => {
     const isLoggedIn = localStorage.getItem('token') !== null;
 

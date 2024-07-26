@@ -9,8 +9,9 @@ const ProtectedMenu = ({ allowedRoles, children }) => {
             try {
                 const roles = await GetUserRoles();
                 console.log(roles, allowedRoles);
+                console.log(allowedRoles)
                 const hasAllowedRole = roles.some(role => allowedRoles.includes(role));
-                console.log(hasAllowedRole);
+                console.log(hasAllowedRole)
                 setHasAccess(hasAllowedRole);
             } catch (error) {
                 console.error("Failed to fetch user roles:", error);

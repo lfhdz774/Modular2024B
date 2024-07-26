@@ -16,7 +16,6 @@ const UserAdministration = () => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        console.log(name, value);
         setUser((prevUser) => ({
             ...prevUser,
             [name]: value,
@@ -27,15 +26,10 @@ const UserAdministration = () => {
       e.preventDefault();
       const newUser = new UserModel(user.username, user.password, user.email, user.first_name, user.last_name, user.employee_code, user.role_id);
   
-      console.log(JSON.stringify(newUser)); // Log the payload being sent
-  
       try {
           const response = await PostUser(newUser);
-          console.log(response);
-          // Handle success (e.g., display a success message, redirect, etc.)
       } catch (error) {
           console.log(error);
-          // Handle error (e.g., display an error message)
       }
   };
 
@@ -62,6 +56,7 @@ const UserAdministration = () => {
                 onChange={handleChange}
                 fullWidth
                 variant="filled"
+                autoComplete="new-username"
             />
             <TextField
                 name="password"
@@ -71,6 +66,7 @@ const UserAdministration = () => {
                 fullWidth
                 type="password"
                 variant="filled"
+                autoComplete="new-password"
             />
             <TextField
                 name="email"

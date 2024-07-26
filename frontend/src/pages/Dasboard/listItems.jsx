@@ -11,44 +11,45 @@ import { Box } from '@mui/material';
 import { useNavigate, Link } from 'react-router-dom';
 import { logout } from 'src/Services/login.service';
 import ProtectedMenu from './ProtectedMenu';
-export const mainListItems = (
-    <React.Fragment>
+
+
+export const MainListItems = () => {
+    
+    const navigate = useNavigate();
 
 
 
-        <Link to="/home">
-            <ListItemButton>
-                <ListItemIcon>
-                    <DashboardIcon />
-                </ListItemIcon>
-                <ListItemText primary="Home" />
-            </ListItemButton>
-        </Link>
+    return (
+        <React.Fragment>
 
-        <Link to="/reports">
-            <ListItemButton>
-                <ListItemIcon>
-                    <ShoppingCartIcon />
-                </ListItemIcon>
-                <ListItemText primary="Reports" />
-            </ListItemButton>
-        </Link>
-
-        <ProtectedMenu allowedRoles={[7]}>
-            <Link to="/user-creation">
-                <ListItemButton>
+                <ListItemButton  onClick={() => navigate('/home')}>
                     <ListItemIcon>
-                        <SupervisorAccountIcon />
+                        <DashboardIcon />
                     </ListItemIcon>
-                    <ListItemText primary="User creation" />
+                    <ListItemText primary="Inicio" />
                 </ListItemButton>
-            </Link>
-        </ProtectedMenu>
-       
+
+                <ListItemButton onClick={() => navigate('/reports')}>
+                    <ListItemIcon >
+                        <ShoppingCartIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Reportes" />
+                </ListItemButton>
+
+            <ProtectedMenu allowedRoles={[7]}>
+                    <ListItemButton onClick={() => navigate('/user-creation')}>
+                        <ListItemIcon>
+                            <SupervisorAccountIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="Crear usuario" />
+                    </ListItemButton>
+            </ProtectedMenu>
 
 
-    </React.Fragment>
-);
+
+        </React.Fragment>
+    );
+}
 
 export const UserManagement = () => {
 

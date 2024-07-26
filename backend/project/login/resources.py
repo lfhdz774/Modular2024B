@@ -30,10 +30,12 @@ class Login(Resource):
                 raise UserNotFoundError(username)
         except UserNotFoundError as e:
             abort(e.code, description=e.message)
-        
+
         if username == user.username and bcrypt.checkpw(password.encode(), user.password):
             payload = {
-                'roles': [user.role_id]
+                'username' : user.username,
+                'employee_code' : user.employee_code,
+                'roles' : [user.role_id]
             }
             access_token = create_access_token(identity=username, additional_claims=payload)
             return {'access_token': access_token, 'user_role' : user.role_id}, 200

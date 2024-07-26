@@ -30,15 +30,13 @@ export default function LoginView() {
 
     const handleClick = async () => {
       try {
-        // Make the login request to the backend
         const response = await login(email, password);
         if (response.status === 200) {
           console.log(response.data);
           navigate('/home');
         }
       } catch (error) {
-        // Handle any errors that occur during the request
-        console.error(error); // Replace with your desired error handling logic
+        console.error(error);
       }
     };
   

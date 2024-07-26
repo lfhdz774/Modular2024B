@@ -106,10 +106,9 @@ class GetUserRoles(Resource):
     @jwt_required()
     def get(self):
         try:
-            #current_user = get_jwt_identity()
-            claims = get_jwt()  # Get the payload from the token
-            roles = claims.get('roles', [])  # Access roles
-
+            claims = get_jwt()  
+            roles = claims.get('roles')
+            print(roles)
             return roles
         except Exception as e:
             abort(500, description=str(e)) 

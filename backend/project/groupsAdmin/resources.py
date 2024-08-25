@@ -1,18 +1,18 @@
 from flask_restful import Resource,reqparse,request
 from flask import jsonify
-from project.models import Server
+from project.models import Group,Server
 from project import db
 from flasgger.utils import swag_from
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
 from flask_jwt_extended import create_access_token
 
-class GetAllServers(Resource):
+class GetAllGroups(Resource):
     @swag_from('project/swagger.yaml') 
     def get(self):
         all_servers = db.session.query(Server).all()
         return[server.json() for server in all_servers]
     
-class ServerAdmin(Resource):
+class GroupAdmin(Resource):
     @swag_from('project/swagger.yaml') 
     def get(self,server_id):
         server = db.session().query(Server).filter_by(server_id=server_id).first()
@@ -58,7 +58,7 @@ class ServerAdmin(Resource):
             return {'server_id': 'Server not found'},404
         
         
-class AddServer(Resource):
+class AddGroup(Resource):
     def __init__(self):
         self.parser = reqparse.RequestParser()
         self.parser.add_argument('name', type=str, help='name of the Server', required=True)
@@ -68,6 +68,9 @@ class AddServer(Resource):
         self.parser.add_argument('password', type=str, help='password of the Server', required=True)
         #self.parser.add_argument('user_groups', type=list, action='append', help='user_groups of the Server', required=True)
         self.parser.add_argument('operating_system', type=str, help='OS in the application of the Server', required=True)
+        self.parser.add_argument('group_name', type=str, help='name of the Group', required=True)
+        self.parser.add_argument('description', type=str, help='description of the Group', required=True)
+        self.parser.add_argument('server_id', type=str, help='port of the Server', required=True)
 
     @swag_from('project/swagger.yaml')
     def post(self):
@@ -85,4 +88,15 @@ class AddServer(Resource):
         server = Server(name,ip_address,port,username,password,user_groups,operating_system)
         db.session.add(server)
         db.session.commit()
-        return {'msg': 'Servers Added'}
+        #return {'msg': 'Servers Added'}
+        group_name = args['group_name']
+        description = args['description']
+        server_id = args['server_id']
+        existing_server = Server.query.get(server_id)
+        if existing_server:
+            new_group = Group()(group_name,description,server_id)
+            db.session.add(new_group)
+            db.session.commit()
+            return {'msg': 'Servers Added'},200
+        else:
+            return {'msg': 'Server_id does not exist'},404

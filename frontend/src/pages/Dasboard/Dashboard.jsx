@@ -15,9 +15,9 @@ import Link from '@mui/material/Link';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import { mainListItems, UserManagement } from './listItems';
+import { MainListItems, UserManagement } from './listItems';
 import { useTheme } from '@mui/material/styles';
-import { Navigate, Outlet } from 'react-router-dom';
+import {  Outlet } from 'react-router-dom';
 
 function Copyright(props) {
   return (
@@ -101,6 +101,7 @@ export default function Dashboard() {
               backgroundColor: theme.palette.primary.darker
             }}
           >
+
             <IconButton
               edge="start"
               color="inherit"
@@ -120,10 +121,10 @@ export default function Dashboard() {
               noWrap
               sx={{ flexGrow: 1 }}
             >
-              Dashboard
+              Server Portal
             </Typography>
             <IconButton color="inherit">
-              <Badge badgeContent={4} color="secondary">
+              <Badge badgeContent={0} color="secondary">
                 <NotificationsIcon />
               </Badge>
             </IconButton>
@@ -144,7 +145,7 @@ export default function Dashboard() {
           </Toolbar>
           <Divider />
           <List component="nav" >
-            {mainListItems}
+            <MainListItems/>
             <Divider sx={{ my: 1 }} />
           </List>
           {/* {secondaryListItems} */}

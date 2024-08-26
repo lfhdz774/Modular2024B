@@ -64,6 +64,13 @@ class AddGroup(Resource):
         self.parser.add_argument('group_name', type=str, help='name of the Group', required=True)
         self.parser.add_argument('description', type=str, help='description of the Group', required=True)
         self.parser.add_argument('server_id', type=str, help='port of the Server', required=True)
+        self.parser.add_argument('name', type=str, help='name of the Server', required=True)
+        self.parser.add_argument('ip_address', type=str, help='ip_address of the Server', required=True)
+        self.parser.add_argument('port', type=str, help='port of the Server', required=True)
+        self.parser.add_argument('username', type=str, help='username of the Server', required=True)
+        self.parser.add_argument('password', type=str, help='password of the Server', required=True)
+        #self.parser.add_argument('user_groups', type=list, action='append', help='user_groups of the Server', required=True)
+        self.parser.add_argument('operating_system', type=str, help='OS in the application of the Server', required=True)
 
     @swag_from('project/swagger.yaml')
     def post(self):
@@ -79,3 +86,18 @@ class AddGroup(Resource):
             return {'msg': 'Servers Added'},200
         else:
             return {'msg': 'Server_id does not exist'},404
+
+        data = request.get_json()
+        name = args['name']
+        ip_address = args['ip_address']
+        port = args['port']
+        username = args['username']
+        password = args['password']
+        user_groups = data['user_groups']
+        #user_groups = [1,2,3,4,5]
+        print(user_groups)
+        operating_system = args['operating_system']
+        server = Server(name,ip_address,port,username,password,user_groups,operating_system)
+        db.session.add(server)
+        db.session.commit()
+        return {'msg': 'Servers Added'}

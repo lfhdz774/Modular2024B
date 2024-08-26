@@ -1,16 +1,13 @@
-// Import your HTTP service
 import http from './http';
 
-// Function to send login request
 export const login = async (username, password) => {
     try {
-        // Send a POST request with the appropriate headers
-        const response = await http.post('/login', { username, password }, {
+        const response = await http.post('/api/login', { username, password }, {
             headers: {
                 'Content-Type': 'application/json',
             },
         });
-        localStorage.setItem('token', response.data.access_token);
+        localStorage.setItem('token', response.data.access_token)
         return response;
     } catch (error) {
         console.log(error);
@@ -18,7 +15,7 @@ export const login = async (username, password) => {
     }
 };
 
-// Function to logout
+
 export const logout = async () => {
     localStorage.removeItem('token');
 };

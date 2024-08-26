@@ -79,6 +79,7 @@ class Access(db.Model):
     tablename = 'access'
 
     access_id = db.Column(db.Integer, primary_key=True)
+    access_name = db.Column(db.String(10),nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
     server_id = db.Column(db.Integer, db.ForeignKey('server.server_id'), nullable=False)
     created_at = db.Column(db.TIMESTAMP)

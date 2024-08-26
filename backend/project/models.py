@@ -85,6 +85,32 @@ class Role(db.Model):
     name = db.Column(db.String(80), unique=True, nullable=False)
     description = db.Column(db.String(255))
 
+class Access(db.Model):
+    tablename = 'access'
+
+    access_id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+    server_id = db.Column(db.Integer, db.ForeignKey('server.server_id'), nullable=False)
+    created_at = db.Column(db.TIMESTAMP)
+    expires_at = db.Column(db.TIMESTAMP)
+
+    user_groups = db.Column(db.ARRAY(db.Integer))
+    user = db.relationship('User', back_populates='accesses')
+    server = db.relationship('Server', back_populates='accesses')
+    #approved_by = db.Column(db.Integer,db.ForeignKey('users.user_id'))  PENDING CHECK HOW TO DISPLAY WHO APPROVED THE REQUEST AND IF IS REQUIRED A DIFERENT TABLE?
+
+class Notification(db.Model):
+    tablename = 'notifications'
+
+    notification_id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+    notification_type = db.Column(db.String(50), nullable=False)
+    created_at = db.Column(db.TIMESTAMP)
+    status = db.Column(db.String(20), nullable=False)
+
+    user_access = db.Column(db.Integer, db.ForeignKey('access.access_id'), nullable=False)
+    user = db.relationship('User', back_populates='notifications')
+
 
 UserModel.role_id = db.Column(db.Integer, db.ForeignKey('roles.role_id'), nullable=False) 
 UserModel.requester_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=True) # 

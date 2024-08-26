@@ -41,7 +41,6 @@ def handle_custom_exception(error):
 from project.login.view import login_blueprint
 from project.serverConnection.view import serverConnection_blueprint
 #from project.serverAdmin.view import serverAdmin_blueprint
-from project.serverAdmin.view import serverAdmin_blueprint
 from project.User.view import user_blueprint
 from project.Signup.view import signup_blueprint
 

@@ -12,6 +12,9 @@ class UserModel(db.Model):
     last_name = db.Column(db.String(100))
     employee_code = db.Column(db.String(10), nullable=False)
 
+    accesses = db.relationship('Access', back_populates='user',foreign_keys='Access.user_id')
+    notifications = db.relationship('Notification', back_populates='user')
+
     def __init__(self,username,password,email,first_name,last_name,employee_code,role_id):
         self.username = username
         self.password = password
@@ -33,6 +36,7 @@ class UserModel(db.Model):
 
     def __repr__(self):
         return f"{self.user_id}. Username {self.username}"
+    
 
 class Server(db.Model):
     __table_args__ = {'extend_existing': True}
@@ -46,6 +50,9 @@ class Server(db.Model):
     password = db.Column(db.String(255), nullable=False)
     user_groups = db.Column(db.ARRAY(db.Integer))
     operating_system = db.Column(db.String(50))
+
+    accesses = db.relationship('Access', back_populates='server',foreign_keys='Access.server_id')
+    groups = db.relationship('Group', back_populates='server', cascade='all, delete-orphan')
 
     def __init__(self,name,ip_address,port,username,password,operating_system):
         self.name = name
@@ -63,6 +70,8 @@ class Group(db.Model):
     group_id = db.Column(db.Integer, primary_key=True)
     group_name = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text)
+    
+    server = db.relationship('Server', back_populates='groups')
 
     
     def __init__(self,group_name,description,server_id):
@@ -70,6 +79,12 @@ class Group(db.Model):
         self.description = description
         self.server_id = server_id
 
+    #access_id = db.Column(db.Integer, primary_key=True)
+    #access_name = db.Column(db.String(10),nullable=False)
+    #user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+    #server_id = db.Column(db.Integer, db.ForeignKey('server.server_id'), nullable=False)
+    #created_at = db.Column(db.TIMESTAMP)
+    #expires_at = db.Column(db.TIMESTAMP)
 
 class UsersGroupsServer(db.Model):
     __table_args__ = {'extend_existing': True}
@@ -87,29 +102,27 @@ class Role(db.Model):
 
 class Access(db.Model):
     tablename = 'access'
-
     access_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
-    server_id = db.Column(db.Integer, db.ForeignKey('server.server_id'), nullable=False)
+    server_id = db.Column(db.Integer, db.ForeignKey('servers.server_id'), nullable=False)
     created_at = db.Column(db.TIMESTAMP)
     expires_at = db.Column(db.TIMESTAMP)
-
     user_groups = db.Column(db.ARRAY(db.Integer))
-    user = db.relationship('User', back_populates='accesses')
-    server = db.relationship('Server', back_populates='accesses')
-    #approved_by = db.Column(db.Integer,db.ForeignKey('users.user_id'))  PENDING CHECK HOW TO DISPLAY WHO APPROVED THE REQUEST AND IF IS REQUIRED A DIFERENT TABLE?
 
+    user = db.relationship('UserModel', back_populates='accesses')
+    server = db.relationship('Server', back_populates='accesses')
+    #approved_by = db.Column(db.Integer,db.ForeignKey('users.user_id'))  PENDING CHECK HOW TO DISPLAY WHO APPROVED THE REQUEST AND IF IS REQUIRED A DIFERENT TABLE? 
+    
 class Notification(db.Model):
     tablename = 'notifications'
-
     notification_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
     notification_type = db.Column(db.String(50), nullable=False)
     created_at = db.Column(db.TIMESTAMP)
     status = db.Column(db.String(20), nullable=False)
-
     user_access = db.Column(db.Integer, db.ForeignKey('access.access_id'), nullable=False)
-    user = db.relationship('User', back_populates='notifications')
+
+    user = db.relationship('UserModel', back_populates='notifications')
 
 
 UserModel.role_id = db.Column(db.Integer, db.ForeignKey('roles.role_id'), nullable=False) 

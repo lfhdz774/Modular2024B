@@ -21,8 +21,7 @@ swagger = Swagger(app, template_file='swagger.yaml')
 
 PGUSER = os.getenv('PGUSER')
 PGPASSWORD = os.getenv('PGPASSWORD')
-
-app.config["SQLALCHEMY_DATABASE_URI"] = f'postgresql://{PGUSER}:{PGPASSWORD}@ep-broad-moon-a53iqxig.us-east-2.aws.neon.tech/serverportaldb?sslmode=require'
+app.config["SQLALCHEMY_DATABASE_URI"] = f'postgresql://{PGUSER}:{PGPASSWORD}@ep-broad-moon-a53iqxig.us-east-2.aws.neon.tech/serverportaldb?options=project%3Dep-broad-moon-a53iqxig&sslmode=require'
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)

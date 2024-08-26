@@ -49,7 +49,7 @@ class Signup(Resource):
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
         user = UserModel(username=username, password=hashed_password, email=email, 
                          first_name=first_name, last_name=last_name, 
-                         employee_code=employee_code, role=role)
+                         employee_code=employee_code, role_id=role)
         db.session.add(user)
         db.session.commit()
         return {'msg': 'User Added'}

@@ -3,11 +3,25 @@ import { GetUserRoles } from 'src/Services/user.service';
 
 const ProtectedMenu = ({ allowedRoles, children }) => {
     const [hasAccess, setHasAccess] = useState(false);
+    const [userRoles, setUserRoles] = useState([0]);
+
+    useEffect(() => {
+        const fetchUserRoles = async () => {
+            const roles = await GetUserRoles();
+            console.log("roles", roles);
+            setUserRoles(roles);
+        };
+
+        fetchUserRoles();
+    }, []);
 
     useEffect(() => {
         const checkAccess = async () => {
             try {
-                const roles = await GetUserRoles();
+                if (userRoles === undefined) {
+                    return;
+                }
+                const roles = userRoles
                 console.log(roles, allowedRoles);
                 console.log(allowedRoles)
                 const hasAllowedRole = roles.some(role => allowedRoles.includes(role));

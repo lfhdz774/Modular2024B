@@ -4,6 +4,7 @@ import DashboardPage from 'src/pages/Dasboard/Dashboard';
 import LoginPage from 'src/pages/login';
 import UserAdministration from 'src/pages/user/UserAdministration';
 import ProtectedRoute from 'src/components/ProtectedRoute';
+import CredentialCreation from 'src/pages/Credentials/CredentialCreation';
 const HomePage = lazy(() => import('src/pages/Home'));
 
 const RouterComponent = () => {
@@ -17,6 +18,10 @@ const RouterComponent = () => {
                     <Route path="/user" element={<Suspense fallback={<div>Loading...</div>}><UserAdministration /></Suspense>} />
                     <Route path="/user-creation" element={<ProtectedRoute allowedRoles={[7]}>
                         <Suspense fallback={<div>Loading...</div>}><UserAdministration /></Suspense>
+                    </ProtectedRoute>} />
+
+                    <Route path="/user-credential-creation" element={<ProtectedRoute allowedRoles={[7]}>
+                        <Suspense fallback={<div>Loading...</div>}><CredentialCreation /></Suspense>
                     </ProtectedRoute>} />
 
                 </Route>

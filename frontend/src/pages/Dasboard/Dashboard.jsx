@@ -79,7 +79,6 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
   }),
 );
 
-// TODO remove, this demo shouldn't need to reset the theme.
 
 export default function Dashboard() {
   const theme = useTheme();

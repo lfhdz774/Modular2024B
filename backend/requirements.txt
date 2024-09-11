@@ -15,3 +15,4 @@ bcrypt==4.1.2
 flask-login==0.6.3
 psycopg2-binary==2.9.9
 livereload==2.6.3
+nltk==3.9.1

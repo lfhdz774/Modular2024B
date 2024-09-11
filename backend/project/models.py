@@ -125,9 +125,22 @@ class Notification(db.Model):
 
     user = db.relationship('UserModel', back_populates='notifications')
 
+class CommandModel(db.Model):
+    __tablename__ = 'commands'
+    
+    command_id = db.Column(db.Integer, primary_key=True)
+    comando = db.Column(db.String(255), nullable=False)
+    created_at = db.Column(db.TIMESTAMP, default=db.func.current_timestamp())
+    updated_at = db.Column(db.TIMESTAMP, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+    
+    user = db.relationship('UserModel', back_populates='commands')
+
 
 UserModel.role_id = db.Column(db.Integer, db.ForeignKey('roles.role_id'), nullable=False) 
 UserModel.requester_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=True) # 
 UserModel.approver_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=True) # 
 
 Group.server_id = db.Column(db.Integer, db.ForeignKey('servers.server_id'), nullable=False)
+
+UserModel.commands = db.relationship('CommandModel', back_populates='user', foreign_keys='CommandModel.user_id')

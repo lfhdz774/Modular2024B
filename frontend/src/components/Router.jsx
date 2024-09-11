@@ -5,6 +5,8 @@ import LoginPage from 'src/pages/login';
 import UserAdministration from 'src/pages/user/UserAdministration';
 import ProtectedRoute from 'src/components/ProtectedRoute';
 import CredentialCreation from 'src/pages/Credentials/CredentialCreation';
+import CredentialManagement from 'src/pages/Credentials/Credentialmanagement';
+import Command from 'src/pages/Commands/Commands';
 const HomePage = lazy(() => import('src/pages/Home'));
 
 const RouterComponent = () => {
@@ -23,6 +25,12 @@ const RouterComponent = () => {
                     <Route path="/user-credential-creation" element={<ProtectedRoute allowedRoles={[7]}>
                         <Suspense fallback={<div>Loading...</div>}><CredentialCreation /></Suspense>
                     </ProtectedRoute>} />
+
+                    <Route path="/user-credential-management" element={<ProtectedRoute allowedRoles={[7]}>
+                        <Suspense fallback={<div>Loading...</div>}><CredentialManagement /></Suspense>
+                    </ProtectedRoute>} />
+
+                    <Route path="/commands" element={<Suspense fallback={<div>Loading...</div>}><Command /></Suspense>} />
 
                 </Route>
                 <Route path="/login" element={<Login />} />

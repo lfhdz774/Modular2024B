@@ -5,6 +5,7 @@ from flasgger import Swagger
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 import os
+import nltk
 from dotenv import load_dotenv
 # Load environment variables from .flaskenv file
 load_dotenv('.flaskenv')
@@ -32,6 +33,11 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 Migrate(app,db)
 
+# Download NLTK data
+nltk.download('punkt')
+nltk.download('punkt_tab')
+
+
 @app.errorhandler(BaseCustomError)
 def handle_custom_exception(error):
     response = jsonify({'msg': error.message})
@@ -43,9 +49,11 @@ from project.serverConnection.view import serverConnection_blueprint
 #from project.serverAdmin.view import serverAdmin_blueprint
 from project.User.view import user_blueprint
 from project.Signup.view import signup_blueprint
+from project.IACommands.view import iaCommands_blueprint
 
 app.register_blueprint(signup_blueprint)
 app.register_blueprint(user_blueprint)
 app.register_blueprint(login_blueprint)
 app.register_blueprint(serverConnection_blueprint)
+app.register_blueprint(iaCommands_blueprint)
 #app.register_blueprint(serverAdmin_blueprint)

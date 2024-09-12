@@ -1,8 +1,8 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flasgger import Swagger
-from flask_jwt_extended import JWTManager
+from flask_jwt_extended import JWTManager, verify_jwt_in_request, get_jwt_identity
 from flask_cors import CORS
 import os
 import nltk
@@ -37,12 +37,71 @@ Migrate(app,db)
 nltk.download('punkt')
 nltk.download('punkt_tab')
 
+# Añadimos los handles de errores  para los errores de JWT
+@jwt.invalid_token_loader
+def invalid_token_callback(callback):
+    return jsonify({
+        'error': 'Invalid session',
+        'message': 'The token is invalid or expired',
+        'code': 769
+    }), 769
+
+
+@jwt.expired_token_loader
+def expired_token_callback(jwt_header, jwt_payload):
+    return jsonify({
+        'error': 'Invalid session',
+        'message': 'The token has expired',
+        'code': 769
+    }), 769
+
+
+@jwt.unauthorized_loader
+def missing_token_callback(callback):
+    return jsonify({
+        'error': 'Invalid session',
+        'message': 'Token is missing',
+        'code': 769
+    }), 769
+
+
+@jwt.revoked_token_loader
+def revoked_token_callback(jwt_header, jwt_payload):
+    return jsonify({
+        'error': 'Invalid session',
+        'message': 'The token has been revoked',
+        'code': 769
+    }), 769
+
+
+@jwt.needs_fresh_token_loader
+def needs_fresh_token_callback(jwt_header, jwt_payload):
+    return jsonify({
+        'error': 'Invalid session',
+        'message': 'The token is not fresh',
+        'code': 769
+    }), 769
 
 @app.errorhandler(BaseCustomError)
 def handle_custom_exception(error):
     response = jsonify({'msg': error.message})
     response.status_code = error.code
     return response
+
+# Añadimos un decorador para verificar el JWT en todas las rutas excepto en la de login
+@app.before_request
+def check_jwt():
+    #log a message with the name of the endpoint
+    print(request.endpoint)
+    if request.endpoint != 'login.login':
+        try:
+            verify_jwt_in_request()
+        except Exception as e:
+            return jsonify({
+                'error': 'Invalid session',
+                'message': str(e),
+                'code': 769
+            }), 769
 
 from project.login.view import login_blueprint
 from project.serverConnection.view import serverConnection_blueprint

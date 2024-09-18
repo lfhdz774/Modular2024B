@@ -33,7 +33,6 @@ class CreateId(Resource):
             c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             print ("connecting")
             c.connect( hostname = "ec2-3-16-48-222.us-east-2.compute.amazonaws.com", username = "ubuntu", pkey = k )
-            print('connected')
             commands = [ "sudo useradd "+ args['username'],"sudo passwd "+ args['username']]
             for command in commands:
                 print ("Executing {}".format( command ))
@@ -43,7 +42,6 @@ class CreateId(Resource):
                 stdin.write(args['password']+"\n")
                 stdin.flush()
                 print (stdout.read())
-                print( "Errors")
                 return {'msg': str(stderr.read().decode())}
         c.close()
 

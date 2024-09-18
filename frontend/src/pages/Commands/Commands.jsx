@@ -1,3 +1,4 @@
+import { set } from 'lodash';
 import React, { useState } from 'react';
 import { PostCommands } from 'src/Services/command.service';
 
@@ -14,9 +15,9 @@ function Command() {
         
         const response = await PostCommands(Comando);  // Envía el objeto correctamente
         console.log(response);
-        if (response.status === 200) {
-            console.log(response.data);  // Procesa la respuesta
-        }
+        //alert(response.respuesta);
+        setRespuesta(response.respuesta);
+
     } catch (error) {
         console.error("Error al enviar el comando:", error);
     }
@@ -30,9 +31,10 @@ function Command() {
         value={comando}
         onChange={(e) => setComando(e.target.value)}
         placeholder="Escribe un comando"
+        style={{ width: '700px' }}
       />
       <button onClick={enviarComando}>Enviar Comando</button>
-      {respuesta && <p>Respuesta: {respuesta}</p>}
+      <p>Respuesta: {respuesta}</p>
     </div>
   );
 }

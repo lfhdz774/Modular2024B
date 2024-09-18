@@ -1,49 +1,88 @@
 from flask_restful import Resource, reqparse
 from flask import abort
-from nltk import word_tokenize
 from flask_jwt_extended import jwt_required
-from Exceptions.CommandException import InvalidCommandError
-from project.models import CommandModel
-from project import db
+import spacy
+from spacy.matcher import Matcher
 
 class ProcesarComando(Resource):
     def __init__(self):
         self.parser = reqparse.RequestParser()
         self.parser.add_argument('comando', type=str, help='Comando en lenguaje natural', required=True)
+        self.nlp = spacy.load('es_core_news_sm')
+        self.matcher = Matcher(self.nlp.vocab)
+        self.configurar_patrones()
 
-    @jwt_required()  # Asegura que solo usuarios autenticados puedan ejecutar comandos
+    def configurar_patrones(self):
+        # Definir patrones como en el paso 2
+        pattern_crear_cuenta = [
+            {'LEMMA': 'crear'},
+            {'LOWER': 'una', 'OP': '?'},
+            {'LOWER': {'IN': ['cuenta', 'usuario']}}
+        ]
+        pattern_servidor = [
+            {'LEMMA': 'servidor'},
+            {'IS_ALPHA': True, 'OP': '+'}
+        ]
+        pattern_grupo = [
+            {'LEMMA': 'grupo'},
+            {'IS_ALPHA': True, 'OP': '+'}
+        ]
+        pattern_duracion = [
+            {'LEMMA': 'duración'},
+            {'LOWER': 'de', 'OP': '?'},
+            {'IS_DIGIT': True},
+            {'LOWER': {'IN': ['mes', 'meses', 'día', 'días', 'año', 'años']}}
+        ]
+
+        self.matcher.add('CREAR_CUENTA', [pattern_crear_cuenta])
+        self.matcher.add('SERVIDOR', [pattern_servidor])
+        self.matcher.add('GRUPO', [pattern_grupo])
+        self.matcher.add('DURACION', [pattern_duracion])
+
+    @jwt_required()
     def post(self):
         try:
             args = self.parser.parse_args()
+            comando = args['comando']
+            respuesta = self.analizar_comando(comando)
+            return {'respuesta': respuesta}, 200
         except Exception as e:
             abort(400, description=str(e))
 
-        comando = args['comando']
-        try:
-            # Aquí podemos agregar lógica de NLP para analizar el comando
-            respuesta = self.analizar_comando(comando)
-        except InvalidCommandError as e:
-            abort(e.code, description=e.message + " " + e.message)
-
-        # Devolver la respuesta al cliente
-        return {'respuesta': respuesta}, 200
-
     def analizar_comando(self, comando):
-        # Lógica básica para tokenizar el comando
-        palabras = word_tokenize(comando.lower())
+        doc = self.nlp(comando.lower())
+        matches = self.matcher(doc)
 
-        # return 200, palabras
+        datos = {
+            'accion': None,
+            'servidor': None,
+            'grupo': None,
+            'duracion': None,
+            'informacion_faltante': []
+        }
 
-        # Aquí es donde podríamos agregar más lógica para mapear comandos a acciones reales
-        if 'crear' in palabras and 'cuenta' in palabras:
-            # Por ejemplo, si el comando es "crear una cuenta"
-            return "Creando una cuenta para el usuario..."
+        for match_id, start, end in matches:
+            span = doc[start:end]
+            match_label = self.nlp.vocab.strings[match_id]
 
-        # Si no reconocemos el comando
-        raise InvalidCommandError(comando)
+            if match_label == 'CREAR_CUENTA':
+                datos['accion'] = 'crear_cuenta'
+            elif match_label == 'SERVIDOR':
+                datos['servidor'] = span.text.split()[-1]
+            elif match_label == 'GRUPO':
+                datos['grupo'] = span.text.split()[-1]
+            elif match_label == 'DURACION':
+                datos['duracion'] = ' '.join([token.text for token in span if token.like_num or token.pos_ == 'NOUN'])
 
-# Excepción personalizada para comandos inválidos
-class InvalidCommandError(Exception):
-    def __init__(self, command):
-        self.code = 400
-        self.message = f'Comando inválido: {command}'
+        # Identificar información faltante
+        for key in ['accion', 'servidor', 'grupo', 'duracion']:
+            if not datos[key]:
+                datos['informacion_faltante'].append(key)
+
+        # Generar respuesta
+        if datos['informacion_faltante']:
+            respuesta_usuario = f"Necesito la siguiente información: {', '.join(datos['informacion_faltante'])}."
+        else:
+            respuesta_usuario = f"Entendido. Voy a {datos['accion']} para el servidor {datos['servidor']} en el grupo {datos['grupo']} con una duración de {datos['duracion']}."
+
+        return respuesta_usuario

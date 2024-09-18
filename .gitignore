@@ -23,3 +23,5 @@ lib/
 lib64/
 bin/
 include/
+
+.pem

@@ -21,3 +21,6 @@ six==1.16.0
 paramiko==3.5.0
 urllib3==2.2.3
 requests==2.32.3
+pandas==2.2.2
+scikit-learn==1.5.2
+Flask-Session==0.8.0

@@ -12,6 +12,8 @@ http.interceptors.request.use(function (config) {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  config.withCredentials = true; // Send cookies when cross-domain requests
+  //config.headers['access-control-allow-origin'] = '*'; // Allow cross-origin requests
   return config;
 }, function (error) {
   // Do something with request error

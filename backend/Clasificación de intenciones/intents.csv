@@ -1,0 +1,69 @@
+comando,intencion
+"Necesito crear un usuario nuevo",crear_usuario
+"Agregar acceso para Pedro",crear_usuario
+"Registrar un nuevo usuario llamado Luis",crear_usuario
+"Crear cuenta para Ana María",crear_usuario
+"Crea un usuario llamado Raul",crear_usuario
+"Genera un usuario que se llame Diego",crear_usuario
+"Ayúdame generando un nuevo usuario",crear_usuario
+"Necesito que crees un nuevo acceso",crear_usuario
+"Genera un nuevo acceso",crear_usuario
+"acceso nuevo",crear_usuario
+"nuevo acceso",crear_usuario
+"crea un nuevo usuario llamado Pedro",crear_usuario
+"Genera un acceso",crear_usuario
+"Registra un nuevo acceso llamado XxotakuxX",crear_usuario
+"NECESITO CREAR UN NUEVO ACCESO",crear_usuario
+"Ayúdame a crear un nuevo usuario",crear_usuario
+"ayúdame generando una nueva cuenta",crear_usuario
+"crea un nuevo acceso para Pedro",crear_usuario
+"crea un nuevo usuario llamado Pedro en el servidor 4",crear_usuario
+"Genera un nuevo usuario para el servidor de pruebas",crear_usuario
+"ACCESO nuevo para el servidor pro",crear_usuario
+"Por favor crea un nuevo acceso en el servidor 2",crear_usuario
+"Añade un nuevo usuario al servidor 3",crear_usuario
+"ayúdame creando un nuevo acceso en el servidor server_pro33",crear_usuario
+"crear nuevo usuario",crear_usuario
+"crear un acceso nuevo",crear_usuario
+"genera un usuario en el servidor server_portal",crear_usuario
+"crea un usuario llamado ruravi en el servidor servidor4",crear_usuario
+"Genera un usuario en el servidor 6 que se llame Krizia",crear_usuario
+"por favor añade un nuevo acceso en el servidor servidorprron con un nombre de usuario Felipe",crear_usuario
+"¿Me podrías ayudar creando un nuevo usuario en el servidor ffmax que se llame Blanca?",crear_usuario
+"me ayudarías creando un nuevo acceso",crear_usuario
+"¿me podrías ayudar a generar un nuevo acceso llamado Hilda en el servidor vvmax?",crear_usuario
+"Añade un acceso al servidor de pruebas",crear_usuario
+"podrías añadir un usuario al servidor ddtech",crear_usuario
+"Actualizar los permisos de María en el servidor de pruebas",modificar_usuario
+"Modifica el grupo del usuario Ruravi",modificar_usuario
+"Cambia los permisos del usuario Pedro en el servidor 5",modificar_usuario
+"Cambia el grupo al que pertenece el acceso de Ruravi en el servidor 2",modificar_usuario
+"Elimina el acceso de la cuenta de Hilda del servidor 5",modificar_usuario
+"Necesito actualizar la cuenta de Pedro",modificar_usuario
+"Por favor, edita los detalles de Juan",modificar_usuario
+"Modificar usuario",modificar_usuario
+"Edita los datos de la cuenta de Rafael",modificar_usuario
+"me ayudarías editando la cuenta de Krizia",modificar_usuario
+"por favor edita la cuenta de Diego",modificar_usuario
+"necesito que cambies unos datos de la cuenta de Pedro",modificar_usuario
+"me podrías ayudar a cambiar datos de la cuenta de Luis?",modificar_usuario
+"modifica la cuenta de Aida",modificar_usuario
+"edita los datos de la cuenta de Federico",modificar_usuario
+"necesito modificar una cuenta",modificar_usuario
+"editar usuario",modificar_usuario
+"modificar usuario",modificar_usuario
+"editar acceso",modificar_usuario
+"modificar acceso",modificar_usuario
+"me ayudarías editando un acceso?",modificar_usuario
+"necesito que edites una cuenta",modificar_usuario
+"edita un acceso llamado Pedrito",modificar_usuario
+"cambia los datos de una cuenta",modificar_usuario
+"podrías editar una cuenta por mí?",modificar_usuario
+"cambia los permisos de un acceso en el servidor server_portal",modificar_usuario
+"Cambia el grupo al que pertenece el usuario Alfredo en el servidor 6",modificar_usuario
+"modifica el grupo de Raúl en el servidor 3",modificar_usuario
+"en el servidor server_portal modifica los permisos de Rebeca",modificar_usuario
+"cambia de grupo del acceso Fernando en el servidor de pruebas",modificar_usuario
+"edita el acceso de XxOtakiXx",modificar_usuario
+"ayúdame a modificar un usuario",modificar_usuario
+"ayúdame a cambiar los datos de una cuenta",modificar_usuario

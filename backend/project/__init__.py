@@ -7,6 +7,9 @@ from flask_cors import CORS
 import os
 import nltk
 from dotenv import load_dotenv
+from flask_session import Session
+
+
 # Load environment variables from .flaskenv file
 load_dotenv('.flaskenv')
 import os
@@ -18,9 +21,15 @@ from Exceptions.BaseCustomError import BaseCustomError
 
 
 app = Flask(__name__)
+app.config["SESSION_PERMANENT"] = False
+app.config['SESSION_TYPE'] = 'filesystem'
 app.config['JWT_SECRET_KEY'] = 'your-secret-key'  # Change this!
+app.config['SECRET_KEY'] = 'your-secret-key'  # Change this!
 jwt = JWTManager(app)
-CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
+
+Session(app)
+
+CORS(app, supports_credentials=True, resources={r"/*": {"origins": "http://localhost:3000"}})
 
 swagger = Swagger(app, template_file='swagger.yaml')
 
@@ -109,10 +118,12 @@ from project.serverConnection.view import serverConnection_blueprint
 from project.User.view import user_blueprint
 from project.Signup.view import signup_blueprint
 from project.IACommands.view import iaCommands_blueprint
+from project.PasswordManagement.view import PasswordView_blueprint
 
 app.register_blueprint(signup_blueprint)
 app.register_blueprint(user_blueprint)
 app.register_blueprint(login_blueprint)
 app.register_blueprint(serverConnection_blueprint)
 app.register_blueprint(iaCommands_blueprint)
+app.register_blueprint(PasswordView_blueprint)
 #app.register_blueprint(serverAdmin_blueprint)

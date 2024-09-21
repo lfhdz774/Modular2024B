@@ -4,16 +4,19 @@ import DashboardPage from 'src/pages/Dasboard/Dashboard';
 import LoginPage from 'src/pages/login';
 import UserAdministration from 'src/pages/user/UserAdministration';
 import ProtectedRoute from 'src/components/ProtectedRoute';
+import FirstLogin from 'src/pages/FirstLogin/FirstLogin';
 import CredentialCreation from 'src/pages/Credentials/CredentialCreation';
 import CredentialManagement from 'src/pages/Credentials/Credentialmanagement';
 import Command from 'src/pages/Commands/Commands';
 const HomePage = lazy(() => import('src/pages/Home'));
+
 
 const RouterComponent = () => {
     return (
         <Router>
             <Routes>
                 <Route path="/" element={<Dashboard />}>
+                    
                     <Route index element={<Navigate to="/home" replace />} />
                     <Route path="/home" element={<Suspense fallback={<div>Loading...</div>}><HomePage /></Suspense>} />
                     <Route path="/reports" element={<h2>Reports</h2>} />
@@ -31,10 +34,13 @@ const RouterComponent = () => {
                     </ProtectedRoute>} />
 
                     <Route path="/commands" element={<Suspense fallback={<div>Loading...</div>}><Command /></Suspense>} />
-
+                    <Route path="/first-login/password/:token" element={<FirstLogin />} />
+                                    
                 </Route>
                 <Route path="/login" element={<Login />} />
                 <Route path="/unauthorized" element={<Navigate to="/home" />} />
+                
+                
             </Routes>
         </Router>
     );

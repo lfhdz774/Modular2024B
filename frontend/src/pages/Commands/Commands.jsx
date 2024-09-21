@@ -5,6 +5,7 @@ import { PostCommands } from 'src/Services/command.service';
 function Command() {
   const [comando, setComando] = useState('');
   const [respuesta, setRespuesta] = useState('');
+  const [link, setLink] = useState('');
 
   const enviarComando = async () => {
     try {
@@ -16,7 +17,8 @@ function Command() {
         const response = await PostCommands(Comando);  // Envía el objeto correctamente
         console.log(response);
         //alert(response.respuesta);
-        setRespuesta(response.respuesta);
+        setRespuesta(response.respuesta.message);
+        setLink(response.respuesta.link);
 
     } catch (error) {
         console.error("Error al enviar el comando:", error);
@@ -35,6 +37,7 @@ function Command() {
       />
       <button onClick={enviarComando}>Enviar Comando</button>
       <p>Respuesta: {respuesta}</p>
+      <a href={link}>{link}</a>
     </div>
   );
 }

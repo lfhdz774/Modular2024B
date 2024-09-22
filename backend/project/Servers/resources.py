@@ -20,43 +20,6 @@ class GetServer(Resource):
             return server.json()
         else:
             return {'server_id': 'not found'},404
-    @swag_from('project/swagger.yaml') 
-    def put(self,server_id):
-        data = request.get_json()
-        if not data:
-            return {'message': 'API body is empty'}, 400
-        server = db.session.get(Server,server_id)
-        if server:
-            if 'name' in data:
-                server.name = data['name']
-            if 'ip_address' in data:
-                server.ip_address = data['ip_address']
-            if 'port' in data:
-                server.port = data['port']
-            if 'username' in data:
-                server.username = data['username']
-            if 'password' in data:
-                server.password = data['password'] ##TODO: CHECK PASSWORD ENCRYPTION
-            if 'user_groups' in data:
-                server.user_groups = data['user_groups']
-            if 'operating_system' in data:
-                server.operating_system = data['operating_system']
-
-            db.session.commit()
-            return {'message': 'User updated successfully'}, 200
-        else:
-            return {'server_id': 'not found'},404
-        
-    @swag_from('project/swagger.yaml') 
-    def delete(self,server_id):
-        server = db.session().query(Server).filter_by(server_id=server_id).first()
-        if server:
-            db.session.delete(server)
-            db.session.commit()
-            return {'msg' : 'Server Deleted'}
-        else:
-            return {'server_id': 'Server not found'},404
-        
         
 class AddServer(Resource):
     def __init__(self):
@@ -100,7 +63,7 @@ class DeleteServer(Resource):
             db.session.commit()
             return {'msg' : 'Server Deleted'}
         except Exception as e:
-            abort(500, description="Server not Found")
+            abort(404, description="Server not Found")
 
 class UpdateServer(Resource):
     def __init__(self):

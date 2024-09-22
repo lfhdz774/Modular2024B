@@ -118,8 +118,8 @@ class Access(db.Model):
     access_name = db.Column(db.String(20),nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
     server_id = db.Column(db.Integer, db.ForeignKey('servers.server_id'), nullable=False)
-    created_at = db.Column(db.TIMESTAMP)
-    expires_at = db.Column(db.TIMESTAMP)
+    created_at = db.Column(db.Date)
+    expires_at = db.Column(db.Date)
     user_groups = db.Column(db.ARRAY(db.Integer))
 
     user = db.relationship('UserModel', back_populates='accesses')

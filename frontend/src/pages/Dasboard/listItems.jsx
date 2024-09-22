@@ -7,7 +7,9 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import PersonSearchIcon from '@mui/icons-material/PersonSearch';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import AutoModeIcon from '@mui/icons-material/AutoMode';
 import { Box } from '@mui/material';
 import { useNavigate, Link } from 'react-router-dom';
 import { logout } from 'src/Services/login.service';
@@ -73,6 +75,24 @@ export const MainListItems = () => {
                     <ListItemText primary="Crear credencial" />
                 </ListItemButton>
             </ProtectedMenu>
+
+            <ProtectedMenu allowedRoles={[7]} userRole={userRoles}>
+                <ListItemButton onClick={() => navigate('/user-credential-management')}>
+                    <ListItemIcon>
+                        <PersonSearchIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Administrar credenciales" />
+                </ListItemButton>
+            </ProtectedMenu>
+
+            <Divider sx={{ my: 1 }} />
+
+            <ListItemButton onClick={() => navigate('/commands')}>
+                <ListItemIcon >
+                    <AutoModeIcon />
+                </ListItemIcon>
+                <ListItemText primary="Comandos IA" />
+            </ListItemButton>
 
         </React.Fragment>
     );

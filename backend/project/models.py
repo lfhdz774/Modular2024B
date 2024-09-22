@@ -44,24 +44,36 @@ class Server(db.Model):
 
     server_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
+    hostname = db.Column(db.String(255), nullable=False)
     ip_address = db.Column(db.String(15), nullable=False)
-    port = db.Column(db.Integer, nullable=False)
     username = db.Column(db.String(255), nullable=False)
-    password = db.Column(db.String(255), nullable=False)
-    user_groups = db.Column(db.ARRAY(db.Integer))
+    pkey = db.Column(db.Text, nullable=False)
+    #user_groups = db.Column(db.ARRAY(db.Integer)) #TODO: Groups will point to the server, no the server to the groups
     operating_system = db.Column(db.String(50))
 
     accesses = db.relationship('Access', back_populates='server',foreign_keys='Access.server_id')
     groups = db.relationship('Group', back_populates='server', cascade='all, delete-orphan')
 
-    def __init__(self,name,ip_address,port,username,password,operating_system):
+    def __init__(self,name,hostname,ip_address,username,pkey,operating_system):
         self.name = name
+        self.hostname = hostname
         self.ip_address = ip_address
-        self.port = port
         self.username = username
-        self.password = password
+        self.pkey = pkey
         self.operating_system = operating_system
 
+    def json(self):
+        return {'server_id': self.server_id,
+                'name' : self.name,
+                'hostname' : self.hostname,
+                'ip_address' : self.ip_address,
+                'username' : self.username,
+                'pkey' : self.pkey,
+                'operating_system' : self.operating_system
+                }
+
+    def __repr__(self):
+        return f"Server ID:{self.server_id}. hostname {self.hostname}"
 
 class Group(db.Model):
     __table_args__ = {'extend_existing': True}
@@ -125,9 +137,22 @@ class Notification(db.Model):
 
     user = db.relationship('UserModel', back_populates='notifications')
 
+class CommandModel(db.Model):
+    __tablename__ = 'commands'
+    
+    command_id = db.Column(db.Integer, primary_key=True)
+    comando = db.Column(db.String(255), nullable=False)
+    created_at = db.Column(db.TIMESTAMP, default=db.func.current_timestamp())
+    updated_at = db.Column(db.TIMESTAMP, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+    
+    user = db.relationship('UserModel', back_populates='commands')
+
 
 UserModel.role_id = db.Column(db.Integer, db.ForeignKey('roles.role_id'), nullable=False) 
 UserModel.requester_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=True) # 
 UserModel.approver_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=True) # 
 
 Group.server_id = db.Column(db.Integer, db.ForeignKey('servers.server_id'), nullable=False)
+
+UserModel.commands = db.relationship('CommandModel', back_populates='user', foreign_keys='CommandModel.user_id')

@@ -15,3 +15,12 @@ bcrypt==4.1.2
 flask-login==0.6.3
 psycopg2-binary==2.9.9
 livereload==2.6.3
+nltk==3.9.1
+spacy==3.7.6
+six==1.16.0
+paramiko==3.5.0
+urllib3==2.2.3
+requests==2.32.3
+pandas==2.2.2
+scikit-learn==1.5.2
+Flask-Session==0.8.0

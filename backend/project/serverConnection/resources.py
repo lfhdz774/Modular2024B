@@ -10,7 +10,7 @@ import paramiko
 import time
 
 
-from Exceptions.ServersExceptions import ServerNotFoundError,AccessAlreadyExistsError
+from Exceptions.ServersExceptions import ServerNotFoundError,AccessAlreadyExists
 
 class GetAllGroups(Resource):
     @swag_from('project/swagger.yaml') 
@@ -40,7 +40,7 @@ class CreateAccess(Resource):
         try:
             access = db.session().query(Access).filter_by(access_name = access_name,server_id=server_id).first()
             if not access:
-                raise AccessAlreadyExistsError(server_id)
+                raise AccessAlreadyExists(server_id)
         except ServerNotFoundError as e:
             abort(404, description=str(e))
         #create Acces on DB side

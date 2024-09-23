@@ -23,3 +23,9 @@ class UpdateUserInfoError(BaseCustomError):
     def __init__(self, username):
         super().__init__(message="Error updating user info", code=500)
         self.username = username
+
+class AccessAlreadyExists(BaseCustomError):
+    """Exception raised for errors in updating user info."""
+    def __init__(self, username):
+        super().__init__(message="Error updating user info", code=590)
+        self.username = username

@@ -24,7 +24,6 @@ const RegisterServer = ({ isEditing }) => {
   const fetchServers = async () => {
     try {
       const response = await GetServers();
-      console.log("Servers fetched:", response); // Debug: Check if servers are fetched
       setServers(response);
     } catch (error) {
       console.error('Error fetching servers:', error);
@@ -32,31 +31,27 @@ const RegisterServer = ({ isEditing }) => {
   };
 
   const handleServerChange = async (e) => {
+    console.log("kk")
     const serverId = e.target.value;  // Capture selected server ID
-    console.log("Selected server ID:", serverId);  // Debug: Show the selected server ID
     setSelectedServerId(serverId);  // Update selected server ID
 
-    if (serverId) {
-      try {
-        const server = await GetServerById(serverId);  // Fetch the server details
-        console.log("Fetched server details:", server);  // Debug: Check server details
-        setFormData({
-          name: server.name || '',
-          hostname: server.hostname || '',
-          ip_address: server.ip_address || '',
-          username: server.username || '',
-          pkey: server.pkey || '',
-          operating_system: server.operating_system || '',
-        });
-      } catch (error) {
-        console.error('Error fetching server details:', error);
-      }
+    try {
+      const server = await GetServerById(serverId);  // Fetch the server details
+      setFormData({
+        name: server.name || '',
+        hostname: server.hostname || '',
+        ip_address: server.ip_address || '',
+        username: server.username || '',
+        pkey: server.pkey || '',
+        operating_system: server.operating_system || '',
+      });
+    } catch (error) {
+      console.error('Error fetching server details:', error);
     }
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log("Form data change:", name, value); // Debug: Check the form input changes
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
@@ -68,7 +63,6 @@ const RegisterServer = ({ isEditing }) => {
     try {
       if (isEditing && selectedServerId) {
         const updates = { ...formData };
-        console.log("Updating server with ID:", selectedServerId);  // Debug: Check server update
         const response = await UpdateServer({ server_id: selectedServerId, updates });
         console.log('Server Updated:', response);
       } else {
@@ -96,7 +90,7 @@ const RegisterServer = ({ isEditing }) => {
                 onChange={handleServerChange}  // Call the handleServerChange correctly
                 fullWidth
               >
-                <MenuItem value="">
+                <MenuItem key={0} value="">
                   <em>None</em>
                 </MenuItem>
                 {servers.map((server) => (

@@ -16,6 +16,8 @@ import { logout } from 'src/Services/login.service';
 import ProtectedMenu from './ProtectedMenu';
 import { GetUserRoles } from 'src/Services/user.service';
 import Divider from '@mui/material/Divider';
+import DnsIcon from '@mui/icons-material/Dns';
+import LockPersonIcon from '@mui/icons-material/LockPerson';
 
 
 export const MainListItems = () => {
@@ -82,6 +84,24 @@ export const MainListItems = () => {
                         <PersonSearchIcon />
                     </ListItemIcon>
                     <ListItemText primary="Administrar credenciales" />
+                </ListItemButton>
+            </ProtectedMenu>
+
+            <ProtectedMenu allowedRoles={[7]} userRole={userRoles}>
+                <ListItemButton onClick={() => navigate('/server-creation')}>
+                    <ListItemIcon>
+                        <DnsIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Registrar servidores" />
+                </ListItemButton>
+            </ProtectedMenu>
+
+            <ProtectedMenu allowedRoles={[7]} userRole={userRoles}>
+            <ListItemButton onClick={() => navigate('/server-management')}>
+                    <ListItemIcon>
+                        <LockPersonIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Administrar servidores" />
                 </ListItemButton>
             </ProtectedMenu>
 

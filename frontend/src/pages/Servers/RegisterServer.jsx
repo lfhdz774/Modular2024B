@@ -25,14 +25,16 @@ const RegisterServer = ({ isEditing }) => {
     try {
       const response = await GetServers();
       setServers(response);
+      console.log('Servers:', response);
     } catch (error) {
       console.error('Error fetching servers:', error);
     }
   };
 
   const handleServerChange = async (e) => {
-    console.log("kk")
+    console.log('Selected Server:', e.target.value);
     const serverId = e.target.value;  // Capture selected server ID
+    console.log('Selected Server ID:', serverId);
     setSelectedServerId(serverId);  // Update selected server ID
 
     try {
@@ -94,7 +96,8 @@ const RegisterServer = ({ isEditing }) => {
                   <em>None</em>
                 </MenuItem>
                 {servers.map((server) => (
-                  <MenuItem key={server.id} value={server.id}>
+                  
+                  <MenuItem key={server.server_id} value={server.server_id}>
                     {server.name}
                   </MenuItem>
                 ))}

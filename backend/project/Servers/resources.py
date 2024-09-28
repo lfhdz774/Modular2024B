@@ -13,6 +13,10 @@ class GetAllServers(Resource):
         return[server.json() for server in all_servers]
     
 class GetServer(Resource):
+    def __init__(self) -> None:
+        self.parser = reqparse.RequestParser()
+        self.parser.add_argument('server_id', type=int, help='ID of the server', required=True)
+
     @swag_from('project/swagger.yaml') 
     def get(self,server_id):
         server = db.session().query(Server).filter_by(server_id=server_id).first()

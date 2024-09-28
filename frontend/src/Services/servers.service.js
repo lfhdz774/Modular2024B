@@ -26,6 +26,7 @@ export const GetServers = async() => {
 }
 
 export const GetServerById = async(serverId) => {
+    console.log(serverId)
     try {
         const response = await http.get('/api/admin/GetServer/' + serverId);
         return response.data;
@@ -38,7 +39,7 @@ export const GetServerById = async(serverId) => {
 export const UpdateServer = async (ServerModel) => {
     console.log(ServerModel)
     try {
-        const response = await http.post('/api/admin/UpdateServer',ServerModel, {
+        const response = await http.put('/api/admin/UpdateServer',ServerModel, {
             headers: {
                 'Content-Type': 'application/json',
             },

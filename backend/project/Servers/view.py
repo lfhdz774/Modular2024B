@@ -9,7 +9,7 @@ servers_blueprint = Blueprint('serverAdmin', __name__, url_prefix='/api/admin')
 api = Api(servers_blueprint)
 
 api.add_resource(GetAllServers, '/GetServers')
-api.add_resource(GetServer, '/Getserver/<string:server_id>')
+api.add_resource(GetServer, '/GetServer/<int:server_id>')
 api.add_resource(AddServer, '/CreateServer')
 api.add_resource(DeleteServer, '/DeleteServer')
 api.add_resource(UpdateServer, '/UpdateServer')

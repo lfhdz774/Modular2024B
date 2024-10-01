@@ -124,6 +124,22 @@ class Access(db.Model):
 
     user = db.relationship('UserModel', back_populates='accesses')
     server = db.relationship('Server', back_populates='accesses')
+    def __init__(self,access_name,user_id,server_id,created_at,expires_at,user_groups):
+        self.access_name = access_name
+        self.user_id = user_id
+        self.server_id = server_id
+        self.created_at = created_at
+        self.expires_at = expires_at
+        self.user_groups = user_groups
+
+    def json(self):
+        return {'access_id': self.access_id,
+                'access_name' : self.access_name,
+                'server_id' : self.server_id,
+                'created_at' : str(self.created_at),
+                'expires_at' : str(self.expires_at),
+                'user_groups' : self.user_groups,
+                }
     #approved_by = db.Column(db.Integer,db.ForeignKey('users.user_id'))  PENDING CHECK HOW TO DISPLAY WHO APPROVED THE REQUEST AND IF IS REQUIRED A DIFERENT TABLE? 
     
 class Notification(db.Model):

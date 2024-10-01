@@ -17,7 +17,8 @@ class Signup(Resource):
         self.parser.add_argument('first_name', type=str, help='First name of the user', required=True)
         self.parser.add_argument('last_name', type=str, help='Last name of the user', required=True)
         self.parser.add_argument('employee_code', type=str, help='Employee code of the user', required=True)
-        self.parser.add_argument('role', type=str, help='Role of the user in the application', required=True)
+        self.parser.add_argument('role_id', type=str, help='Role of the user in the application', required=True)
+        self.parser.add_argument('employee_position', type=int, help='Employee position of the user', required=True)
 
     @swag_from('project/swagger.yaml') 
     def post(self):
@@ -30,7 +31,8 @@ class Signup(Resource):
         first_name = args['first_name']
         last_name = args['last_name']
         employee_code = args['employee_code']
-        role = args['role']
+        role = args['role_id']
+        employee_position = args['employee_position']
 
         try:
             isValidEmail = validate_email(email)
@@ -49,7 +51,7 @@ class Signup(Resource):
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
         user = UserModel(username=username, password=hashed_password, email=email, 
                          first_name=first_name, last_name=last_name, 
-                         employee_code=employee_code, role_id=role)
+                         employee_code=employee_code, role_id=role, position_id=employee_position)
         db.session.add(user)
         db.session.commit()
         return {'msg': 'User Added'}

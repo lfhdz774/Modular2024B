@@ -29,7 +29,7 @@ export const GetServerById = async(serverId) => {
     console.log(serverId)
     try {
         const response = await http.get('/api/admin/GetServer/' + serverId);
-        return response.data;
+        return response;
     } catch (error) {
         console.log(error);
         return error;
@@ -44,7 +44,7 @@ export const UpdateServer = async (ServerModel) => {
                 'Content-Type': 'application/json',
             },
         });
-        return response.data;
+        return response;
     } catch (error) {
         console.log(error);
         return error;

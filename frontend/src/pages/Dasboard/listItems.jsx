@@ -18,6 +18,7 @@ import { GetUserRoles } from 'src/Services/user.service';
 import Divider from '@mui/material/Divider';
 import DnsIcon from '@mui/icons-material/Dns';
 import LockPersonIcon from '@mui/icons-material/LockPerson';
+import RuleIcon from '@mui/icons-material/Rule';
 
 
 export const MainListItems = () => {
@@ -102,6 +103,15 @@ export const MainListItems = () => {
                         <LockPersonIcon />
                     </ListItemIcon>
                     <ListItemText primary="Administrar servidores" />
+                </ListItemButton>
+            </ProtectedMenu>
+
+            <ProtectedMenu allowedRoles={[7,3]} userRole={userRoles}>
+            <ListItemButton onClick={() => navigate('/Acces-requets')}>
+                    <ListItemIcon>
+                        <RuleIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Administrar peticiones" />
                 </ListItemButton>
             </ProtectedMenu>
 

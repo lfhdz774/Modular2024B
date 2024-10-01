@@ -1,15 +1,12 @@
-import datetime
-import secrets
-import string
 import re
 import unicodedata
 from flask_restful import Resource, reqparse
 from flask import abort, session
-from flask_jwt_extended import create_access_token, jwt_required
-import paramiko
+from flask_jwt_extended import jwt_required
 import joblib
 import spacy
 from spacy.matcher import Matcher
+from project.GenerateAccess.GenerateAccess import GenerateAccess
 
 class ProcesarComando(Resource):
     def __init__(self):
@@ -109,7 +106,7 @@ class ProcesarComando(Resource):
 
     def ejecutar_accion(self, datos):
         if datos['accion'] == 'crear_usuario':
-            return self.crear_usuario(datos['username'])
+            return GenerateAccess.crear_usuario(datos['username'])
         elif datos['accion'] == 'eliminar_usuario':
             return self.eliminar_usuario(datos['username'])
         elif datos['accion'] == 'consultar_usuario':
@@ -168,67 +165,7 @@ class ProcesarComando(Resource):
         )
         return texto_normalizado.lower()
 
-    def crear_usuario(self, username):
-        if not self.es_nombre_usuario_valido(username):
-            return {"message": f"El nombre de usuario '{username}' no es válido.", "link": ""}
-        
-        # Generar la contraseña automáticamente
-        password = self.generar_contraseña()
-        
-        # Crear el usuario en el servidor
-        resultado = self.crear_usuario_servidor(username, password)
-        
-        if resultado['exito']:
-            # Crear un token JWT que contenga la contraseña
-            token = self.generar_token_con_password(password)
-            # Generar el enlace para que el usuario obtenga la contraseña
-            enlace = f"http://localhost:3000/#/first-login/password/{token}"
-            data =  {
-                    "message": f"Usuario '{username}' creado con éxito. La contraseña puede ser obtenida en el siguiente enlace:",
-                    "link": enlace
-                    }
-
-            return data
-        else:
-            return {"message":f"Error al crear el usuario: {resultado['error']}", "link": ""}
-
-    def generar_token_con_password(self, password):
-        # Crear un token JWT con la contraseña en el payload
-        expires = datetime.timedelta(hours=1)  # El token expirará en 1 hora
-        token = create_access_token(identity={'password': password}, expires_delta=expires)
-        return token
-        
     def es_nombre_usuario_valido(self, username):
         # Validar que solo contenga letras, números, guiones y guiones bajos
         return re.match('^[a-zA-Z0-9_-]{1,32}$', username) is not None
-
-    def generar_contraseña(self, longitud=12):
-        caracteres = string.ascii_letters + string.digits + string.punctuation
-        contraseña = ''.join(secrets.choice(caracteres) for i in range(longitud))
-        return contraseña
     
-
-    def crear_usuario_servidor(self, username, password):
-        try:
-            # Configuración de la conexión SSH
-            k = paramiko.RSAKey.from_private_key_file("project/serverConnection/key11.pem")
-            c = paramiko.SSHClient()
-            c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            c.connect( hostname = "ec2-3-16-48-222.us-east-2.compute.amazonaws.com", username = "ubuntu", pkey = k )
-
-            # Comandos para crear el usuario y establecer la contraseña
-            comandos = [
-                f"sudo useradd {username}",
-                f"echo '{username}:{password}' | sudo chpasswd"
-            ]
-
-            for comando in comandos:
-                stdin, stdout, stderr = c.exec_command(comando)
-                error = stderr.read().decode()
-                if error:
-                    return {'exito': False, 'error': error}
-
-            c.close()
-            return {'exito': True}
-        except Exception as e:
-            return {'exito': False, 'error': str(e)}

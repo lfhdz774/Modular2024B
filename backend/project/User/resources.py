@@ -3,6 +3,7 @@ from flask_restful import Resource, reqparse
 from flask import abort, request
 from project.User.UserEnums import UserRoleEnum
 from project.models import UserModel
+from project.models import Position
 from project import db
 from flasgger.utils import swag_from
 from validate_email import validate_email
@@ -21,6 +22,7 @@ class User(Resource):
         self.parser.add_argument('last_name', type=str, help='Last name of the user', required=False)
         self.parser.add_argument('employee_code', type=str, help='Employee code of the user', required=False)
         self.parser.add_argument('role', type=str, help='Role of the user in the application', required=False)
+        self.parser.add_argument('position', type=int, help='Position of the user in the application', required=False)
 
     @swag_from('project/swagger.yaml')
     @jwt_required()
@@ -114,10 +116,36 @@ class GetUserRoles(Resource):
             abort(500, description=str(e)) 
         
 
-
+class GetUserPositionsList(Resource):
+    @swag_from('project/swagger.yaml')
+    @jwt_required()
+    def get(self):
+        try:
+            positions = db.session().query(Position).all()
+            return [position.json() for position in positions]
+        except Exception as e:
+            abort(500, description=str(e))
 
 class AllUsersResource(Resource):
     @swag_from('project/swagger.yaml') 
     def get(self):
         all_users = db.session.query(UserModel).all()
         return[user.json() for user in all_users]
+    
+class GetUserByCode(Resource):
+    @swag_from('project/swagger.yaml') 
+    def get(self, code):
+        user = db.session.query(UserModel).filter_by(employee_code=code).first()
+        if not user:
+            print('User not found')
+            return {'message': 'User not found'}, 284
+        print(user.json())
+        return user.json()
+    
+class GetUsersByRole(Resource):
+    @swag_from('project/swagger.yaml') 
+    def get(self, role):
+        users = db.session.query(UserModel).filter_by(role_id=role).all()
+        if not users:
+            return {'message': 'No users found with that role'}, 284
+        return [user.json() for user in users]

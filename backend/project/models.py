@@ -12,10 +12,12 @@ class UserModel(db.Model):
     last_name = db.Column(db.String(100))
     employee_code = db.Column(db.String(10), nullable=False)
 
+
     accesses = db.relationship('Access', back_populates='user',foreign_keys='Access.user_id')
     notifications = db.relationship('Notification', back_populates='user')
+    
 
-    def __init__(self,username,password,email,first_name,last_name,employee_code,role_id):
+    def __init__(self,username,password,email,first_name,last_name,employee_code,role_id, position_id):
         self.username = username
         self.password = password
         self.email = email
@@ -23,6 +25,7 @@ class UserModel(db.Model):
         self.last_name = last_name
         self.employee_code = employee_code
         self.role_id = role_id
+        self.employee_position = position_id
 
     def json(self):
         return {'user_id': self.user_id,
@@ -31,12 +34,26 @@ class UserModel(db.Model):
                 'first_name' : self.first_name,
                 'last_name' : self.last_name,
                 'employee_code' : self.employee_code,
-                'role_id' : self.role_id
+                'role_id' : self.role_id,
+                'employee_position' : self.employee_position
                 }
 
     def __repr__(self):
         return f"{self.user_id}. Username {self.username}"
     
+class Position(db.Model):
+    __tablename__ = 'positions'
+
+    position_id = db.Column(db.Integer, primary_key=True)
+    position_name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text)
+
+    def json(self):
+        return {
+            'position_Id': self.position_id,
+            'position_name': self.position_name,
+            'description': self.description
+        }
 
 class Server(db.Model):
     __table_args__ = {'extend_existing': True}
@@ -121,6 +138,7 @@ class Access(db.Model):
     created_at = db.Column(db.Date)
     expires_at = db.Column(db.Date)
     user_groups = db.Column(db.ARRAY(db.Integer))
+    status = db.Column(db.BOOLEAN, default=True)
 
     user = db.relationship('UserModel', back_populates='accesses')
     server = db.relationship('Server', back_populates='accesses')
@@ -165,10 +183,64 @@ class CommandModel(db.Model):
     user = db.relationship('UserModel', back_populates='commands')
 
 
+class AccessRequestModel(db.Model):
+    __tablename__ = 'access_requests'
+
+    request_id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+    server_id = db.Column(db.Integer, db.ForeignKey('servers.server_id'), nullable=False)
+    created_at = db.Column(db.TIMESTAMP, default=db.func.current_timestamp())
+    updated_at = db.Column(db.TIMESTAMP, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
+    status = db.Column(db.String(20), nullable=False)
+    approver_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=True)
+    access_id = db.Column(db.Integer, db.ForeignKey('access.access_id'), nullable=False)
+    requester_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+    group_id = db.Column(db.Integer, db.ForeignKey('groups.group_id'), nullable=True)
+
+
+    def __init__(self,user_id,server_id, approver_id ,access_id,requester_id, group_id):
+        self.user_id = user_id
+        self.server_id = server_id
+        self.status = 'Pending'
+        self.approver_id = approver_id
+        self.access_id = access_id
+        self.requester_id = requester_id
+        self.group_id = group_id
+
+         # Definición de las relaciones
+    user = db.relationship('UserModel', foreign_keys=[user_id])
+    server = db.relationship('Server', foreign_keys=[server_id])
+    requester = db.relationship('UserModel', foreign_keys=[requester_id])
+    approver = db.relationship('UserModel', foreign_keys=[approver_id])
+    group = db.relationship('Group', foreign_keys=[group_id])
+
+    def json(self):
+        return {
+            'request_id': self.request_id,
+            'user_id': self.user_id,
+            'server_id': self.server_id,
+            'server_name': self.server.name if self.server else None,
+            'requester_id': self.requester_id,
+            'requester_name': f"{self.requester.first_name} {self.requester.last_name}" if self.requester else None, 
+            'created_at': str(self.created_at),
+            'status': self.status,
+            'approver_id': self.approver_id,
+            'access_id': self.access_id,
+            'group_id': self.group_id,
+            'position': self.user.Position.position_name if self.user else None,
+            'role': self.user.Role.name if self.user else None,
+            'group_name': self.group.group_name if self.group else None,
+            'status': self.status
+        }
+
 UserModel.role_id = db.Column(db.Integer, db.ForeignKey('roles.role_id'), nullable=False) 
 UserModel.requester_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=True) # 
 UserModel.approver_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=True) # 
+UserModel.employee_position = db.Column(db.Integer, db.ForeignKey('positions.position_id'), nullable=False) #
+UserModel.Position = db.relationship('Position', foreign_keys=[UserModel.employee_position])
+UserModel.Role = db.relationship('Role', foreign_keys=[UserModel.role_id])
 
 Group.server_id = db.Column(db.Integer, db.ForeignKey('servers.server_id'), nullable=False)
 
 UserModel.commands = db.relationship('CommandModel', back_populates='user', foreign_keys='CommandModel.user_id')
+

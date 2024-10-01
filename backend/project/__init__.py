@@ -120,6 +120,7 @@ from project.Signup.view import signup_blueprint
 from project.IACommands.view import iaCommands_blueprint
 from project.PasswordManagement.view import PasswordView_blueprint
 from project.Servers.view import servers_blueprint
+from project.Reports.view import reports_blueprint
 
 app.register_blueprint(signup_blueprint)
 app.register_blueprint(user_blueprint)
@@ -128,3 +129,4 @@ app.register_blueprint(servers_blueprint)
 app.register_blueprint(serverConnection_blueprint)
 app.register_blueprint(iaCommands_blueprint)
 app.register_blueprint(PasswordView_blueprint)
+app.register_blueprint(reports_blueprint)

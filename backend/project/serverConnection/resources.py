@@ -1,16 +1,17 @@
 from flask_restful import Resource,reqparse,request
 from flask import jsonify,abort
-from project.models import Server,Access
+from project.GenerateAccess.GenerateAccess import GenerateAccess
+from project.models import Server,Access,AccessRequestModel,UserModel
 from project import db
 from flasgger.utils import swag_from
-from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
+from flask_jwt_extended import JWTManager, get_jwt, jwt_required, create_access_token, get_jwt_identity
 from flask_jwt_extended import create_access_token
 from io import StringIO
 import paramiko
 from datetime import date
+from sqlalchemy.orm import joinedload
 
-
-from Exceptions.ServersExceptions import ServerNotFoundError,AccessAlreadyExists
+from Exceptions.ServersExceptions import AccessAlreadyExistsError, ServerNotFoundError,AccessAlreadyExists
 
 class GetAllGroups(Resource):
     @swag_from('project/swagger.yaml') 
@@ -167,3 +168,82 @@ class TestConnection(Resource):
             return {'msg': "Connection Successfull"}
         else:
             return {'msg': "Connection Fail"}
+
+class AccessRequest(Resource):
+    @swag_from('project/swagger.yaml') 
+    def __init__(self):
+        self.parser = reqparse.RequestParser()
+        self.parser.add_argument('user_id', type=str, help='Missing user_id ', required=True)
+        self.parser.add_argument('server_id', type=str, help='Missing Server_id ', required=True)
+        self.parser.add_argument('aprover_id', type=str, help='Missing aprover_id ', required=True)
+        self.parser.add_argument('group_id', type=str, help='Missing group_id ', required=True)
+        self.parser.add_argument('username', type=str, help='Missing username ', required=True)
+
+    @jwt_required()
+    def post(self):
+        args = self.parser.parse_args()
+        user_id = args['user_id']
+        server_id = args['server_id']
+        aprover_id = args['aprover_id']
+        group_id = args['group_id']
+        username = args['username']
+        claims = get_jwt()
+        requester_id = claims.get('user_id')
+    
+        #also create a temporal Access to use for when the acces is activated
+        access = Access(username,user_id,server_id,date.today(),date.today(),[group_id])
+        db.session.add(access)
+        db.session.commit()
+        db.session.refresh(access)
+        print (access)
+        access_id= access.access_id
+        newRequest = AccessRequestModel(user_id,server_id,aprover_id,access_id,requester_id, group_id)
+        db.session.add(newRequest)
+        db.session.commit()
+        return {'msg': 'Request Created'},201
+class GetAllRequests(Resource):   
+    @jwt_required()
+    def get(self):
+        claims = get_jwt()
+        user_id = claims.get('user_id')
+        user_role = claims.get('roles')
+        print(user_role)
+
+        if 7 in user_role:
+            requests = db.session().query(AccessRequestModel)\
+                .join(Server, AccessRequestModel.server_id == Server.server_id)\
+                .join(UserModel, AccessRequestModel.user_id == UserModel.user_id).all()
+            print("Admin")
+        else:
+             requests = db.session().query(AccessRequestModel)\
+                .join(Server, AccessRequestModel.server_id == Server.server_id)\
+                .join(UserModel, AccessRequestModel.user_id == UserModel.user_id)\
+                .filter(AccessRequestModel.approver_id == user_id).all()
+             print("Not Admin")
+             
+        print([request.json() for request in requests])
+
+        return[request.json() for request in requests]
+
+class ApproveRequest(Resource):
+    @jwt_required()
+    def post(self,request_id):
+        claims = get_jwt()
+        aprover_id = claims.get('user_id')
+        request = db.session().query(AccessRequestModel).filter_by(request_id=request_id).first()
+        if not request:
+            return {'msg': 'Request not Found'},404
+        if request.approver_id != aprover_id:
+            return {'msg': 'You are not the aprover of this request'},403
+        request.status = 'Approved'
+
+        access = db.session().query(Access).filter(Access.access_id==request.access_id).first()
+        access.status = True
+
+        db.session.add(access)
+        db.session.commit()
+        print(access.access_name)
+        generate_access_instance = GenerateAccess()
+        return generate_access_instance.crear_usuario(access.access_name)
+
+        #return {'msg': 'Request Approved'},201  

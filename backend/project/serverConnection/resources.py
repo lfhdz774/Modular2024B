@@ -10,7 +10,7 @@ import paramiko
 from datetime import date
 
 
-from Exceptions.ServersExceptions import ServerNotFoundError,AccessAlreadyExistsError
+from Exceptions.ServersExceptions import ServerNotFoundError,AccessAlreadyExists
 
 class GetAllGroups(Resource):
     @swag_from('project/swagger.yaml') 

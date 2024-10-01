@@ -13,6 +13,10 @@ class GetAllServers(Resource):
         return[server.json() for server in all_servers]
     
 class GetServer(Resource):
+    def __init__(self) -> None:
+        self.parser = reqparse.RequestParser()
+        self.parser.add_argument('server_id', type=int, help='ID of the server', required=True)
+
     @swag_from('project/swagger.yaml') 
     def get(self,server_id):
         server = db.session().query(Server).filter_by(server_id=server_id).first()
@@ -34,24 +38,30 @@ class AddServer(Resource):
 
     @swag_from('project/swagger.yaml')
     def post(self):
-        args = self.parser.parse_args()
-        #data = request.get_json()
-        name = args['name']
-        hostname = args['hostname']
-        ip_address = args['ip_address']
-        username = args['username']
-        pkey = args['pkey']
-        #user_groups = data['user_groups']
-        #user_groups = [1,2,3,4,5]
-        operating_system = args['operating_system']
-        server = Server(name,hostname,ip_address,username,pkey,operating_system)
-        db.session.add(server)
-        db.session.commit()
-        return {'msg': 'Server Added'}
+        try:
+            args = self.parser.parse_args()
+            #data = request.get_json()
+            name = args['name']
+            hostname = args['hostname']
+            ip_address = args['ip_address']
+            username = args['username']
+            pkey = args['pkey']
+            #user_groups = data['user_groups']
+            #user_groups = [1,2,3,4,5]
+            operating_system = args['operating_system']
+            server = Server(name,hostname,ip_address,username,pkey,operating_system)
+            db.session.add(server)
+            db.session.commit()
+            return {'msg': 'Server Added'}
+        except Exception as e:
+            abort(808, description="Server not Found")
+        
     
 class DeleteServer(Resource):
     def __init__(self):
         self.parser = reqparse.RequestParser()
+        args = self.parser.parse_args()
+        print("Datos recibidos:", args)
         self.parser.add_argument('server_id', type=str, help='Server_id of the Server', required=True)
     @swag_from('project/swagger.yaml') 
     def delete(self):

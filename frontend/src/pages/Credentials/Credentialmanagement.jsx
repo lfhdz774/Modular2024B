@@ -8,6 +8,7 @@ const CredentialManagement = () => {
     useEffect(() => {
         const fetchCredentials = async () => {
             try {
+                console.log('Fetching credentials for server:', selectedServer);
                 const response = await fetch(`API_ENDPOINT/${selectedServer}`);
                 const data = await response.json();
                 setCredentials(data);

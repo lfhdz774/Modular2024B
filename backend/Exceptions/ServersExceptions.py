@@ -43,3 +43,9 @@ class GroupAlreadyExists(BaseCustomError):
     def __init__(self, groupname):
         super().__init__(message=f"Group {groupname} already exist", code=590)
         self.groupname = groupname
+
+class GroupNotFound(BaseCustomError):
+    """Exception raised when a user is not found."""
+    def __init__(self, groupname):
+        super().__init__(message="Group not found", code=404)
+        self.groupname = groupname

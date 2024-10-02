@@ -1,7 +1,7 @@
 from flask_restful import Resource,reqparse,request
 from flask import jsonify,abort
 from project.GenerateAccess.GenerateAccess import GenerateAccess
-from project.models import Server,Access,AccessRequestModel,UserModel
+from project.models import Server,Access,AccessRequestModel,UserModel,Group
 from project import db
 from flasgger.utils import swag_from
 from flask_jwt_extended import JWTManager, get_jwt, jwt_required, create_access_token, get_jwt_identity
@@ -12,7 +12,7 @@ from datetime import date
 from sqlalchemy.orm import joinedload
 
 
-from Exceptions.ServersExceptions import ServerNotFoundError,AccessAlreadyExists,AccessNotFound
+from Exceptions.ServersExceptions import ServerNotFoundError,AccessAlreadyExists,AccessNotFound,GroupNotFound
 from Exceptions.ServersExceptions import AccessAlreadyExistsError, ServerNotFoundError,AccessAlreadyExists
 
 class GetAllAccesses(Resource):
@@ -140,6 +140,44 @@ class DeleteAccess(Resource):
             print (stdout.read())
         c.close()
         return {'msg': str(stderr.read().decode())}
+
+class AddGroupToAccess(Resource):
+    @swag_from('project/swagger.yaml') 
+    def __init__(self):
+        self.parser = reqparse.RequestParser()
+        self.parser.add_argument('username', type=str, help='Missing Username of the Access', required=True)
+        self.parser.add_argument('server_id', type=str, help='Missing Server_id where to Delete the Access', required=True)
+        self.parser.add_argument('group_name', type=str, help='Missing group_name of the Group', required=True)
+    def post(self):
+        args = self.parser.parse_args()
+        access_name = args['username']
+        server_id = args['server_id']
+        group_name = args['group_name']
+        server = db.session().query(Server).filter_by(server_id=server_id).first()
+        try:
+            server = db.session().query(Server).filter_by(server_id=server_id).first()
+            if not server:
+                raise ServerNotFoundError(server_id)
+        except ServerNotFoundError as e:
+            abort(404, description=str(e))
+        try:
+            access = db.session().query(Access).filter_by(access_name = access_name,server_id=server_id).first()
+            if not access:
+                raise AccessNotFound(access_name)
+        except ServerNotFoundError as e:
+            abort(404, description=str(e))
+        try:
+            group = db.session().query(Group).filter_by(group_name = group_name,server_id=server_id).first()
+            if not group:
+                raise GroupNotFound(group_name)
+        except GroupNotFound as e:
+            abort(404, description=str(e))
+        #Update Acces on DB side
+        print("here")
+        access.user_groups.append(group.group_id)
+        db.session().commit()
+        print("after")
+
 
 class TestConnection(Resource):
     @swag_from('project/swagger.yaml') 

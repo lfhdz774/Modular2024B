@@ -11,9 +11,10 @@ class UserModel(db.Model):
     first_name = db.Column(db.String(100))
     last_name = db.Column(db.String(100))
     employee_code = db.Column(db.String(10), nullable=False)
+    
 
 
-    accesses = db.relationship('Access', back_populates='user',foreign_keys='Access.user_id')
+    access = db.relationship('Access', back_populates='user',foreign_keys='Access.user_id')
     notifications = db.relationship('Notification', back_populates='user')
     
 
@@ -67,7 +68,7 @@ class Server(db.Model):
     pkey = db.Column(db.Text, nullable=False)
     operating_system = db.Column(db.String(50))
 
-    accesses = db.relationship('Access', back_populates='server',foreign_keys='Access.server_id')
+    access = db.relationship('Access', back_populates='server',foreign_keys='Access.server_id')
     groups = db.relationship('Group', back_populates='server', foreign_keys='Group.server_id')
 
     def __init__(self,name,hostname,ip_address,username,pkey,operating_system):
@@ -108,14 +109,11 @@ class Group(db.Model):
         self.group_name = group_name
         self.description = description
         self.server_id = server_id
-
-class UsersGroupsServer(db.Model):
-    __table_args__ = {'extend_existing': True}
-    __tablename__ = 'users_groups_server'
-
-    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), primary_key=True, nullable=False)
-    group_id = db.Column(db.Integer, db.ForeignKey('groups.group_id'), primary_key=True, nullable=False)
-
+    def json(self):
+        return{'group_name': self.group_name,
+                'description' : self.description,
+                'server_id' : self.server_id,
+        }
 
 class Role(db.Model):
     __tablename__ = 'roles'
@@ -230,5 +228,8 @@ class AccessRequestModel(db.Model):
 UserModel.role_id = db.Column(db.Integer, db.ForeignKey('roles.role_id'), nullable=False) 
 UserModel.requester_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=True) # 
 UserModel.approver_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=True) # 
+UserModel.employee_position = db.Column(db.Integer, db.ForeignKey('positions.position_id'), nullable=False) #
+UserModel.Position = db.relationship('Position', foreign_keys=[UserModel.employee_position])
+UserModel.Role = db.relationship('Role', foreign_keys=[UserModel.role_id])
+#Group.server_id = db.Column(db.Integer, db.ForeignKey('servers.server_id'), nullable=False)
 UserModel.commands = db.relationship('CommandModel', back_populates='user', foreign_keys='CommandModel.user_id')
-

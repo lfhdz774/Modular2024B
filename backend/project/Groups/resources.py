@@ -10,29 +10,32 @@ import paramiko
 from datetime import date
 
 
-from Exceptions.ServersExceptions import ServerNotFoundError,GroupAlreadyExists
+from Exceptions.ServersExceptions import ServerNotFoundError,GroupAlreadyExists,GroupNotFound
 
-class GetAllAccesses(Resource):
+class GetAllGroups(Resource):
     @swag_from('project/swagger.yaml') 
     def get(self):
-        all_acceses = db.session.query(Access).all()
-        return[access.json() for access in all_acceses]
+        all_groups = db.session.query(Group).all()
+        if not all_groups:
+            return {'msg': 'No Groups Found'},404
+        else:
+            return[groups.json() for groups in all_groups]
 
-'''class GetAccess(Resource):
+class GetGroup(Resource):
     @swag_from('project/swagger.yaml') 
     def __init__(self):
         self.parser = reqparse.RequestParser()
-        self.parser.add_argument('username', type=str, help='Missing Username of the Access', required=True)
+        self.parser.add_argument('group_name', type=str, help='Missing Username of the Access', required=True)
         self.parser.add_argument('server_id', type=str, help='Missing Server_id where to create the Access', required=True)
     def get(self):
         args = self.parser.parse_args()
-        access_name = args['username']
+        group_name = args['group_name']
         server_id = args['server_id']
-        access = db.session().query(Access).filter_by(access_name = access_name,server_id=server_id).first()
+        access = db.session().query(Group).filter_by(group_name = group_name,server_id=server_id).first()
         if access:
             return access.json()
         else:
-            return {'access_id': 'not found'},404'''
+            return {'group': 'not found'},404
 class CreateGroup(Resource):
     @swag_from('project/swagger.yaml') 
     def __init__(self):
@@ -53,7 +56,7 @@ class CreateGroup(Resource):
                 raise ServerNotFoundError(server_id)
         except ServerNotFoundError as e:
             abort(404, description=str(e))
-        #Verify that the Access doesnt exist on this server
+        #Verify that the Group doesnt exist on the DB
         if(' ' in group_name):
             return {'msg': "Invalid Group name, No spaces are allowed"},424
         try:
@@ -63,10 +66,8 @@ class CreateGroup(Resource):
         except ServerNotFoundError as e:
             abort(404, description=str(e))
         #create Acces on DB side
-        created_at = date.today()
-        groups = []
-        newAcess = Access(access_name,user_id,server_id,created_at,args['expiration_date'],groups)
-        db.session.add(newAcess)
+        newGroup = Group(group_name,description,server_id)
+        db.session.add(newGroup)
         db.session.commit()
         #Create Access on Server Side
 
@@ -77,33 +78,27 @@ class CreateGroup(Resource):
         c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         print ("connecting")
         c.connect( hostname = server.hostname, username = server.username, pkey = k )
-        commands = [ f"sudo useradd -m {args['username']}"]
-        for command in commands:
-            print ("Executing {}".format( command ))
-            stdin , stdout, stder = c.exec_command(command)
-            print (stdout.read())
-        commands = [f"sudo passwd {args['username']}\n"]
+        commands = [ f"sudo groupadd {args['group_name']}"]
         for command in commands:
             print ("Executing {}".format( command ))
             stdin , stdout, stderr = c.exec_command(command)
-            stdin.write(args['password']+"\n")
-            stdin.write(args['password']+"\n")
             print (stdout.read())
         c.close()
         return {'msg': str(stderr.read().decode())}
-    def has_spaces(input_string):
-        return ' ' in input_string
-    
-class DeleteAccess(Resource):
+
+class DeleteGroup(Resource):
     @swag_from('project/swagger.yaml') 
     def __init__(self):
         self.parser = reqparse.RequestParser()
-        self.parser.add_argument('username', type=str, help='Missing Username of the Access', required=True)
-        self.parser.add_argument('server_id', type=str, help='Missing Server_id where to Delete the Access', required=True)
+        self.parser.add_argument('group_name', type=str, help='Missing group_name of the Group', required=True)
+        self.parser.add_argument('server_id', type=str, help='Missing Server_id where to delete the Group', required=True)
     def delete(self):
         args = self.parser.parse_args()
-        access_name = args['username']
+        group_name = args['group_name']
         server_id = args['server_id']
+        if(' ' in group_name):
+            return {'msg': "Invalid Group name, No spaces are allowed"},424
+        
         server = db.session().query(Server).filter_by(server_id=server_id).first()
         try:
             server = db.session().query(Server).filter_by(server_id=server_id).first()
@@ -112,13 +107,13 @@ class DeleteAccess(Resource):
         except ServerNotFoundError as e:
             abort(404, description=str(e))
         try:
-            access = db.session().query(Access).filter_by(access_name = access_name,server_id=server_id).first()
-            if not access:
-                raise AccessNotFound(access_name)
-        except ServerNotFoundError as e:
+            group = db.session().query(Group).filter_by(group_name = group_name,server_id=server_id).first()
+            if not group:
+                raise GroupNotFound(group_name)
+        except GroupNotFound as e:
             abort(404, description=str(e))
         #create Acces on DB side
-        db.session.delete(access)
+        db.session.delete(group)
         db.session.commit()
         #Delete Access on the Server Side
         pem_key = server.pkey.replace("\\n","\n")
@@ -128,10 +123,61 @@ class DeleteAccess(Resource):
         c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         print ("connecting")
         c.connect( hostname = server.hostname, username = server.username, pkey = k )
-        commands = [ f"sudo userdel -r {args['username']}"]
+        commands = [ f"sudo groupdel {args['group_name']}"]
         for command in commands:
             print ("Executing {}".format( command ))
             stdin , stdout, stderr = c.exec_command(command)
             print (stdout.read())
         c.close()
         return {'msg': str(stderr.read().decode())}
+
+class UpdateGroup(Resource):
+    def __init__(self):
+        self.parser = reqparse.RequestParser()
+        self.parser.add_argument('group_name', type=str, help='Missing group_name of the Group', required=True)
+        self.parser.add_argument('server_id', type=str, help='Missing Server_id where to delete the Group', required=True)
+        self.parser.add_argument('updates', type=dict, help='Json object with the fields to update', required=True)
+    @swag_from('project/swagger.yaml') 
+    def put(self):
+        args = self.parser.parse_args()
+        group_name = args['group_name']
+        server_id = args['server_id']
+        updates = args['updates']
+        server = db.session().query(Server).filter_by(server_id=server_id).first()
+        try:
+            server = db.session().query(Server).filter_by(server_id=server_id).first()
+            if not server:
+                raise ServerNotFoundError(server_id)
+        except ServerNotFoundError as e:
+            abort(404, description=str(e))
+        try:
+            group = db.session().query(Group).filter_by(group_name = group_name,server_id=server_id).first()
+            if not group:
+                raise GroupNotFound(group_name)
+        except GroupNotFound as e:
+            abort(404, description=str(e))
+
+        if 'update_group_name' in updates:
+            for field, value in updates.items():
+                setattr(group, field, value)
+            pem_key = server.pkey.replace("\\n","\n")
+            pem_key = StringIO(pem_key)
+            k = paramiko.RSAKey.from_private_key(pem_key)
+            c = paramiko.SSHClient()
+            c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            print ("connecting")
+            c.connect( hostname = server.hostname, username = server.username, pkey = k )
+            commands = [ f"sudo groupmod -n {args['updates']['update_group_name']} {group.group_name}"]
+            for command in commands:
+                print ("Executing {}".format( command ))
+                stdin , stdout, stderr = c.exec_command(command)
+                print (stdout.read())
+            c.close()
+        elif 'description' in updates:
+            for field, value in updates.items():
+                setattr(group, field, value)
+        else:
+            return {'message': 'Property not available for update'}, 405
+        
+        db.session().commit()
+        return {'message': 'Group updated successfully'}, 200

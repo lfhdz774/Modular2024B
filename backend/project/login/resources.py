@@ -36,7 +36,8 @@ class Login(Resource):
             payload = {
                 'username' : user.username,
                 'employee_code' : user.employee_code,
-                'roles' : [user.role_id]
+                'roles' : [user.role_id],
+                'user_id' : user.user_id
             }
             access_token = create_access_token(identity=username, additional_claims=payload, expires_delta=datetime.timedelta(minutes=15))
             return {'access_token': access_token, 'user_role' : user.role_id}, 200

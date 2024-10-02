@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
-import { Container, Paper, Typography, TextField, Button, Grid, MenuItem, Select, FormControl, InputLabel, Checkbox, FormControlLabel, Backdrop, Box, Modal, Fade } from '@mui/material';
+import React, { useEffect, useState, useCallback} from 'react';
+import { Container, Paper, Typography, TextField, Button, Grid, MenuItem, Select, FormControl, InputLabel, Checkbox, FormControlLabel, Backdrop, Box, Modal, Fade, FormLabel } from '@mui/material';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import 'dayjs/locale/es-mx'; // Import the Mexican Spanish locale for Day.js
-import {PostCredential} from 'src/Services/credential.service'; // Reemplaza con la ruta actual al servicio
+import {PostCredential, AccessRequest} from 'src/Services/credential.service'; // Reemplaza con la ruta actual al servicio
+import { GetServers } from 'src/Services/servers.service';
+import { GetUserByCode, GetUsersByRole } from 'src/Services/user.service';
+import _ from 'lodash';
 
 const style = {
   position: 'absolute',
@@ -18,23 +21,47 @@ const style = {
 };
 
 const CredentialCreation = () => {
+  const [codigo, setCodigo] = useState('');
   const [user, setUser] = useState({
-    username: '',
-    password: '',
-    email: '',
-    first_name: '',
-    last_name: '',
-    employee_code: '',
-    role_id: '',
-    server: '',
-    group: '',
+    server_id: -1,
+    group_id: -1,
+    user_id: 0,
     expireDate: null,
+    aprover_id: -1,
+    username: '',
   });
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [loading, setLoading] = useState(false); // State for loading modal
-  const [securityCheck, setSecurityCheck] = useState(false); // State for security check modal
-  const [randomNumbers, setRandomNumbers] = useState({ num1: 0, num2: 0 }); // State for random numbers
-  const [securityInput, setSecurityInput] = useState(''); // State for security input
+  const [servers, setServers] = useState([]); // State for servers
+  
+  const [usuario, setUsuario] = useState('');
+  const [aprover, setAprover] = useState([]);
+
+
+  useEffect(() => {
+    GetServersList();
+    GetAprovers();
+  }, []);
+
+  const GetServersList = async() => {
+    try {
+      const ServerResponse = await GetServers();
+      setServers(ServerResponse);
+    } catch (error) {
+      console.error('Error getting servers', error);
+    }
+  };
+
+
+  const GetAprovers = async() => {
+    try {
+      const AproverResponse = await GetUsersByRole(3);
+      setAprover(AproverResponse.data);
+      console.log(AproverResponse);
+    } catch (error) {
+      console.error('Error getting aprovers', error);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -48,29 +75,17 @@ const CredentialCreation = () => {
     setShowDatePicker(event.target.checked);
   };
 
-  const generateRandomNumbers = () => {
-    const num1 = Math.floor(Math.random() * 100);
-    const num2 = Math.floor(Math.random() * 100);
-    setRandomNumbers({ num1, num2 });
-  };
-
   const handleSecuritySubmit = () => {
-    setSecurityCheck(false);
-    setLoading(true); // Show loading modal
+      setLoading(true); // Show loading modal
 
     // const data = {
     //   ...user,
     //   expireDate: user.expireDate ? user.expireDate.toISOString() : null,
     // };
 
-    const data ={
-        username: user.username,
-        password: user.password
-    }
-
     setTimeout(async () => {
       try {
-        const response = await PostCredential(data);
+        const response = await AccessRequest(user);
         setLoading(false); // Hide loading modal
         // Handle successful response
         console.log('Credential created successfully', response);
@@ -84,9 +99,50 @@ const CredentialCreation = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    generateRandomNumbers();
-    setSecurityCheck(true); // Show security check modal
+    handleSecuritySubmit();
   };
+
+  
+    // Función que realiza la búsqueda del usuario en la API
+    const searchUser = async (code) => {
+      try {
+        const response = await GetUserByCode(code);
+        if (response.status === 284) {
+          setUsuario('');
+          return;
+        }
+        setUsuario(response.data);
+        setUser((prevUser) => ({
+          ...prevUser,
+          user_id: response.data.user_id,
+        }));
+        console.log(response);
+      } catch (error) {
+        setUsuario('');
+      }
+    };
+  
+    // Memorizar la función de búsqueda utilizando useCallback
+    const debouncedBuscarUsuario = useCallback(
+      _.debounce((codigo) => {
+        searchUser(codigo);
+      }, 500),
+      [] // Solo se crea una vez al montar el componente
+    );
+  
+    // Manejar cambios en el código ingresado por el usuario
+    useEffect(() => {
+      if (codigo === '') {
+        setUsuario('');
+        return;
+      }
+      // Llamar a la función debounced cada vez que cambia el código
+      debouncedBuscarUsuario(codigo);
+      // Limpiar debounce cuando el componente se desmonte o cambie "codigo"
+      return () => {
+        debouncedBuscarUsuario.cancel(); // Cancela cualquier búsqueda en curso
+      };
+    }, [codigo, debouncedBuscarUsuario]); // Dependencias
 
   return (
     <Container maxWidth="sm" sx={{ mt: 4, mb: 4 }}>
@@ -99,7 +155,7 @@ const CredentialCreation = () => {
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Nombre de Usuario"
+                label="Nombre de Acceso"
                 variant="outlined"
                 required
                 name="username"
@@ -108,49 +164,88 @@ const CredentialCreation = () => {
               />
             </Grid>
             <Grid item xs={12}>
+              <FormControl fullWidth variant="outlined" required>
+                <TextField
+                  labelId="userCode-label"
+                  name="userCode"
+                  value={codigo}
+                  onChange={(e) => setCodigo(e.target.value)}
+                  label="Código de Usuario"
+                />
+
+             
+              </FormControl>
+
+            </Grid>
+            <Grid item xs={12}>
+              <FormControl fullWidth variant="outlined" required>
               <TextField
-                fullWidth
-                label="Contraseña"
-                type="password"
                 variant="outlined"
-                required
-                name="password"
-                value={user.password}
-                onChange={handleChange}
-              />
+                disabled
+                value={usuario ? usuario.first_name + " " + usuario.last_name : 'No encontrado'}
+              ></TextField>
+              </FormControl>
+
             </Grid>
             <Grid item xs={12}>
               <FormControl fullWidth variant="outlined" required>
                 <InputLabel id="server-label">Servidor</InputLabel>
                 <Select
                   labelId="server-label"
-                  name="server"
-                  value={user.server}
+                  name="server_id"
+                  value={user.server_id}
                   onChange={handleChange}
                   label="Servidor"
                 >
-                  <MenuItem value=""><em>None</em></MenuItem>
-                  <MenuItem value="server1">Servidor 1</MenuItem>
-                  <MenuItem value="server2">Servidor 2</MenuItem>
+                  <MenuItem value="-1"><em>None</em></MenuItem>
+                  {
+                    servers ? servers.map((server) => (
+                      <MenuItem key={server.server_id} value={server.server_id}>{server.name}</MenuItem>
+                    )) : null
+                  }
                 </Select>
               </FormControl>
             </Grid>
+
+             
             <Grid item xs={12}>
               <FormControl fullWidth variant="outlined" required>
                 <InputLabel id="group-label">Grupo</InputLabel>
                 <Select
                   labelId="group-label"
-                  name="group"
-                  value={user.group}
+                  name="group_id"
+                  value={user.group_id}
                   onChange={handleChange}
                   label="Grupo"
                 >
-                  <MenuItem value=""><em>None</em></MenuItem>
-                  <MenuItem value="group1">Grupo 1</MenuItem>
-                  <MenuItem value="group2">Grupo 2</MenuItem>
+                  <MenuItem value="-1"><em>None</em></MenuItem>
+                  <MenuItem value="1">Grupo 1</MenuItem>
+                  <MenuItem value="2">Grupo 2</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
+
+            <Grid item xs={12}>
+              <FormControl fullWidth variant="outlined" required>
+                <InputLabel id="server-label">Aprobador</InputLabel>
+                <Select
+                  labelId="aprover-label"
+                  name="aprover_id"
+                  value={user.aprover_id}
+                  onChange={handleChange}
+                  label="Aprobador"
+                >
+                  <MenuItem value="-1"><em>None</em></MenuItem>
+                  {
+                    
+                    aprover ? aprover.map((aprover) => (
+                      <MenuItem key={aprover.user_id} value={aprover.user_id}>{aprover.first_name + " " + aprover.last_name}</MenuItem>
+                    )) : null
+                  }
+                </Select>
+              </FormControl>
+            </Grid>
+
             <Grid item xs={12}>
               <FormControlLabel
                 control={
@@ -178,6 +273,8 @@ const CredentialCreation = () => {
                 </LocalizationProvider>
               </Grid>
             )}
+
+
             <Grid item xs={12}>
               <Button variant="contained" color="primary" type="submit">
                 Crear
@@ -187,72 +284,6 @@ const CredentialCreation = () => {
         </form>
       </Paper>
 
-      <Modal
-        aria-labelledby="transition-modal-title"
-        aria-describedby="transition-modal-description"
-        open={loading}
-        onClose={() => setLoading(false)}
-        closeAfterTransition
-        slots={{ backdrop: Backdrop }}
-        slotProps={{
-          backdrop: {
-            timeout: 500,
-          },
-        }}
-      >
-        <Fade in={loading}>
-          <Box sx={style}>
-            <Typography id="transition-modal-title" variant="h6" component="h2">
-              Creando Credencial
-            </Typography>
-            <Typography id="transition-modal-description" sx={{ mt: 2 }}>
-              Por favor, espere mientras se crea la credencial.
-            </Typography>
-          </Box>
-        </Fade>
-      </Modal>
-
-      <Modal
-        aria-labelledby="security-modal-title"
-        aria-describedby="security-modal-description"
-        open={securityCheck}
-        onClose={() => setSecurityCheck(false)}
-        closeAfterTransition
-        slots={{ backdrop: Backdrop }}
-        slotProps={{
-          backdrop: {
-            timeout: 500,
-          },
-        }}
-      >
-        <Fade in={securityCheck}>
-          <Box sx={style}>
-            <Typography id="security-modal-title" variant="h6" component="h2">
-              Verificación de Seguridad
-            </Typography>
-            <Typography id="security-modal-description" sx={{ mt: 2 }}>
-              Ingrese el resultado de su algoritmo con los siguientes números:
-            </Typography>
-            <Typography sx={{ mt: 2 }}>
-              Número 1: {randomNumbers.num1}
-            </Typography>
-            <Typography sx={{ mt: 2 }}>
-              Número 2: {randomNumbers.num2}
-            </Typography>
-            <TextField
-              fullWidth
-              label="Resultado del Algoritmo"
-              variant="outlined"
-              value={securityInput}
-              onChange={(e) => setSecurityInput(e.target.value)}
-              sx={{ mt: 2 }}
-            />
-            <Button variant="contained" color="primary" onClick={handleSecuritySubmit} sx={{ mt: 2 }}>
-              Verificar
-            </Button>
-          </Box>
-        </Fade>
-      </Modal>
     </Container>
   );
 };

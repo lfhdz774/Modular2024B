@@ -11,6 +11,7 @@ export const GetUser = async () => {
 
 export const PostUser = async (userModel) => {
     try {
+        console.log(userModel)
         const response = await http.post('/api/admin/signup', JSON.stringify(userModel), {
             headers: {
                 'Content-Type': 'application/json',
@@ -18,6 +19,7 @@ export const PostUser = async (userModel) => {
         });
         return response.data;
     } catch (error) {
+        console.log(userModel);
         console.log(error);
         return error;
     }
@@ -32,3 +34,31 @@ export const GetUserRoles = async () => {
         return error;
     }
 };
+
+export const GetUserPositions = async () => {
+    try {
+        const response = await http.get('/api/user/positions');
+        return response.data;
+    } catch (error) {
+        return error;
+    }
+};
+
+export const GetUserByCode = async (code) => {
+    try {
+        const response = await http.get(`/api/user/${code}`);
+        return response;
+    } catch (error) {
+        return error;
+    }
+}
+
+export const GetUsersByRole = async (role) => {
+    try {
+        const response = await http.get(`/api/user/role/${role}`);
+        return response;
+    } catch (error) {
+        return error;
+    }
+}
+

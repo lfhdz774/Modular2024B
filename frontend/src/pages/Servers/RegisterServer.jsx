@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Paper, Typography, TextField, Button, Grid, InputLabel, Select, MenuItem } from '@mui/material';
 import { PostServer, GetServers, GetServerById, UpdateServer } from 'src/Services/servers.service';
+import RequestModal from 'src/components/RequestModal'
 
 const RegisterServer = ({ isEditing }) => {
   const [formData, setFormData] = useState({
@@ -13,6 +14,8 @@ const RegisterServer = ({ isEditing }) => {
   });
   const [servers, setServers] = useState([]);
   const [selectedServerId, setSelectedServerId] = useState('');
+  const [open, setOpen] = useState(false)
+  const [status, setStatus] = useState('loading');
 
   // Fetch servers when in edit mode
   useEffect(() => {
@@ -65,16 +68,34 @@ const RegisterServer = ({ isEditing }) => {
     try {
       if (isEditing && selectedServerId) {
         const updates = { ...formData };
+        setOpen(true)
         const response = await UpdateServer({ server_id: selectedServerId, updates });
+        if(response.status === 200){
+          setStatus('success')
+        }
+        else{
+          setStatus('error')
+        }
+          
+        setOpen(false)
         console.log('Server Updated:', response);
       } else {
         const response = await PostServer(formData);
         console.log('Server Registered:', response);
+        console.log(response.status)
       }
     } catch (error) {
       console.error('Error registering/updating server:', error);
     }
   };
+
+  // Función para cerrar el modal
+  const handleClose = () => {
+    setOpen(false);
+    setStatus('loading'); // Reinicia el estado de la request al cerrar el modal
+  };
+
+
 
   return (
     <Container maxWidth="sm" sx={{ mt: 4, mb: 4 }}>
@@ -179,6 +200,7 @@ const RegisterServer = ({ isEditing }) => {
           </Grid>
         </form>
       </Paper>
+      <RequestModal open={open} status={status} handleClose={handleClose} ></RequestModal>
     </Container>
   );
 };

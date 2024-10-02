@@ -1,15 +1,31 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container, Grid, Paper, Typography, Card, CardContent, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Box, useTheme } from '@mui/material';
 import { BarChart } from '@mui/x-charts';
-
+import { GetServers } from 'src/Services/servers.service';
+import {GetChartReport} from 'src/Services/Report.Service';
 const HomePage = () => {
   const theme = useTheme();
+  const [servers, setServers] = React.useState([]);
 
-  const chartData = [
-    { server: 'Servidor 1', activeCredentials: 12 },
-    { server: 'Servidor 2', activeCredentials: 19 },
-    { server: 'Servidor 3', activeCredentials: 3 },
-  ];
+  const [chartData, setChartData] = useState([
+    { server_name: 'Servidor 1', credentials_count: 12 },
+    { server_name: 'Servidor 2', credentials_count: 19 },
+    { server_name: 'Servidor 3', credentials_count: 3 },
+  ]);
+
+
+  const getChartData = async() => {
+    const chartDataResponse = await GetChartReport();
+    setChartData([]);
+    setChartData(chartDataResponse);
+
+    console.log(chartDataResponse);
+  }
+
+  useEffect(() => {
+    getChartData();
+  }, []);
+
 
   const credentials = [
     { id: 1, server: 'Servidor 1', username: 'usuario1', expireDate: '2023-12-31' },
@@ -41,8 +57,8 @@ const HomePage = () => {
               Credenciales activas por servidor
             </Typography>
             <BarChart
-              xAxis={[{ dataKey: 'server', label: 'Servidor', scaleType: 'band' }]}
-              series={[{ dataKey: 'activeCredentials', label: 'Credenciales Activas' }]}
+              xAxis={[{ dataKey: 'server_name', label: 'Servidor', scaleType: 'band' }]}
+              series={[{ dataKey: 'credentials_count', label: 'Credenciales Activas' }]}
               dataset={chartData}
               height={200}
             />

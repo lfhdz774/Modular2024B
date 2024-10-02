@@ -11,9 +11,10 @@ class UserModel(db.Model):
     first_name = db.Column(db.String(100))
     last_name = db.Column(db.String(100))
     employee_code = db.Column(db.String(10), nullable=False)
+    
 
 
-    accesses = db.relationship('Access', back_populates='user',foreign_keys='Access.user_id')
+    access = db.relationship('Access', back_populates='user',foreign_keys='Access.user_id')
     notifications = db.relationship('Notification', back_populates='user')
     
 
@@ -65,11 +66,10 @@ class Server(db.Model):
     ip_address = db.Column(db.String(15), nullable=False)
     username = db.Column(db.String(255), nullable=False)
     pkey = db.Column(db.Text, nullable=False)
-    #user_groups = db.Column(db.ARRAY(db.Integer)) #TODO: Groups will point to the server, no the server to the groups
     operating_system = db.Column(db.String(50))
 
-    accesses = db.relationship('Access', back_populates='server',foreign_keys='Access.server_id')
-    groups = db.relationship('Group', back_populates='server', cascade='all, delete-orphan')
+    access = db.relationship('Access', back_populates='server',foreign_keys='Access.server_id')
+    groups = db.relationship('Group', back_populates='server', foreign_keys='Group.server_id')
 
     def __init__(self,name,hostname,ip_address,username,pkey,operating_system):
         self.name = name
@@ -99,6 +99,8 @@ class Group(db.Model):
     group_id = db.Column(db.Integer, primary_key=True)
     group_name = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text)
+    server_id = db.Column(db.Integer, db.ForeignKey('servers.server_id'), nullable=False)
+
     
     server = db.relationship('Server', back_populates='groups')
 
@@ -107,21 +109,11 @@ class Group(db.Model):
         self.group_name = group_name
         self.description = description
         self.server_id = server_id
-
-    #access_id = db.Column(db.Integer, primary_key=True)
-    #access_name = db.Column(db.String(10),nullable=False)
-    #user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
-    #server_id = db.Column(db.Integer, db.ForeignKey('server.server_id'), nullable=False)
-    #created_at = db.Column(db.TIMESTAMP)
-    #expires_at = db.Column(db.TIMESTAMP)
-
-class UsersGroupsServer(db.Model):
-    __table_args__ = {'extend_existing': True}
-    __tablename__ = 'users_groups_server'
-
-    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), primary_key=True, nullable=False)
-    group_id = db.Column(db.Integer, db.ForeignKey('groups.group_id'), primary_key=True, nullable=False)
-
+    def json(self):
+        return{'group_name': self.group_name,
+                'description' : self.description,
+                'server_id' : self.server_id,
+        }
 
 class Role(db.Model):
     __tablename__ = 'roles'
@@ -140,8 +132,8 @@ class Access(db.Model):
     user_groups = db.Column(db.ARRAY(db.Integer))
     status = db.Column(db.BOOLEAN, default=True)
 
-    user = db.relationship('UserModel', back_populates='accesses')
-    server = db.relationship('Server', back_populates='accesses')
+    user = db.relationship('UserModel', back_populates='access')
+    server = db.relationship('Server', back_populates='access')
     def __init__(self,access_name,user_id,server_id,created_at,expires_at,user_groups):
         self.access_name = access_name
         self.user_id = user_id
@@ -239,8 +231,5 @@ UserModel.approver_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nu
 UserModel.employee_position = db.Column(db.Integer, db.ForeignKey('positions.position_id'), nullable=False) #
 UserModel.Position = db.relationship('Position', foreign_keys=[UserModel.employee_position])
 UserModel.Role = db.relationship('Role', foreign_keys=[UserModel.role_id])
-
-Group.server_id = db.Column(db.Integer, db.ForeignKey('servers.server_id'), nullable=False)
-
+#Group.server_id = db.Column(db.Integer, db.ForeignKey('servers.server_id'), nullable=False)
 UserModel.commands = db.relationship('CommandModel', back_populates='user', foreign_keys='CommandModel.user_id')
-

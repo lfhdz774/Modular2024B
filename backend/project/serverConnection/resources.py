@@ -276,9 +276,9 @@ class ApproveRequest(Resource):
         aprover_id = claims.get('user_id')
         request = db.session().query(AccessRequestModel).filter_by(request_id=request_id).first()
         if not request:
-            return {'msg': 'Request not Found'},404
+            return {'message': 'Request not Found'},404
         if request.approver_id != aprover_id:
-            return {'msg': 'You are not the aprover of this request'},403
+            return {'message': 'You are not the aprover of this request'},403
         request.status = 'Approved'
 
         access = db.session().query(Access).filter(Access.access_id==request.access_id).first()
@@ -288,6 +288,6 @@ class ApproveRequest(Resource):
         db.session.commit()
         print(access.access_name)
         generate_access_instance = GenerateAccess()
-        return generate_access_instance.crear_usuario(access.access_name)
+        return generate_access_instance.crear_usuario(access.access_name, access.server_id)
 
         #return {'msg': 'Request Approved'},201  

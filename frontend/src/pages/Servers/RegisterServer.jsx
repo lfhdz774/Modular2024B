@@ -42,13 +42,14 @@ const RegisterServer = ({ isEditing }) => {
 
     try {
       const server = await GetServerById(serverId);  // Fetch the server details
+      console.log('Server Details:', server);
       setFormData({
-        name: server.name || '',
-        hostname: server.hostname || '',
-        ip_address: server.ip_address || '',
-        username: server.username || '',
-        pkey: server.pkey || '',
-        operating_system: server.operating_system || '',
+        name: server.data.name || '',
+        hostname: server.data.hostname || '',
+        ip_address: server.data.ip_address || '',
+        username: server.data.username || '',
+        pkey: server.data.pkey || '',
+        operating_system: server.data.operating_system || '',
       });
     } catch (error) {
       console.error('Error fetching server details:', error);

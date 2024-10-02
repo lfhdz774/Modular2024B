@@ -29,5 +29,17 @@ class UpdateUserInfoError(BaseCustomError):
 class AccessAlreadyExists(BaseCustomError):
     """Exception raised for errors in updating user info."""
     def __init__(self, username):
-        super().__init__(message="Error updating user info", code=590)
+        super().__init__(message=f"Access {username} already exist", code=590)
         self.username = username
+
+class AccessNotFound(BaseCustomError):
+    """Exception raised when a user is not found."""
+    def __init__(self, username):
+        super().__init__(message="Access not found", code=404)
+        self.username = username
+
+class GroupAlreadyExists(BaseCustomError):
+    """Exception raised for errors in updating user info."""
+    def __init__(self, groupname):
+        super().__init__(message=f"Group {groupname} already exist", code=590)
+        self.groupname = groupname

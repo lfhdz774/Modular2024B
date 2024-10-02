@@ -11,7 +11,7 @@ class ChartReport(Resource):
         chart_data = []
 
         for server in servers:
-            credentials_count = len(server.accesses)
+            credentials_count = len(server.access)
             chart_data.append({
             'server_name': server.name,
             'credentials_count': credentials_count

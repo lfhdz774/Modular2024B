@@ -52,12 +52,12 @@ export const MainListItems = () => {
                 <ListItemText primary="Inicio" />
             </ListItemButton>
 
-            <ListItemButton onClick={() => navigate('/reports')}>
+            {/* <ListItemButton onClick={() => navigate('/reports')}>
                 <ListItemIcon >
                     <ShoppingCartIcon />
                 </ListItemIcon>
                 <ListItemText primary="Reportes" />
-            </ListItemButton>
+            </ListItemButton> */}
 
             <ProtectedMenu allowedRoles={[7]} userRole={userRoles}>
                 <ListItemButton onClick={() => navigate('/user-creation')}>

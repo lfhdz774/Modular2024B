@@ -38,6 +38,12 @@ class AccessNotFound(BaseCustomError):
         super().__init__(message="Access not found", code=404)
         self.username = username
 
+class AccessAlreadyAdded(BaseCustomError):
+    """Exception raised when a user is not found."""
+    def __init__(self, username):
+        super().__init__(message="Group already on the access", code=409)
+        self.username = username
+
 class GroupAlreadyExists(BaseCustomError):
     """Exception raised for errors in updating user info."""
     def __init__(self, groupname):

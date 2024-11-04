@@ -1,14 +1,18 @@
 import datetime
+from io import StringIO
 import re
 import secrets
 import string
-
+from Exceptions.ServersExceptions import AccessAlreadyExists, ServerNotFoundError
+from project import db
 from flask_jwt_extended import create_access_token
 import paramiko
 
+from project.models import Access, Server
+
 
 class GenerateAccess:
-    def crear_usuario(self, username):
+    def crear_usuario(self, username, server_id):
         if not self.es_nombre_usuario_valido(username):
             return {"message": f"El nombre de usuario '{username}' no es válido.", "link": ""}
         
@@ -16,7 +20,7 @@ class GenerateAccess:
         password = self.generar_contraseña()
         
         # Crear el usuario en el servidor
-        resultado = self.crear_usuario_servidor(username, password)
+        resultado = self.crear_usuario_servidor(username, password, server_id)
         
         if resultado['exito']:
             # Crear un token JWT que contenga la contraseña
@@ -46,13 +50,25 @@ class GenerateAccess:
         return contraseña
     
 
-    def crear_usuario_servidor(self, username, password):
+    def crear_usuario_servidor(self, username, password, server_id):
         try:
+            server = db.session().query(Server).filter_by(server_id=server_id).first()
+            if not server:
+                raise ServerNotFoundError(server_id)
+            
+            # access = db.session().query(Access).filter_by(access_name = username,server_id=server_id).first()
+            # if access:
+            #     raise AccessAlreadyExists(username)
+            
+            
             # Configuración de la conexión SSH
-            k = paramiko.RSAKey.from_private_key_file("project/serverConnection/key11.pem")
+            pem_key = server.pkey.replace("\\n","\n")
+            pem_key = StringIO(pem_key)
+            k = paramiko.RSAKey.from_private_key(pem_key)
             c = paramiko.SSHClient()
             c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            c.connect( hostname = "ec2-3-16-48-222.us-east-2.compute.amazonaws.com", username = "ubuntu", pkey = k )
+            print ("connecting")
+            c.connect( hostname = server.hostname, username = server.username, pkey = k )
 
             # Comandos para crear el usuario y establecer la contraseña
             comandos = [

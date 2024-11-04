@@ -106,7 +106,9 @@ class ProcesarComando(Resource):
 
     def ejecutar_accion(self, datos):
         if datos['accion'] == 'crear_usuario':
-            return GenerateAccess.crear_usuario(datos['username'])
+            generate_access_instance = GenerateAccess()
+            return generate_access_instance.crear_usuario(datos['username'], 1)
+            #return GenerateAccess.crear_usuario(datos['username'])
         elif datos['accion'] == 'eliminar_usuario':
             return self.eliminar_usuario(datos['username'])
         elif datos['accion'] == 'consultar_usuario':

@@ -13,7 +13,7 @@ from sqlalchemy.orm import joinedload
 
 
 from Exceptions.ServersExceptions import ServerNotFoundError,AccessAlreadyExists,AccessNotFound,GroupNotFound
-from Exceptions.ServersExceptions import AccessAlreadyExistsError, ServerNotFoundError,AccessAlreadyExists
+from Exceptions.ServersExceptions import AccessAlreadyExistsError, ServerNotFoundError,AccessAlreadyExists,AccessAlreadyAdded
 
 class GetAllAccesses(Resource):
     @swag_from('project/swagger.yaml') 
@@ -172,12 +172,86 @@ class AddGroupToAccess(Resource):
                 raise GroupNotFound(group_name)
         except GroupNotFound as e:
             abort(404, description=str(e))
+        try:
+            for i in access.user_groups:
+                if i == group.group_id:
+                    raise AccessAlreadyAdded(group_name)
+        except AccessAlreadyAdded as e:
+            abort(409, description=str(e))
         #Update Acces on DB side
-        print("here")
-        access.user_groups.append(group.group_id)
+        updatedUser_Groups = access.user_groups + [group.group_id]
+        access.user_groups = updatedUser_Groups
         db.session().commit()
-        print("after")
 
+        #Update Access on Server Side
+
+        pem_key = server.pkey.replace("\\n","\n")
+        pem_key = StringIO(pem_key)
+        k = paramiko.RSAKey.from_private_key(pem_key)
+        c = paramiko.SSHClient()
+        c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        print ("connecting")
+        c.connect( hostname = server.hostname, username = server.username, pkey = k )
+        commands = [ f"sudo usermod -a -G {group.group_name} {access.access_name} "]
+        for command in commands:
+            print ("Executing {}".format( command ))
+            stdin , stdout, stder = c.exec_command(command)
+            print (stdout.read())
+        c.close()
+        return {'msg': str(stder.read().decode())}
+    
+
+class RemoveGroupFromAccess(Resource):
+    @swag_from('project/swagger.yaml') 
+    def __init__(self):
+        self.parser = reqparse.RequestParser()
+        self.parser.add_argument('username', type=str, help='Missing Username of the Access', required=True)
+        self.parser.add_argument('server_id', type=str, help='Missing Server_id where to Delete the Access', required=True)
+        self.parser.add_argument('group_name', type=str, help='Missing group_name of the Group', required=True)
+    def post(self):
+        args = self.parser.parse_args()
+        access_name = args['username']
+        server_id = args['server_id']
+        group_name = args['group_name']
+        server = db.session().query(Server).filter_by(server_id=server_id).first()
+        try:
+            server = db.session().query(Server).filter_by(server_id=server_id).first()
+            if not server:
+                raise ServerNotFoundError(server_id)
+        except ServerNotFoundError as e:
+            abort(404, description=str(e))
+        try:
+            access = db.session().query(Access).filter_by(access_name = access_name,server_id=server_id).first()
+            if not access:
+                raise AccessNotFound(access_name)
+        except ServerNotFoundError as e:
+            abort(404, description=str(e))
+        try:
+            group = db.session().query(Group).filter_by(group_name = group_name,server_id=server_id).first()
+            if not group:
+                raise GroupNotFound(group_name)
+        except GroupNotFound as e:
+            abort(404, description=str(e))
+        #Update Acces on DB side
+        access.user_groups = [num for num in access.user_groups if num != group.group_id]
+        print(access.user_groups)
+        db.session().commit()
+        #Update Access on Server Side
+
+        pem_key = server.pkey.replace("\\n","\n")
+        pem_key = StringIO(pem_key)
+        k = paramiko.RSAKey.from_private_key(pem_key)
+        c = paramiko.SSHClient()
+        c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        print ("connecting")
+        c.connect( hostname = server.hostname, username = server.username, pkey = k )
+        commands = [ f"sudo gpasswd  -d {access.access_name} {group.group_name}  "]
+        for command in commands:
+            print ("Executing {}".format( command ))
+            stdin , stdout, stder = c.exec_command(command)
+            print (stdout.read())
+        c.close()
+        return {'msg': str(stder.read().decode())}
 
 class TestConnection(Resource):
     @swag_from('project/swagger.yaml') 

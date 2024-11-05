@@ -110,7 +110,8 @@ class Group(db.Model):
         self.description = description
         self.server_id = server_id
     def json(self):
-        return{'group_name': self.group_name,
+        return{ 'group_id' : self.group_id,
+                'group_name': self.group_name,
                 'description' : self.description,
                 'server_id' : self.server_id,
         }

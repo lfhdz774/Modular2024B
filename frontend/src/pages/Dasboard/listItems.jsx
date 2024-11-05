@@ -19,6 +19,7 @@ import Divider from '@mui/material/Divider';
 import DnsIcon from '@mui/icons-material/Dns';
 import LockPersonIcon from '@mui/icons-material/LockPerson';
 import RuleIcon from '@mui/icons-material/Rule';
+import AssignmentReturnedIcon from '@mui/icons-material/AssignmentReturned';
 
 
 export const MainListItems = () => {
@@ -43,88 +44,98 @@ export const MainListItems = () => {
 
 
     return (
-        <React.Fragment>
+      <React.Fragment>
+        <ListItemButton onClick={() => navigate("/home")}>
+          <ListItemIcon>
+            <DashboardIcon />
+          </ListItemIcon>
+          <ListItemText primary="Inicio" />
+        </ListItemButton>
 
-            <ListItemButton onClick={() => navigate('/home')}>
-                <ListItemIcon>
-                    <DashboardIcon />
-                </ListItemIcon>
-                <ListItemText primary="Inicio" />
-            </ListItemButton>
+        
+        <ProtectedMenu allowedRoles={[7]} userRole={userRoles}>
+          <ListItemButton onClick={() => navigate("/reports")}>
+            <ListItemIcon>
+              <ShoppingCartIcon />
+            </ListItemIcon>
+            <ListItemText primary="Reportes" />
+          </ListItemButton>
+        </ProtectedMenu>
 
-            {/* <ListItemButton onClick={() => navigate('/reports')}>
-                <ListItemIcon >
-                    <ShoppingCartIcon />
-                </ListItemIcon>
-                <ListItemText primary="Reportes" />
-            </ListItemButton> */}
+        <ProtectedMenu allowedRoles={[7]} userRole={userRoles}>
+          <ListItemButton onClick={() => navigate("/user-creation")}>
+            <ListItemIcon>
+              <SupervisorAccountIcon />
+            </ListItemIcon>
+            <ListItemText primary="Crear usuario" />
+          </ListItemButton>
+        </ProtectedMenu>
 
-            <ProtectedMenu allowedRoles={[7]} userRole={userRoles}>
-                <ListItemButton onClick={() => navigate('/user-creation')}>
-                    <ListItemIcon>
-                        <SupervisorAccountIcon />
-                    </ListItemIcon>
-                    <ListItemText primary="Crear usuario" />
-                </ListItemButton>
-            </ProtectedMenu>
+        <Divider sx={{ my: 1 }} />
 
-            <Divider sx={{ my: 1 }} />
+        <ProtectedMenu allowedRoles={[7]} userRole={userRoles}>
+          <ListItemButton onClick={() => navigate("/user-credential-creation")}>
+            <ListItemIcon>
+              <PersonAddIcon />
+            </ListItemIcon>
+            <ListItemText primary="Crear credencial" />
+          </ListItemButton>
+        </ProtectedMenu>
 
-            <ProtectedMenu allowedRoles={[7]} userRole={userRoles}>
-                <ListItemButton onClick={() => navigate('/user-credential-creation')}>
-                    <ListItemIcon>
-                        <PersonAddIcon />
-                    </ListItemIcon>
-                    <ListItemText primary="Crear credencial" />
-                </ListItemButton>
-            </ProtectedMenu>
+        <ProtectedMenu allowedRoles={[7]} userRole={userRoles}>
+          <ListItemButton
+            onClick={() => navigate("/user-credential-management")}
+          >
+            <ListItemIcon>
+              <PersonSearchIcon />
+            </ListItemIcon>
+            <ListItemText primary="Administrar credenciales" />
+          </ListItemButton>
+        </ProtectedMenu>
 
-            <ProtectedMenu allowedRoles={[7]} userRole={userRoles}>
-                <ListItemButton onClick={() => navigate('/user-credential-management')}>
-                    <ListItemIcon>
-                        <PersonSearchIcon />
-                    </ListItemIcon>
-                    <ListItemText primary="Administrar credenciales" />
-                </ListItemButton>
-            </ProtectedMenu>
+        <ProtectedMenu allowedRoles={[7]} userRole={userRoles}>
+          <ListItemButton onClick={() => navigate("/server-creation")}>
+            <ListItemIcon>
+              <DnsIcon />
+            </ListItemIcon>
+            <ListItemText primary="Registrar servidores" />
+          </ListItemButton>
+        </ProtectedMenu>
 
-            <ProtectedMenu allowedRoles={[7]} userRole={userRoles}>
-                <ListItemButton onClick={() => navigate('/server-creation')}>
-                    <ListItemIcon>
-                        <DnsIcon />
-                    </ListItemIcon>
-                    <ListItemText primary="Registrar servidores" />
-                </ListItemButton>
-            </ProtectedMenu>
+        <ProtectedMenu allowedRoles={[7]} userRole={userRoles}>
+          <ListItemButton onClick={() => navigate("/server-management")}>
+            <ListItemIcon>
+              <LockPersonIcon />
+            </ListItemIcon>
+            <ListItemText primary="Administrar servidores" />
+          </ListItemButton>
+        </ProtectedMenu>
 
-            <ProtectedMenu allowedRoles={[7]} userRole={userRoles}>
-            <ListItemButton onClick={() => navigate('/server-management')}>
-                    <ListItemIcon>
-                        <LockPersonIcon />
-                    </ListItemIcon>
-                    <ListItemText primary="Administrar servidores" />
-                </ListItemButton>
-            </ProtectedMenu>
+        <ProtectedMenu allowedRoles={[7, 3]} userRole={userRoles}>
+          <ListItemButton onClick={() => navigate("/Acces-requets")}>
+            <ListItemIcon>
+              <RuleIcon />
+            </ListItemIcon>
+            <ListItemText primary="Administrar peticiones" />
+          </ListItemButton>
+        </ProtectedMenu>
 
-            <ProtectedMenu allowedRoles={[7,3]} userRole={userRoles}>
-            <ListItemButton onClick={() => navigate('/Acces-requets')}>
-                    <ListItemIcon>
-                        <RuleIcon />
-                    </ListItemIcon>
-                    <ListItemText primary="Administrar peticiones" />
-                </ListItemButton>
-            </ProtectedMenu>
+        <ListItemButton onClick={() => navigate("/request-for-me")}>
+          <ListItemIcon>
+            <AssignmentReturnedIcon />
+          </ListItemIcon>
+          <ListItemText primary="Solicitar accesos" />
+        </ListItemButton>
 
-            <Divider sx={{ my: 1 }} />
+        <Divider sx={{ my: 1 }} />
 
-            <ListItemButton onClick={() => navigate('/commands')}>
-                <ListItemIcon >
-                    <AutoModeIcon />
-                </ListItemIcon>
-                <ListItemText primary="Comandos IA" />
-            </ListItemButton>
-
-        </React.Fragment>
+        <ListItemButton onClick={() => navigate("/commands")}>
+          <ListItemIcon>
+            <AutoModeIcon />
+          </ListItemIcon>
+          <ListItemText primary="Comandos IA" />
+        </ListItemButton>
+      </React.Fragment>
     );
 }
 

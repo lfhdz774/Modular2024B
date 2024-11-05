@@ -10,7 +10,12 @@ import CredentialManagement from 'src/pages/Credentials/Credentialmanagement';
 import Command from 'src/pages/Commands/Commands';
 import RegisterServer from 'src/pages/Servers/RegisterServer';
 import PendingRequests from 'src/pages/Credentials/AccessRequests';
+import ReportViewer from 'src/pages/Reports/ReportViewer';
+import AskForAccess from 'src/pages/AskForMe/askForAccess';
+
+
 const HomePage = lazy(() => import('src/pages/Home'));
+
 
 
 const RouterComponent = () => {
@@ -21,7 +26,9 @@ const RouterComponent = () => {
                     
                     <Route index element={<Navigate to="/home" replace />} />
                     <Route path="/home" element={<Suspense fallback={<div>Loading...</div>}><HomePage /></Suspense>} />
-                    <Route path="/reports" element={<h2>Reports</h2>} />
+                    <Route path="/reports" element={<ProtectedRoute allowedRoles={[7]}>
+                        <Suspense fallback={<div>Loading...</div>}><ReportViewer/></Suspense>
+                    </ProtectedRoute>} />
                     <Route path="/user" element={<Suspense fallback={<div>Loading...</div>}><UserAdministration /></Suspense>} />
                     <Route path="/user-creation" element={<ProtectedRoute allowedRoles={[7]}>
                         <Suspense fallback={<div>Loading...</div>}><UserAdministration /></Suspense>
@@ -50,6 +57,8 @@ const RouterComponent = () => {
                     <Route path="/Acces-requets" element={<ProtectedRoute allowedRoles={[7,3]}>
                         <Suspense fallback={<div>Loading...</div>}><PendingRequests /></Suspense>
                     </ProtectedRoute>} />
+
+                    <Route path="/request-for-me" element={<AskForAccess/>} />
                                     
                 </Route>
                 <Route path="/login" element={<Login />} />

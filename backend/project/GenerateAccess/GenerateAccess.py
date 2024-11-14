@@ -13,6 +13,8 @@ from flask_mail import Mail, Message
 from project.models import Access, Server
 from ..Helpers.mailHelper import send_email
 
+from project.models import Access, Server
+
 
 class GenerateAccess:
     def crear_usuario(self, username, server_id, email):

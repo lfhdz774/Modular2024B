@@ -2,8 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Box, CircularProgress, Typography } from '@mui/material';
 import { CheckCircle, Error } from '@mui/icons-material';
+import { cond } from 'lodash';
 
-const RequestModal = ({ open, status, handleClose }) => {
+const RequestModal = ({status, handleClose }) => {
   // Estilos para el modal
   const style = {
     position: 'absolute',
@@ -21,11 +22,21 @@ const RequestModal = ({ open, status, handleClose }) => {
     justifyContent: 'center',
   };
 
+  const [show, setShow] = useState(false); // Estado para mostrar el modal
+
+
   // Efecto para cerrar automáticamente el modal después de un retraso
   useEffect(() => {
+    if (status === 'loading') {
+      setShow(true);
+    } 
+
     if (status === 'success' || status === 'error') {
+      
       const timer = setTimeout(() => {
         handleClose();
+        setShow(false);
+        console.log('cerrando');
       }, 1500); // Cierra el modal después de 1.5 segundos
 
       return () => clearTimeout(timer); // Limpia el temporizador cuando el componente se desmonte o se actualice
@@ -47,7 +58,7 @@ const RequestModal = ({ open, status, handleClose }) => {
   };
 
   return (
-    <Modal open={open} aria-labelledby="modal-title" aria-describedby="modal-description">
+    <Modal open={show} aria-labelledby="modal-title" aria-describedby="modal-description">
       <Box sx={style}>
         <Typography id="modal-title" variant="h6" component="h2">
           {status === 'loading' ? 'Procesando...' : status === 'success' ? '¡Éxito!' : 'Error'}

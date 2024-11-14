@@ -59,6 +59,8 @@ const RouterComponent = () => {
                     </ProtectedRoute>} />
 
                     <Route path="/request-for-me" element={<AskForAccess/>} />
+
+                    <Route path="/my_access" element={<AskForAccess/>} />
                                     
                 </Route>
                 <Route path="/login" element={<Login />} />

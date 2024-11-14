@@ -29,6 +29,20 @@ export const AccessRequest = async (accessRequestModel) => {
     }
 }
 
+export const AccessRequestForMe = async (accessRequestForMeModel) => {
+    try {
+        const response = await http.post('/api/admin/AccessRequestForMe', JSON.stringify(accessRequestForMeModel), {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        return response;
+    } catch (error) {
+        console.log(error);
+        return error;
+    }
+}
+
 
 export const GetAccessRequests = async () => {
     try {

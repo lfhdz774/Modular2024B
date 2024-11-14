@@ -6,7 +6,7 @@ from flask_restful import Api,Resource
 from project import app
 from .resources import CreateAccess,DeleteAccess,TestConnection,GetAccess,GetAllAccesses,AddGroupToAccess
 from .resources import CreateAccess,DeleteAccess,TestConnection,GetAccess, AccessRequest, GetAllRequests, ApproveRequest,RemoveGroupFromAccess
-
+from .resources import AccessRequestForMe
 serverConnection_blueprint = Blueprint('serverConnection', __name__, url_prefix='/api/admin')
 api = Api(serverConnection_blueprint)
 
@@ -20,5 +20,6 @@ api.add_resource(GetAllRequests,'/GetAllRequests')
 api.add_resource(ApproveRequest, '/ApproveRequest/<int:request_id>')
 api.add_resource(AddGroupToAccess,'/AddGroupToAccess')
 api.add_resource(RemoveGroupFromAccess,'/RemoveGroupFromAccess')
+api.add_resource(AccessRequestForMe,'/AccessRequestForMe')
 
 

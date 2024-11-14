@@ -40,6 +40,12 @@ class Login(Resource):
                 'user_id' : user.user_id
             }
             access_token = create_access_token(identity=username, additional_claims=payload, expires_delta=datetime.timedelta(minutes=15))
-            return {'access_token': access_token, 'user_role' : user.role_id}, 200
+            userData = {
+                'username': user.username,
+                'employee_code': user.employee_code,
+                'role_id': user.role_id,
+                'user_id': user.user_id
+            }
+            return {'access_token': access_token, 'user_data' : userData}, 200
         else:
             return {'message': 'Invalid username or password'}, 401

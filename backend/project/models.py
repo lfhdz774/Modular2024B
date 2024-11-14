@@ -10,7 +10,7 @@ class UserModel(db.Model):
     email = db.Column(db.String(255), nullable=False)
     first_name = db.Column(db.String(100))
     last_name = db.Column(db.String(100))
-    employee_code = db.Column(db.String(10), nullable=False)
+    employee_code = db.Column(db.String(10), nullable=False, unique=True)
     
 
 
@@ -67,17 +67,19 @@ class Server(db.Model):
     username = db.Column(db.String(255), nullable=False)
     pkey = db.Column(db.Text, nullable=False)
     operating_system = db.Column(db.String(50))
+    short_name = db.Column(db.String(6))
 
     access = db.relationship('Access', back_populates='server',foreign_keys='Access.server_id')
     groups = db.relationship('Group', back_populates='server', foreign_keys='Group.server_id')
 
-    def __init__(self,name,hostname,ip_address,username,pkey,operating_system):
+    def __init__(self,name,hostname,ip_address,username,pkey,operating_system,short_name):
         self.name = name
         self.hostname = hostname
         self.ip_address = ip_address
         self.username = username
         self.pkey = pkey
         self.operating_system = operating_system
+        self.short_name = short_name
 
     def json(self):
         return {'server_id': self.server_id,
@@ -86,7 +88,8 @@ class Server(db.Model):
                 'ip_address' : self.ip_address,
                 'username' : self.username,
                 'pkey' : self.pkey,
-                'operating_system' : self.operating_system
+                'operating_system' : self.operating_system,
+                'short_name' : self.short_name
                 }
 
     def __repr__(self):
@@ -124,7 +127,7 @@ class Role(db.Model):
 
 class Access(db.Model):
     tablename = 'access'
-    access_id = db.Column(db.Integer, primary_key=True)
+    access_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     access_name = db.Column(db.String(20),nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
     server_id = db.Column(db.Integer, db.ForeignKey('servers.server_id'), nullable=False)
@@ -186,7 +189,7 @@ class AccessRequestModel(db.Model):
     updated_at = db.Column(db.TIMESTAMP, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
     status = db.Column(db.String(20), nullable=False)
     approver_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=True)
-    access_id = db.Column(db.Integer, db.ForeignKey('access.access_id'), nullable=False)
+    access_id = db.Column(db.Integer, db.ForeignKey('access.access_id'), nullable=True)
     requester_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
     group_id = db.Column(db.Integer, db.ForeignKey('groups.group_id'), nullable=True)
 

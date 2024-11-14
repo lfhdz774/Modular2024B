@@ -20,6 +20,7 @@ import DnsIcon from '@mui/icons-material/Dns';
 import LockPersonIcon from '@mui/icons-material/LockPerson';
 import RuleIcon from '@mui/icons-material/Rule';
 import AssignmentReturnedIcon from '@mui/icons-material/AssignmentReturned';
+import CameraFrontIcon from '@mui/icons-material/CameraFront';
 
 
 export const MainListItems = () => {
@@ -125,6 +126,13 @@ export const MainListItems = () => {
             <AssignmentReturnedIcon />
           </ListItemIcon>
           <ListItemText primary="Solicitar accesos" />
+        </ListItemButton>
+
+        <ListItemButton onClick={() => navigate("/my_access")}>
+          <ListItemIcon>
+            <CameraFrontIcon />
+          </ListItemIcon>
+          <ListItemText primary="Mis accesos" />
         </ListItemButton>
 
         <Divider sx={{ my: 1 }} />

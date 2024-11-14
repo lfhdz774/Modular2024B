@@ -9,3 +9,16 @@ export const GetChartReport = async () => {
         return error;
     }
 }
+
+export const postReportGenerator = async (reportData) => {
+    try {
+        const response = await http.post('/api/admin/report/Generate', reportData, {
+            headers: {
+                'Content-Type': 'application/json',
+            }}
+        );
+        return response;
+    } catch (error) {
+        return error;
+    }
+}

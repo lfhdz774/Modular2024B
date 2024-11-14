@@ -71,6 +71,10 @@ const CredentialCreation = () => {
     }));
   };
 
+  useEffect(() => {
+    console.log(user);
+  }, [user]);
+
   const handleCheckboxChange = (event) => {
     setShowDatePicker(event.target.checked);
   };
@@ -112,12 +116,13 @@ const CredentialCreation = () => {
           return;
         }
         setUsuario(response.data);
-        setUser((prevUser) => ({
-          ...prevUser,
-          user_id: response.data.user_id,
-        }));
+        if(response.data){
+          console.log("Usuario encontrado");
+          setUsuario(response.data);
+        }
         console.log(response);
       } catch (error) {
+        console.error('Error getting user', error);
         setUsuario('');
       }
     };
@@ -152,17 +157,7 @@ const CredentialCreation = () => {
         </Typography>
         <form onSubmit={handleSubmit}>
           <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Nombre de Acceso"
-                variant="outlined"
-                required
-                name="username"
-                value={user.username}
-                onChange={handleChange}
-              />
-            </Grid>
+           
             <Grid item xs={12}>
               <FormControl fullWidth variant="outlined" required>
                 <TextField

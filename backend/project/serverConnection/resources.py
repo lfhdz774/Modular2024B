@@ -10,6 +10,7 @@ from io import StringIO
 import paramiko
 from datetime import date
 from sqlalchemy.orm import joinedload
+import time
 
 
 from Exceptions.ServersExceptions import ServerNotFoundError,AccessAlreadyExists,AccessNotFound,GroupNotFound
@@ -295,7 +296,6 @@ class AccessRequest(Resource):
         self.parser.add_argument('server_id', type=str, help='Missing Server_id ', required=True)
         self.parser.add_argument('aprover_id', type=str, help='Missing aprover_id ', required=True)
         self.parser.add_argument('group_id', type=str, help='Missing group_id ', required=True)
-        self.parser.add_argument('username', type=str, help='Missing username ', required=True)
 
     @jwt_required()
     def post(self):
@@ -304,18 +304,35 @@ class AccessRequest(Resource):
         server_id = args['server_id']
         aprover_id = args['aprover_id']
         group_id = args['group_id']
-        username = args['username']
         claims = get_jwt()
         requester_id = claims.get('user_id')
     
-        #also create a temporal Access to use for when the acces is activated
-        access = Access(username,user_id,server_id,date.today(),date.today(),[group_id])
-        db.session.add(access)
+        newRequest = AccessRequestModel(user_id,server_id,aprover_id,None,requester_id, group_id)
+        db.session.add(newRequest)
         db.session.commit()
-        db.session.refresh(access)
-        print (access)
-        access_id= access.access_id
-        newRequest = AccessRequestModel(user_id,server_id,aprover_id,access_id,requester_id, group_id)
+        return {'msg': 'Request Created'},201
+
+class AccessRequestForMe(Resource):
+    @jwt_required()
+    def __init__(self):
+        self.parser = reqparse.RequestParser()
+        self.parser.add_argument('server_id', type=str, help='Missing Server_id ', required=True)
+        self.parser.add_argument('group_id', type=str, help='Missing group_id ', required=True)
+        self.parser.add_argument('approver_id', type=str, help='Missing approver_id ', required=True)
+
+
+    @jwt_required()
+    def post(self):
+        args = self.parser.parse_args()
+        server_id = args['server_id']
+        group_id = args['group_id']
+        approver_id = args['approver_id']
+        claims = get_jwt()
+        user_id = claims.get('user_id')
+
+        newRequest = AccessRequestModel(user_id,server_id,approver_id,None,user_id, group_id)
+
+        
         db.session.add(newRequest)
         db.session.commit()
         return {'msg': 'Request Created'},201
@@ -328,20 +345,19 @@ class GetAllRequests(Resource):
         print(user_role)
 
         if 7 in user_role:
-            requests = db.session().query(AccessRequestModel)\
+            requests = db.session().query(AccessRequestModel).add_entity(UserModel)\
                 .join(Server, AccessRequestModel.server_id == Server.server_id)\
-                .join(UserModel, AccessRequestModel.user_id == UserModel.user_id).all()
-            print("Admin")
+                .join(UserModel, AccessRequestModel.user_id == UserModel.user_id).filter(AccessRequestModel.status == 'Pending').all()
         else:
-             requests = db.session().query(AccessRequestModel)\
+             requests = db.session().query(AccessRequestModel).add_entity(UserModel)\
                 .join(Server, AccessRequestModel.server_id == Server.server_id)\
                 .join(UserModel, AccessRequestModel.user_id == UserModel.user_id)\
-                .filter(AccessRequestModel.approver_id == user_id).all()
-             print("Not Admin")
+                .filter(AccessRequestModel.approver_id == user_id).filter(AccessRequestModel.status == 'Pending').all()
              
-        print([request.json() for request in requests])
+        print([{'access_request': access_request.json(), 'user': user.json()} for access_request, user in requests])
 
-        return[request.json() for request in requests]
+        result = [{'access_request': access_request.json(), 'user': user.json()} for access_request, user in requests]
+        return result
 
 class ApproveRequest(Resource):
     @jwt_required()
@@ -355,13 +371,39 @@ class ApproveRequest(Resource):
             return {'message': 'You are not the aprover of this request'},403
         request.status = 'Approved'
 
-        access = db.session().query(Access).filter(Access.access_id==request.access_id).first()
-        access.status = True
+        time.sleep(3)
+        return {'message': 'Request Approved'},200
+
+
+        data = db.session.query(AccessRequestModel).filter_by(request_id=request_id)\
+            .join(Server, AccessRequestModel.server_id == Server.server_id)\
+            .join(UserModel, AccessRequestModel.requester_id == UserModel.user_id)\
+            .with_entities(
+                UserModel.employee_code,
+                Server.short_name,
+                UserModel.email
+                )\
+            .first()
+       
+        generate_access_instance = GenerateAccess()
+
+        userName = generate_access_instance.generar_username(data)
+
+        groupArray = []
+        groupArray.append(request.group_id)
+        access = Access(userName,request.user_id,request.server_id, date.today(),None,groupArray)
+
+        request.status = 'Approved'
+
+        userCreated = generate_access_instance.crear_usuario(userName, request.server_id, data.email)
+
+        if not userCreated['result']:
+            return userCreated,500
+        
+
 
         db.session.add(access)
         db.session.commit()
-        print(access.access_name)
-        generate_access_instance = GenerateAccess()
-        return generate_access_instance.crear_usuario(access.access_name, access.server_id)
 
-        #return {'msg': 'Request Approved'},201  
+
+        return userCreated

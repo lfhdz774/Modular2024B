@@ -24,6 +24,7 @@ import {
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import {ApproveRequest} from 'src/Services/credential.service';
+import RequestModal from 'src/components/RequestModal';
 // Estilo para la estructura del contenedor principal
 const containerStyle = {
   marginTop: 4,
@@ -41,38 +42,25 @@ const expandedStyle = {
 
 const Row = ({ row, onUpdate }) => {
   const [open, setOpen] = useState(false);
-  const [openModal, setOpenModal] = useState(false);
-  const [modalMessage, setModalMessage] = useState('');
-
-  const handleClickOpen = (message) => {
-    if (message["message"]){
-      if(message["link"]){
-        setModalMessage(message["message"] + " " + message["link"]);
-      }
-      else{
-        setModalMessage(message["message"]);
-      }
-    }
-    
-    setOpenModal(true);
-  };
-
-  const handleClose = () => {
-    setOpenModal(false);
-  };
+  const [status, setStatus] = useState('');
 
   // Función para manejar el clic en el botón "Aprobar"
   const handleApprove = async () => {
-    const result = await approveRequest(row.request_id);
-    handleClickOpen(result);
-    if (result) {
+    setStatus('loading');
+    const result = await approveRequest(row.access_request.request_id);
+    
+    if (result.status === 200) {
+      setStatus('success');
       onUpdate(); // Llamar a la función de actualización si la aprobación fue exitosa
+    }else
+    {
+      setStatus('error');
     }
   };
 
   // Función para manejar el clic en el botón "Rechazar"
   const handleReject = async () => {
-    const result = await rejectRequest(row.request_id);
+    const result = await rejectRequest(row.access_request.request_id);
     if (result) {
       onUpdate(); // Llamar a la función de actualización si el rechazo fue exitoso
     }
@@ -83,10 +71,14 @@ const Row = ({ row, onUpdate }) => {
     try {
       const response = await ApproveRequest(requestId);
       console.log('Request approved:', response.data);
-      return response.data;
+      return response;
     } catch (error) {
       console.error('Error approving request:', error);
     }
+  };
+
+  const handleCloseModal = () => {  
+    setStatus('');
   };
   
   // Función para manejar el rechazo del request
@@ -109,10 +101,10 @@ const Row = ({ row, onUpdate }) => {
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </TableCell>
-        <TableCell>{row.server_name}</TableCell>
-        <TableCell align="right">{row.group_name}</TableCell>
-        <TableCell align="right">{row.user_id}</TableCell>
-        <TableCell align="right">{row.position}</TableCell>
+        <TableCell>{row.access_request.server_name}</TableCell>
+        <TableCell align="right">{row.access_request.group_name}</TableCell>
+        <TableCell align="right">{row.user.employee_code}</TableCell>
+        <TableCell align="right">{row.access_request.position}</TableCell>
       </TableRow>
       {/* Información adicional que se muestra al expandir */}
       <TableRow>
@@ -125,22 +117,22 @@ const Row = ({ row, onUpdate }) => {
               <Grid container spacing={2}>
                 <Grid item xs={12}>
                   <Typography variant="subtitle1">
-                    Fecha de Creación: {row.created_at}
+                    Fecha de Creación: {row.access_request.reated_at}
                   </Typography>
                 </Grid>
                 <Grid item xs={12}>
                   <Typography variant="subtitle1">
-                    Creado por: {row.requester_name}
+                    Solicitado por: {row.access_request.requester_name}
                   </Typography>
                 </Grid>
                 <Grid item xs={12}>
                   <Typography variant="subtitle1">
-                    Fecha de Expiración: {row.expires_at || 'Sin Expiración'}
+                    Fecha de Expiración: {row.access_request.expires_at || 'Sin Expiración'}
                   </Typography>
                 </Grid>
                 <Grid item xs={12}>
                   <Typography variant="subtitle1">
-                    Estatus: {row.status}
+                    Estatus: {row.access_request.status}
                   </Typography>
                 </Grid>
                 {/* Botones de Aprobar y Rechazar */}
@@ -149,7 +141,7 @@ const Row = ({ row, onUpdate }) => {
                     variant="contained"
                     color="success"
                     onClick={handleApprove}
-                    disabled={row.status !== 'Pending'} // Desactivar si no está pendiente
+                    disabled={row.access_request.status !== 'Pending'} // Desactivar si no está pendiente
                   >
                     Aprobar
                   </Button>
@@ -157,7 +149,7 @@ const Row = ({ row, onUpdate }) => {
                     variant="contained"
                     color="error"
                     onClick={handleReject}
-                    disabled={row.status !== 'Pending'} // Desactivar si no está pendiente
+                    disabled={row.access_request.status !== 'Pending'} // Desactivar si no está pendiente
                   >
                     Rechazar
                   </Button>
@@ -169,18 +161,7 @@ const Row = ({ row, onUpdate }) => {
       </TableRow>
 
 
-
-      <Dialog open={openModal} onClose={handleClose}>
-        <DialogTitle>Result</DialogTitle>
-        <DialogContent>
-          <DialogContentText>{modalMessage}</DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} color="primary">
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
+    <RequestModal status={status} handleClose={handleCloseModal} ></RequestModal>
     </React.Fragment>
   );
 };

@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { useEffect } from 'react';
 import { styled } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import MuiDrawer from '@mui/material/Drawer';
@@ -17,14 +16,14 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { MainListItems, UserManagement } from './listItems';
 import { useTheme } from '@mui/material/styles';
-import {  Outlet } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 
-function Copyright(props) {
+function Copyright() {
   return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
+    <Typography variant="body2" color="text.secondary" align="center">
+      {'Derechos de autor © '}
+      <Link color="inherit" href="https://tu-sitio-web.com/">
+        Tu Sitio Web
       </Link>{' '}
       {new Date().getFullYear()}
       {'.'}
@@ -79,7 +78,6 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
   }),
 );
 
-
 export default function Dashboard() {
   const theme = useTheme();
   const [open, setOpen] = React.useState(true);
@@ -88,81 +86,91 @@ export default function Dashboard() {
     setOpen(!open);
   };
 
-
-
   return (
-      <Box sx={{ display: 'flex'}}>
-        <CssBaseline />
-        <AppBar position="absolute" open={open}>
-          <Toolbar
-            sx={{
-              pr: '24px', // keep right padding when drawer closed
-              backgroundColor: theme.palette.primary.darker
-            }}
-          >
-
-            <IconButton
-              edge="start"
-              color="inherit"
-              aria-label="open drawer"
-              onClick={toggleDrawer}
-              sx={{
-                marginRight: '36px',
-                ...(open && { display: 'none' }),
-              }}
-            >
-              <MenuIcon />
-            </IconButton>
-            <Typography
-              component="h1"
-              variant="h6"
-              color="inherit"
-              noWrap
-              sx={{ flexGrow: 1 }}
-            >
-              Server Portal
-            </Typography>
-            <IconButton color="inherit">
-              <Badge badgeContent={0} color="secondary">
-                <NotificationsIcon />
-              </Badge>
-            </IconButton>
-          </Toolbar>
-        </AppBar>
-        <Drawer variant="permanent" open={open} >
-          <Toolbar
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'flex-end',
-              px: [1]
-            }}
-          >
-            <IconButton onClick={toggleDrawer}>
-              <ChevronLeftIcon />
-            </IconButton>
-          </Toolbar>
-          <Divider />
-          <List component="nav" >
-            <MainListItems/>
-            <Divider sx={{ my: 1 }} />
-          </List>
-          {/* {secondaryListItems} */}
-          <UserManagement/>
-        </Drawer>
-        <Box
-          component="main"
+    <Box sx={{ display: 'flex' }}>
+      <CssBaseline />
+      <AppBar position="fixed" open={open}>
+        <Toolbar
           sx={{
-            flexGrow: 1,
-            height: '100vh',
-            overflow: 'auto',
-
+            pr: '24px', // mantener el padding derecho cuando el drawer está cerrado
+            backgroundColor: theme.palette.primary.darker,
           }}
         >
-          <Toolbar />
-          <Outlet/>
-          <Copyright sx={{ pt: 4, position: "absolute", bottom: 5, width: "100%"  }} />
+          <IconButton
+            edge="start"
+            color="inherit"
+            aria-label="abrir drawer"
+            onClick={toggleDrawer}
+            sx={{
+              marginRight: '36px',
+              ...(open && { display: 'none' }),
+            }}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Typography component="h1" variant="h6" color="inherit" noWrap sx={{ flexGrow: 1 }}>
+            Server Portal
+          </Typography>
+          <IconButton color="inherit">
+            <Badge badgeContent={0} color="secondary">
+              <NotificationsIcon />
+            </Badge>
+          </IconButton>
+        </Toolbar>
+      </AppBar>
+      <Drawer variant="permanent" open={open}>
+        <Toolbar
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-end',
+            px: [1],
+          }}
+        >
+          <IconButton onClick={toggleDrawer}>
+            <ChevronLeftIcon />
+          </IconButton>
+        </Toolbar>
+        <Divider />
+        <List component="nav">
+          <MainListItems />
+          <Divider sx={{ my: 1 }} />
+        </List>
+        {/* {secondaryListItems} */}
+        <UserManagement />
+      </Drawer>
+      <Box
+        component="main"
+        sx={{
+          backgroundColor: (theme) =>
+            theme.palette.mode === 'light'
+              ? theme.palette.grey[100]
+              : theme.palette.grey[900],
+          flexGrow: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: '100vh',
+        }}
+      >
+        {/* Espacio para que el contenido no quede debajo del AppBar */}
+        <Toolbar />
+        {/* Contenido principal */}
+        <Box sx={{ flexGrow: 1, p: 3 }}>
+          <Outlet />
+        </Box>
+        {/* Footer */}
+        <Box component="footer" sx={{ p: 2, backgroundColor: theme.palette.grey[200] }}>
+          <Divider />
+          <Typography variant="body2" color="text.secondary" align="center">
+            {'Derechos de autor © '}
+            <Link color="inherit" href="https://tu-sitio-web.com/">
+              Tu Sitio Web
+            </Link>{' '}
+            {new Date().getFullYear()}
+            {'.'}
+          </Typography>
         </Box>
       </Box>
+    </Box>
   );
 }

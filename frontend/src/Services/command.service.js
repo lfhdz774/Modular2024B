@@ -7,7 +7,7 @@ export const PostCommands = async (CommandModel) => {
                 'Content-Type': 'application/json',
             },
         });
-        return response.data;
+        return response;
     } catch (error) {
         console.log(error);
         return error;

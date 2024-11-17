@@ -15,26 +15,8 @@ class ProcesarComando(Resource):
         # Load the intent classification model
         self.modelo_intenciones = joblib.load('Clasificación de intenciones/modelo_intenciones.pkl')
         # Load the spaCy Spanish model
-        self.nlp = spacy.load('es_core_news_sm')
-        # Configure the Matcher
-        self.matcher = Matcher(self.nlp.vocab)
-        self.configurar_patrones()
-        
-    def configurar_patrones(self):
-        # Define patterns
-        pattern_llamado = [
-            {'LEMMA': {'IN': ['crear', 'agregar', 'generar', 'añadir', 'registrar']}},
-            {'LOWER': {'IN': ['usuario', 'acceso', 'cuenta']}},
-            {'LOWER': {'IN': ['llamado', 'llamada', 'nombrado', 'como']}},
-            {'IS_ALPHA': True, 'OP': '+'}
-        ]
-        pattern_para = [
-            {'LEMMA': {'IN': ['crear', 'agregar', 'generar', 'añadir', 'registrar']}},
-            {'LOWER': {'IN': ['usuario', 'acceso', 'cuenta']}},
-            {'LOWER': 'para'},
-            {'IS_ALPHA': True, 'OP': '+'}
-        ]
-        self.matcher.add('USERNAME', [pattern_llamado, pattern_para])
+        self.nlp = spacy.load('Clasificación de intenciones/modelo_ner')
+
 
     @jwt_required()
     def post(self):
@@ -42,79 +24,106 @@ class ProcesarComando(Resource):
             args = self.parser.parse_args()
             comando = args['comando']
             respuesta = None
-            try:
-                print("Pending action:", session['pending_data'])
-            except:
-                print("No hay pending action")
-                pass
+
             if 'pending_data' in session:
                 print("Pending action:", session['pending_data'])
-                # There is a pending action; use the provided command as the missing information
+                # Hay una acción pendiente; usar el comando proporcionado como la información faltante
                 missing_info = comando.strip()
-                # Retrieve the pending data
+                # Recuperar los datos pendientes
                 datos = session.pop('pending_data')
-                datos['username'] = self.normalizar(missing_info)
-                # Validate the username
-                if not self.es_nombre_usuario_valido(datos['username']):
-                    respuesta = {"message":f"El nombre de usuario '{datos['username']}' no es válido. Por favor, proporcione un nombre de usuario válido.", "link": ""}
-                    # Keep the pending action in the session
-                    session['pending_action'] = datos['accion']
+
+                # Dependiendo de qué información faltaba, asignarla
+                for info in datos['informacion_faltante']:
+                    if info == 'employee_code':
+                        datos['employee_code'] = missing_info
+                    elif info == 'server':
+                        datos['server'] = missing_info
+
+                # Validar si aún falta información
+                datos['informacion_faltante'] = []
+                if not datos['employee_code']:
+                    datos['informacion_faltante'].append('employee_code')
+                if not datos['server'] and self.intencion_requiere_entidad(datos['accion'], 'server'):
+                    datos['informacion_faltante'].append('server')
+
+                if datos['informacion_faltante']:
+                    # Aún falta información
                     session['pending_data'] = datos
+                    return {"message": f"No pude detectar {', '.join(datos['informacion_faltante'])}. Por favor, proporcione la información faltante.", "link": ""}
                 else:
-                    session.clear()
-                    # Proceed with the action
+                    # Proceder con la acción
                     respuesta = self.ejecutar_accion(datos)
             else:
-                # No pending action; process the command normally
+                # No hay acción pendiente; procesar el comando normalmente
                 respuesta = self.analizar_comando(comando)
 
+            print("Respuesta:", respuesta)
             return {'respuesta': respuesta}, 200
         except Exception as e:
             abort(400, description=str(e))
 
     def analizar_comando(self, comando):
-        # Predict the intent
+        # Predecir la intención
         intencion = self.modelo_intenciones.predict([comando])[0]
         datos = {
             'accion': intencion,
-            'username': None,
+            'employee_code': None,
+            'server': None,
             'informacion_faltante': []
         }
         
-        # Process the command with spaCy
+        print("Intención detectada:", intencion)
+        # Procesar el comando con spaCy
         doc = self.nlp(comando)
 
-        # Extract the username using NER
-        nombres = [ent.text for ent in doc.ents if ent.label_ == 'PERSON']
-        if nombres:
-            datos['username'] = self.normalizar(nombres[0])
+        # Extraer entidades
+        employee_codes = [ent.text for ent in doc.ents if ent.label_ == 'EMPLOYEE_CODE']
+        servers = [ent.text for ent in doc.ents if ent.label_ == 'SERVER']
+
+        print("Códigos de empleado detectados:", employee_codes)
+        print("Servidores detectados:", servers)
+        if employee_codes:
+            codigo_empleado = self.normalizar(employee_codes[0])
+            if self.es_codigo_empleado_valido(codigo_empleado):
+                datos['employee_code'] = codigo_empleado
+            else:
+                datos['informacion_faltante'].append('employee_code')
         else:
-            # Use additional methods
-            datos['username'] = self.extraer_username_con_matcher(doc)
-            if not datos['username']:
-                datos['username'] = self.extraer_username_con_regex(comando)
-        
-        if not datos['username']:
-            # Missing username; prompt the user
-            datos['informacion_faltante'].append('username')
+            # Si la intención requiere 'employee_code', agregar a 'informacion_faltante'
+            if self.intencion_requiere_entidad(intencion, 'employee_code'):
+                datos['informacion_faltante'].append('employee_code')
+
+        if servers:
+            datos['server'] = servers[0]
+        else:
+            # Si la intención requiere 'server', agregar a 'informacion_faltante'
+            if self.intencion_requiere_entidad(intencion, 'server'):
+                datos['informacion_faltante'].append('server')
+
+        if datos['informacion_faltante']:
             session['pending_data'] = datos
             print("Pending action:", session['pending_data'])
-            return {"message":"No pude detectar el nombre de usuario. Por favor, proporcione el nombre de usuario.", "link": ""}
+            return {"message": f"No pude detectar {', '.join(datos['informacion_faltante'])}. Por favor, proporcione la información faltante.", "link": ""}
         else:
-            # Proceed with the action
+            # Proceder con la acción
             return self.ejecutar_accion(datos)
 
     def ejecutar_accion(self, datos):
         if datos['accion'] == 'crear_usuario':
-            generate_access_instance = GenerateAccess()
-            return generate_access_instance.crear_usuario(datos['username'], 1)
-            #return GenerateAccess.crear_usuario(datos['username'])
-        elif datos['accion'] == 'eliminar_usuario':
-            return self.eliminar_usuario(datos['username'])
-        elif datos['accion'] == 'consultar_usuario':
-            return self.consultar_usuario(datos['username'])
+            if datos['employee_code'] and datos['server']:
+                #generate_access_instance = GenerateAccess()
+                #return generate_access_instance.crear_usuario(datos['employee_code'], datos['server'])
+                print("Creando usuario...")
+                return {"message": f"Usuario creado para el código de empleado {datos['employee_code']} en el servidor {datos['server']}.", "link": ""}
+            else:
+                return {"message": "Faltan datos para crear el usuario.", "link": ""}
+        elif datos['accion'] == 'info_usuario':
+            if datos['employee_code']:
+                return self.consultar_usuario(datos['employee_code'])
+            else:
+                return {"message": "Falta el código de empleado para consultar la información.", "link": ""}
         else:
-            return {"message":"Acción no reconocida.", "link": ""}
+            return {"message": "Acción no reconocida.", "link": ""}
 
     def extraer_username_con_matcher(self, doc):
         matches = self.matcher(doc)
@@ -170,4 +179,9 @@ class ProcesarComando(Resource):
     def es_nombre_usuario_valido(self, username):
         # Validar que solo contenga letras, números, guiones y guiones bajos
         return re.match('^[a-zA-Z0-9_-]{1,32}$', username) is not None
+
+    def es_codigo_empleado_valido(self, codigo):
+        # Validar que el código de empleado sea un número de 4 dígitos
+        return re.match('^\d{4}$', codigo) is not None
+
     

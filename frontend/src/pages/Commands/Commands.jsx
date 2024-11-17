@@ -90,6 +90,7 @@ import {
   IconButton,
   Paper,
 } from '@mui/material';
+import { PostCommands } from 'src/Services/command.service';
 import SendIcon from '@mui/icons-material/Send';
 
 function Command() {
@@ -101,7 +102,7 @@ function Command() {
   // Referencia al contenedor de mensajes
   const messagesContainerRef = useRef(null);
 
-  // Función para hacer scroll al inicio (parte inferior debido a column-reverse)
+  // Función para hacer scroll al final (parte inferior)
   const scrollToBottom = () => {
     messagesContainerRef.current?.scrollTo({
       top: messagesContainerRef.current.scrollHeight,
@@ -126,21 +127,20 @@ function Command() {
 
       try {
         // Petición al backend
-        const response = await fetch('TU_ENDPOINT_API', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ message: userMessage }),
-        });
+        const Comando = {
+          comando: userMessage,
+        };
+        const response = await PostCommands(Comando);
+        console.log(response);
+        if (response.status === 200) {
+          console.log(response.status, response.data.respuesta.message);
 
-        if (response.ok) {
-          const data = await response.json();
           setMessages((prevMessages) => [
             ...prevMessages,
-            { text: data.reply, sender: 'sistema' },
+            { text: response.data.respuesta.message, sender: 'sistema' },
           ]);
         } else {
+          console.log(response.status);
           let errorMessage = '';
           switch (response.status) {
             case 404:
@@ -177,60 +177,68 @@ function Command() {
         flexDirection: 'column',
       }}
     >
-      <List
+      <Box
         style={{
           flexGrow: 1,
-          overflow: 'auto',
+          overflowY: 'auto',
           display: 'flex',
           flexDirection: 'column-reverse',
         }}
         ref={messagesContainerRef}
       >
-        {messages.map((message, index) => (
-          <ListItem
-            key={index}
-            style={{
-              justifyContent:
-                message.sender === 'yo'
-                  ? 'flex-end'
-                  : message.sender === 'sistema'
-                  ? 'center'
-                  : 'flex-start',
-            }}
-          >
-            {message.sender === 'otro' && (
-              <ListItemAvatar>
-                <Avatar>{message.sender.charAt(0).toUpperCase()}</Avatar>
-              </ListItemAvatar>
-            )}
-            <ListItemText
-              primary={message.text}
+        <List
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'flex-start'       }}
+        >
+          {messages.map((message, index) => (
+            <ListItem
+              key={index}
               style={{
-                backgroundColor:
+                justifyContent:
                   message.sender === 'yo'
-                    ? '#e1f5fe'
+                    ? 'flex-end'
                     : message.sender === 'sistema'
-                    ? '#fff9c4'
-                    : '#f1f1f1',
-                borderRadius: 8,
-                padding: '8px 16px',
-                maxWidth: '60%',
-                textAlign:
-                  message.sender === 'yo'
-                    ? 'right'
-                    : message.sender === 'sistema'
-                    ? 'center'
-                    : 'left',
+                    ? 'flex-start'
+                    : 'center',
               }}
-            />
-            {message.sender === 'yo' && (
-              <ListItemAvatar>
-                <Avatar>{message.sender.charAt(0).toUpperCase()}</Avatar>
-              </ListItemAvatar>
-            )}
-          </ListItem>
-        ))}
-      </List>
+            >
+              {message.sender === 'otro' && (
+                <ListItemAvatar>
+                  <Avatar>{message.sender.charAt(0).toUpperCase()}</Avatar>
+                </ListItemAvatar>
+              )}
+              <ListItemText
+                primary={message.text}
+                style={{
+                  backgroundColor:
+                    message.sender === 'yo'
+                      ? '#e1f5fe'
+                      : message.sender === 'sistema'
+                      ? '#fff9c4'
+                      : '#f1f1f1',
+                  borderRadius: 8,
+                  padding: '8px 16px',
+                  maxWidth: '60%',
+                  textAlign:
+                    message.sender === 'yo'
+                      ? 'right'
+                      : message.sender === 'sistema'
+                      ? 'center'
+                      : 'left',
+                  wordBreak: 'break-word',
+                }}
+              />
+              {message.sender === 'yo' && (
+                <ListItemAvatar>
+                  <Avatar>{message.sender.charAt(0).toUpperCase()}</Avatar>
+                </ListItemAvatar>
+              )}
+            </ListItem>
+          ))}
+        </List>
+      </Box>
       <Box display="flex" mt={2}>
         <TextField
           fullWidth
@@ -249,6 +257,5 @@ function Command() {
     </Paper>
   );
 }
-
 
 export default Command;

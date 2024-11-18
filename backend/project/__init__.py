@@ -29,7 +29,7 @@ jwt = JWTManager(app)
 
 Session(app)
 
-CORS(app, supports_credentials=True, resources={r"/*": {"origins": ["http://localhost:3000", "http://serverportal-app.org:3000"]}})
+CORS(app, supports_credentials=True, resources={r"/*": {"origins": ["http://localhost:3000","http://serverportal-app.org"]}})
 
 
 swagger = Swagger(app, template_file='swagger.yaml')

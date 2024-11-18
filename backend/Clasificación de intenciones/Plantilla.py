@@ -129,9 +129,16 @@ plantillas_solicitar_info  = [
     "información del emeplado {codigo_empleado}",
 ]
 
+Resetear_contraseña = [
+    "Resetea la contraseña del accesos {codigo_de_acceso}",
+    "Reinicia la contraseña del accesos {codigo_de_acceso}",
+    "Cambia la contraseña del accesos {codigo_de_acceso}"
+]
+
 plantillas_por_intencion = {
     "crear_usuario": plantillas_crear_usuario,
     "info_usuario": plantillas_solicitar_info,
+    "resetear_contraseña": Resetear_contraseña
 }
 
 servidores = ["servidor de ventas", "servidor principal", "servidor de desarrollo", "servidor de pruebas"]

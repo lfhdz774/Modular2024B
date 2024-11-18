@@ -12,12 +12,12 @@ class PasswordView(Resource):
                 return {'message': 'success'}, 204
             # Decodificar el token para obtener el payload
             decoded_token = decode_token(token)
+            print('Token decodificado:', decoded_token)
             # Obtener la contraseña del payload
             password = decoded_token['password']
 
             return {'password': password}, 200
 
-        except jwt.ExpiredSignatureError:
-            return {'message': 'El enlace ha expirado.'}, 410
-        except jwt.InvalidTokenError as e:
+        except Exception as e:
+            print('Error al decodificar el token:', e)
             return {'message': 'Enlace inválido. ' + str(e)}, 404

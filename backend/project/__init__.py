@@ -103,7 +103,7 @@ def handle_custom_exception(error):
 def check_jwt():
     #log a message with the name of the endpoint
     print(request.endpoint)
-    if request.endpoint != 'login.login' or request.endpoint != 'PasswordManagement.PasswordView':
+    if request.endpoint != 'login.login':
         try:
             verify_jwt_in_request()
         except Exception as e:

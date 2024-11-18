@@ -35,7 +35,7 @@ class GenerateAccess:
             # Crear un token JWT que contenga la contraseña
             token = self.generar_token_con_password(password)
             # Generar el enlace para que el usuario obtenga la contraseña
-            enlace = f"http://ec2-18-223-101-59.us-east-2.compute.amazonaws.com:5000/#/first-login/password/{token}"
+            enlace = f"http://ec2-18-223-101-59.us-east-2.compute.amazonaws.com:3000/#/first-login/password/{token}"
 
             htmlBody = f"""
 <!DOCTYPE html>

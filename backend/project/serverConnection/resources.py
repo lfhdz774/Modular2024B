@@ -371,9 +371,6 @@ class ApproveRequest(Resource):
             return {'message': 'You are not the aprover of this request'},403
         request.status = 'Approved'
 
-        time.sleep(3)
-        return {'message': 'Request Approved'},200
-
 
         data = db.session.query(AccessRequestModel).filter_by(request_id=request_id)\
             .join(Server, AccessRequestModel.server_id == Server.server_id)\

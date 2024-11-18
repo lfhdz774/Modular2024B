@@ -13,7 +13,7 @@ COPY . /backend/
 # Create a directory for SSL certificates
 RUN mkdir -p /backend/certs
 #Copy Certs
-COPY /etc/letsencrypt/live/serverportal-app.org/fullchain.pem /backend/certs/
-COPY /etc/letsencrypt/live/serverportal-app.org/privkey.pem /backend/certs/
+COPY sudo /etc/letsencrypt/live/serverportal-app.org/fullchain.pem /backend/certs/
+COPY sudo /etc/letsencrypt/live/serverportal-app.org/privkey.pem /backend/certs/
 # Running the web service
 CMD [ "python","server.py"]

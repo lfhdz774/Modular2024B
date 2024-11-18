@@ -10,7 +10,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the application code to the container
 COPY . /backend/
-# Expose the port Flask runs on
-#EXPOSE 5000
+# Create a directory for SSL certificates
+RUN mkdir -p /backend/certs
+#Copy Certs
+COPY /etc/letsencrypt/live/yourdomain.com/fullchain.pem /backend/certs/
+COPY /etc/letsencrypt/live/yourdomain.com/privkey.pem /backend/certs/
 # Running the web service
-CMD [ "flask","run", "--host", "0.0.0.0"]
+CMD [ "python","server.py"]

@@ -9,6 +9,4 @@ def index():
 
 
 if __name__ == '__main__':
-    app.run(ssl_context=('/etc/letsencrypt/live/yourdomain.com/fullchain.pem',
-                         '/etc/letsencrypt/live/yourdomain.com/privkey.pem'),
-            port=5000) 
+    app.run(ssl_context=('certs/fullchain.pem', 'certs/privkey.pem'), host='0.0.0.0', port=5000)

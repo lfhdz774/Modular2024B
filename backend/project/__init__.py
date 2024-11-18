@@ -29,7 +29,8 @@ jwt = JWTManager(app)
 
 Session(app)
 
-CORS(app, supports_credentials=True, resources={r"/*": {"origins": "http://localhost:3000, http://ec2-18-223-101-59.us-east-2.compute.amazonaws.com:3000"}})
+CORS(app, supports_credentials=True, resources={r"/*": {"origins": ["http://localhost:3000", "http://ec2-18-223-101-59.us-east-2.compute.amazonaws.com:3000"]}})
+
 
 swagger = Swagger(app, template_file='swagger.yaml')
 

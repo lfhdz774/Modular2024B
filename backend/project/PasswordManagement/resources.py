@@ -14,7 +14,7 @@ class PasswordView(Resource):
             decoded_token = decode_token(token)
             print('Token decodificado:', decoded_token)
             # Obtener la contraseña del payload
-            password = decoded_token['additional_claims']['password']
+            password = decoded_token['password']
 
             return {'password': password}, 200
 

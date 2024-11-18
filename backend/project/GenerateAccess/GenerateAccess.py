@@ -125,10 +125,10 @@ class GenerateAccess:
             return {"result" : False,"message":f"Error al crear el usuario: {resultado['error']}"}
 
     def generar_token_con_password(self, password):
-        # Crear un token JWT con la contraseña en los user_claims
+        # Crear un token JWT con la contraseña en los additional_claims
         expires = datetime.timedelta(hours=1)  # El token expirará en 1 hora
-        user_claims = {'password': password}
-        token = create_access_token(identity='', expires_delta=expires, additional_claims=user_claims)
+        additional_claims = {'password': password}
+        token = create_access_token(identity='', expires_delta=expires, additional_claims=additional_claims)
         print('Token generado:', token)
         return token
         

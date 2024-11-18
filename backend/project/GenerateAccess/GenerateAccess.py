@@ -127,7 +127,7 @@ class GenerateAccess:
     def generar_token_con_password(self, password):
         # Crear un token JWT con la contraseña en los user_claims
         expires = datetime.timedelta(hours=1)  # El token expirará en 1 hora
-        user_claims = {'password': password}
+        user_claims = {'password': password.toString()}
         token = create_access_token(identity='', expires_delta=expires, user_claims=user_claims)
         print('Token generado:', token)
         return token

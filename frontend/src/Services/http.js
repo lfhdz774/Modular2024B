@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const http = axios.create({
-  baseURL: 'http://http://ec2-18-223-101-59.us-east-2.compute.amazonaws.com/:5000',
+  baseURL: 'http://ec2-18-223-101-59.us-east-2.compute.amazonaws.com/:5000',
   timeout: 10000,
 });
 

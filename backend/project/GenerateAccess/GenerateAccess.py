@@ -35,7 +35,7 @@ class GenerateAccess:
             # Crear un token JWT que contenga la contraseña
             token = self.generar_token_con_password(password)
             # Generar el enlace para que el usuario obtenga la contraseña
-            enlace = f"http://serverportal-app.org/#/first-login/password/{token}"
+            enlace = f"https://serverportal-app.org/#/first-login/password/{token}"
 
             htmlBody = f"""
 <!DOCTYPE html>

@@ -13,7 +13,7 @@ COPY . /backend/
 # Create a directory for SSL certificates
 WORKDIR /backend/certs
 #Copy Certs
-COPY ../certs/fullchain.pem /backend/certs/
-COPY ../certs/privkey.pem /backend/certs/
+COPY certs/fullchain.pem /backend/certs/
+COPY certs/privkey.pem /backend/certs/
 # Running the web service
 CMD [ "python","server.py"]

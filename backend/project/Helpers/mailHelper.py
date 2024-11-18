@@ -11,7 +11,7 @@ load_dotenv('.flaskenv')
 app = Flask(__name__) 
    
 # configuration of mail 
-app.config['MAIL_SERVER']='smtp.sendgrid.net'
+app.config['MAIL_SERVER']='email-smtp.us-east-2.amazonaws.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USERNAME'] = PGUSER = os.getenv('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = PGUSER = os.getenv('MAIL_PASSWORD')

@@ -11,9 +11,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the application code to the container
 COPY . /backend/
 # Create a directory for SSL certificates
-RUN mkdir -p /backend/certs
+WORKDIR /backend/certs
 #Copy Certs
-COPY /etc/letsencrypt/live/serverportal-app.org/fullchain.pem /backend/certs/
-COPY /etc/letsencrypt/live/serverportal-app.org/privkey.pem /backend/certs/
+COPY /home/ec2-user/certs /backend/certs/
+COPY /home/ec2-user/certs /backend/certs/
 # Running the web service
 CMD [ "python","server.py"]

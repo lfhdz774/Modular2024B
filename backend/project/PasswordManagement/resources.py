@@ -20,5 +20,5 @@ class PasswordView(Resource):
 
         except jwt.ExpiredSignatureError:
             return {'message': 'El enlace ha expirado.'}, 410
-        except jwt.InvalidTokenError:
-            return {'message': 'Enlace inválido.'}, 404
+        except jwt.InvalidTokenError as e:
+            return {'message': 'Enlace inválido.' + str(e) }, 404

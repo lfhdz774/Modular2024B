@@ -12,7 +12,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . /backend/
 
 # Step 4: Copy the Flask app and SSL certificates to the container
-COPY ../certs/ /backend/certs/
+COPY /certs/ /backend/certs/
 
 EXPOSE 5000
 

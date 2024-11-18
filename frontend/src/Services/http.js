@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const http = axios.create({
-  baseURL: 'https://serverportal-app.org:5000',
+  baseURL: 'http://serverportal-app.org:5000',
   timeout: 10000,
 });
 

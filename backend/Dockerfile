@@ -11,7 +11,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the application code to the container
 COPY . /backend/
 # Create a directory for SSL certificates
-WORKDIR /backend/certs
+WORKDIR ..
+RUN mkdir -p /app/certs
 #Copy Certs
 COPY certs/fullchain.pem /backend/certs/
 COPY certs/privkey.pem /backend/certs/

@@ -15,7 +15,7 @@ const RegisterServer = ({ isEditing }) => {
   const [servers, setServers] = useState([]);
   const [selectedServerId, setSelectedServerId] = useState('');
   const [open, setOpen] = useState(false)
-  const [status, setStatus] = useState('loading');
+  const [status, setStatus] = useState('');
 
   // Fetch servers when in edit mode
   useEffect(() => {
@@ -70,6 +70,7 @@ const RegisterServer = ({ isEditing }) => {
       if (isEditing && selectedServerId) {
         const updates = { ...formData };
         setOpen(true)
+        setStatus('loading')
         const response = await UpdateServer({ server_id: selectedServerId, updates });
         if(response.status === 200){
           setStatus('success')
@@ -92,8 +93,7 @@ const RegisterServer = ({ isEditing }) => {
 
   // Función para cerrar el modal
   const handleClose = () => {
-    setOpen(false);
-    setStatus('loading'); // Reinicia el estado de la request al cerrar el modal
+    setStatus(''); // Reinicia el estado de la request al cerrar el modal
   };
 
 
@@ -201,7 +201,7 @@ const RegisterServer = ({ isEditing }) => {
           </Grid>
         </form>
       </Paper>
-      <RequestModal open={open} status={status} handleClose={handleClose} ></RequestModal>
+      <RequestModal status={status} handleClose={handleClose} ></RequestModal>
     </Container>
   );
 };

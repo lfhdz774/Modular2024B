@@ -21,6 +21,7 @@ import LockPersonIcon from '@mui/icons-material/LockPerson';
 import RuleIcon from '@mui/icons-material/Rule';
 import AssignmentReturnedIcon from '@mui/icons-material/AssignmentReturned';
 import CameraFrontIcon from '@mui/icons-material/CameraFront';
+import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 
 
 export const MainListItems = () => {
@@ -128,11 +129,18 @@ export const MainListItems = () => {
           <ListItemText primary="Solicitar accesos" />
         </ListItemButton>
 
-        <ListItemButton onClick={() => navigate("/my_access")}>
+        {/* <ListItemButton onClick={() => navigate("/my_access")}>
           <ListItemIcon>
             <CameraFrontIcon />
           </ListItemIcon>
           <ListItemText primary="Mis accesos" />
+        </ListItemButton> */}
+
+         <ListItemButton onClick={() => navigate("/delete_access")}>
+          <ListItemIcon>
+            <PersonRemoveIcon />
+          </ListItemIcon>
+          <ListItemText primary="Eliminar accesos" />
         </ListItemButton>
 
         <Divider sx={{ my: 1 }} />

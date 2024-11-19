@@ -12,6 +12,7 @@ import RegisterServer from 'src/pages/Servers/RegisterServer';
 import PendingRequests from 'src/pages/Credentials/AccessRequests';
 import ReportViewer from 'src/pages/Reports/ReportViewer';
 import AskForAccess from 'src/pages/AskForMe/askForAccess';
+import { DeleteAccess } from 'src/pages/DeleteAccess/DeleteAcces';
 
 
 const HomePage = lazy(() => import('src/pages/Home'));
@@ -61,6 +62,8 @@ const RouterComponent = () => {
                     <Route path="/request-for-me" element={<AskForAccess/>} />
 
                     <Route path="/my_access" element={<AskForAccess/>} />
+
+                    <Route path="/delete_access" element={<DeleteAccess/>} />
                                     
                 </Route>
                 <Route path="/login" element={<Login />} />

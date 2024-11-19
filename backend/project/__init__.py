@@ -43,6 +43,11 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 Migrate(app,db)
 
+if os.getenv('FLASK_ENV') == 'development':
+    os.environ['FRONTEND_URL'] = os.getenv('FRONTEND_URL_LOCAL')
+else:
+    os.environ['FRONTEND_URL'] = os.getenv('FRONTEND_URL_PROD')
+
 # Download NLTK data
 nltk.download('punkt')
 nltk.download('punkt_tab')

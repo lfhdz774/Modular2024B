@@ -1,9 +1,11 @@
 import axios from 'axios';
 
 const http = axios.create({
-  baseURL: 'http://serverportal-app.org:5000',
+  baseURL: process.env.REACT_APP_ENV === 'DEVELOPMENT' ?   process.env.REACT_APP_BACKEND_URL_LOCAL : process.env.REACT_APP_BACKEND_URL_PROD , //'http://ec2-18-223-101-59.us-east-2.compute.amazonaws.com:5000',
   timeout: 10000,
 });
+
+console.log('process.env.REACT_APP_ENV', process.env.REACT_APP_ENV);
 
 // Add a request interceptor
 http.interceptors.request.use(function (config) {
@@ -23,8 +25,7 @@ http.interceptors.request.use(function (config) {
 
 // Add a response interceptor
 http.interceptors.response.use(function (response) {
-  // Any status code that lie within the range of 2xx cause this function to trigger
-  // Do something with response data
+
   return response;
 }, function (error) {
   // Any status codes that falls outside the range of 2xx cause this function to trigger

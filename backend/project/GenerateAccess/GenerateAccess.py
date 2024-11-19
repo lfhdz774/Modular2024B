@@ -9,6 +9,11 @@ from flask_jwt_extended import create_access_token
 import paramiko
 import random
 from flask_mail import Mail, Message
+from dotenv import load_dotenv
+import os
+
+load_dotenv('.flaskenv')
+
 
 from project.models import Access, Server
 from ..Helpers.mailHelper import send_email
@@ -35,7 +40,7 @@ class GenerateAccess:
             # Crear un token JWT que contenga la contraseña
             token = self.generar_token_con_password(password)
             # Generar el enlace para que el usuario obtenga la contraseña
-            enlace = f"https://serverportal-app.org/#/first-login/password/{token}"
+            enlace = f"{os.getenv('FRONTEND_URL')}/#/first-login/password/{token}"
 
             htmlBody = f"""
 <!DOCTYPE html>

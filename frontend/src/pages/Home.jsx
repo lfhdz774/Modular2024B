@@ -44,10 +44,10 @@ const HomePage = () => {
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Typography variant="h4" gutterBottom>
-        Widgets
+        ServerPortal-APP CUCEI 2024B
       </Typography>
       <Typography variant="subtitle1" gutterBottom>
-        Maneja tus credenciales de forma segura.
+        Maneja tus Servidores y Acceso de forma sencilla.
       </Typography>
       <Grid container spacing={3}>
         {/* Chart */}

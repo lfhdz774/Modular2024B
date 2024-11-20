@@ -15,6 +15,37 @@ const reportes = [
       { nombre: 'Fecha Fin', tipo: 'date', clave: 'fechaFin' }
     ],
   },
+  {
+    id: 2,
+    nombre: 'Reporte de Servidores',
+    filtros: [
+      { nombre: 'Fecha Inicio', tipo: 'date', clave: 'fechaInicio' },
+      { nombre: 'Fecha Fin', tipo: 'date', clave: 'fechaFin' }
+    ],
+  },
+  {
+    id: 3,
+    nombre: 'Reporte de Usuarios',
+    filtros: [
+      { nombre: 'Fecha Inicio', tipo: 'date', clave: 'fechaInicio' },
+      { nombre: 'Fecha Fin', tipo: 'date', clave: 'fechaFin' }
+    ],
+  },
+  {
+    id: 4,
+    nombre: 'Reporte de Grupos',
+    filtros: [
+      { nombre: 'Fecha Inicio', tipo: 'date', clave: 'fechaInicio' },
+      { nombre: 'Fecha Fin', tipo: 'date', clave: 'fechaFin' }
+    ],
+  },
+  {
+    id: 5,
+    nombre: 'Reporte de Acceso por Usuario',
+    filtros: [
+      { nombre: 'ID Dueño de Acceso', tipo: 'text', clave: 'ID_Dueño' },
+    ],
+  },
 
 ];
 

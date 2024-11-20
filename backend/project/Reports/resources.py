@@ -1,6 +1,6 @@
 from flask_restful import Resource,reqparse,request
 from flask import jsonify,abort
-from project.models import Server, Access
+from project.models import Server, Access,UserModel,Group
 from project import db
 from flasgger.utils import swag_from
 
@@ -41,20 +41,32 @@ class ReportGenerator(Resource):
                 query = query.filter(Access.created_at.between(filtros['fechaInicio'], filtros['fechaFinal']))
 
             accesos = query.all()
-            report_data = [{'id': acceso.access_id, 'Usuario': acceso.user.username, 'Expira el': acceso.expires_at} for acceso in accesos]
+            report_data = [{'id': acceso.access_id, 'Acceso': acceso.access_name, 'Servidor': acceso.server.name,'Servidor Hostname': acceso.server.hostname, 'Usuario': acceso.user.username } for acceso in accesos]
 
         elif id_reporte == 2:
             # Reporte de Inventario
-            query = db.session.query(Inventory)
-
-            if 'categoria' in filtros:
-                query = query.filter(Inventory.category == filtros['categoria'])
-            if 'cantidadMinima' in filtros:
-                query = query.filter(Inventory.quantity >= filtros['cantidadMinima'])
-
-            inventario = query.all()
-            report_data = [{'id': item.id, 'nombre': item.name, 'cantidad': item.quantity} for item in inventario]
-
+            query = db.session.query(Server)
+            # Aplicamos filtros opcionales
+            if 'fechaInicio' in filtros and 'fechaFinal' in filtros:
+                query = query.filter(Server.created_at.between(filtros['fechaInicio'], filtros['fechaFinal']))
+            servers = query.all()
+            report_data = [{'id': server.server_id,'Shortname': server.short_name,'Hostname': server.hostname,'IP_Address': server.ip_address,'server_name': server.name} for server in servers]
+        elif id_reporte == 3:
+            # Reporte de Inventario
+            query = db.session.query(UserModel)
+            # Aplicamos filtros opcionales
+            if 'fechaInicio' in filtros and 'fechaFinal' in filtros:
+                query = query.filter(UserModel.created_at.between(filtros['fechaInicio'], filtros['fechaFinal']))
+            users = query.all()
+            report_data = [{'id': user.user_id,'Cuenta': user.username,'Email': user.email,'Codigo de Empleado': user.employee_code,'Nombre': user.first_name + ' '+ user.last_name} for user in users]
+        elif id_reporte == 4:
+            # Reporte de Inventario
+            query = db.session.query(Group)
+            # Aplicamos filtros opcionales
+            if 'fechaInicio' in filtros and 'fechaFinal' in filtros:
+                query = query.filter(Group.created_at.between(filtros['fechaInicio'], filtros['fechaFinal']))
+            groups = query.all()
+            report_data = [{'id': group.group_id,'Group Name': group.group_name,'Descripcion': group.description,'Servidor ID': group.server_id} for group in groups]
         else:
             abort(400, description='ID de reporte no válido.')
 

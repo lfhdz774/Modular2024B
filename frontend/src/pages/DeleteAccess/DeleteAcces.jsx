@@ -1,11 +1,10 @@
 import React, { useEffect, useState, useCallback} from 'react';
-import { Container, Paper, Typography, TextField, Button, Grid, MenuItem, Select, FormControl, InputLabel, Checkbox, FormControlLabel, Backdrop, Box, Modal, Fade, FormLabel } from '@mui/material';
-import 'dayjs/locale/es-mx'; // Import the Mexican Spanish locale for Day.js
-import { AccessRequestForMe} from 'src/Services/credential.service'; // Reemplaza con la ruta actual al servicio
-import { GetServers } from 'src/Services/servers.service';
-import {  GetUsersByRole } from 'src/Services/user.service';
-import RequestModal from 'src/components/RequestModal';
-import _, { set } from 'lodash';
+import { Container, Paper, Typography, TextField, Button, Grid, FormControl, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import { AccessRequest,AccessesByUser} from 'src/Services/credential.service'; // Reemplaza con la ruta actual al servicio
+import DeleteIcon from '@mui/icons-material/Delete';
+import { GetUserByCode, GetUsersByRole } from 'src/Services/user.service';
+import IconButton from '@mui/material/IconButton';
+import _ from 'lodash';
 
 const style = {
   position: 'absolute',
@@ -22,160 +21,211 @@ const style = {
 
 export const DeleteAccess = () => {
 
-const [data, setData] = useState([]);
-const [servers, setServers] = useState([]);
-const [loading, setLoading] = useState(false);
-const [status, setStatus] = useState('');
-const [aprover, setAprover] = useState([]);
-
-
-  useEffect(() => {
-    GetServersList();
-    GetAprovers();
-  }, []);
-
-  const GetServersList = async() => {
-    try {
-      const ServerResponse = await GetServers();
-      setServers(ServerResponse);
-    } catch (error) {
-      console.error('Error getting servers', error);
-    }
-  };
-
-  const GetAprovers = async() => {
-    try {
-      const AproverResponse = await GetUsersByRole(3);
-      setAprover(AproverResponse.data);
-    } catch (error) {
-      console.error('Error getting aprovers', error);
-    }
-  };
-
-
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
-
-  const handleRequestChange = (e) => {
-
-  };
-
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    handleSecuritySubmit();
-  };
-
-  const handleSecuritySubmit = () => {
-    setStatus("loading");
-    setLoading(true); // Show loading modal
-
-
-  setTimeout(async () => {
-    try {
-      const response = await AccessRequestForMe(data);
-      if(response.status === 201)
-        setStatus("success");
-      else
-        setStatus("error");
-
-      setLoading(false); // Hide loading modal
-      // Handle successful response
-      console.log('Credential created successfully', response);
-      
-    } catch (error) {
-      setStatus("error");
-      setLoading(false); // Hide loading modal
-      // Handle error response
-      console.error('Error creating credential', error);
-    }
-  }, 2000);
-};
-
+    const [codigo, setCodigo] = useState('');
+    const [user, setUser] = useState({
+      server_id: -1,
+      group_id: -1,
+      user_id: 0,
+      expireDate: null,
+      aprover_id: -1,
+      username: '',
+    });
+    const [Access, setAccess] = useState([]);
+    
+    const [usuario, setUsuario] = useState('');
   
-  return (
-    <Container maxWidth="sm" sx={{ mt: 4, mb: 4 }}>
-      <Paper sx={{ p: 3 }}>
-        <Typography variant="h5" gutterBottom>
-          Solicitar Acceso
-        </Typography>
-        <form onSubmit={handleSubmit}>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <FormControl fullWidth variant="outlined" required>
-                <InputLabel id="server-label">Servidor</InputLabel>
-                <Select
-                  labelId="server-label"
-                  name="server_id"
-                  value={data.server_id}
-                  onChange={handleChange}
-                  label="Servidor"
-                >
-                  <MenuItem value="-1"><em>None</em></MenuItem>
-                  {
-                    servers ? servers.map((server) => (
-                      <MenuItem key={server.server_id} value={server.server_id}>{server.name}</MenuItem>
-                    )) : null
-                  }
-                </Select>
-              </FormControl>
-            </Grid>
+  
+    useEffect(() => {
+      GetServersList();
+      GetAprovers();
+    }, []);
+  
+    const GetServersList = async() => {
+     
+    };
+  
+  
+    const GetAprovers = async() => {
+      try {
+        const AproverResponse = await GetUsersByRole(3);
+        console.log(AproverResponse);
+      } catch (error) {
+        console.error('Error getting aprovers', error);
+      }
+    };
+  
+  
+    useEffect(() => {
+        const fetchData = async () => {
+          console.log(usuario);
+          console.log("Buscando accesos, del usuario:", usuario.user_id);
+          await GetAccessFromUser(usuario.user_id);
+        };
+      
+        fetchData();
+      }, [usuario]);
 
+    const GetAccessFromUser = async (code) => {
+        console.log("Buscando accesos, del usuario:", code);
+        try {
+          const response = await AccessesByUser(code);
+          //setUsuario(response.data);
+          if(response.data){
+            console.log("Usuario encontrado");
+           // setUsuario(response.data);
+            setAccess(response.data);
+          }
+          console.log(response);
+        } catch (error) {
+          console.error('Error getting access', error);
+         // setUsuario('');
+           setAccess([]);
+        }
+      };
+  
+    const handleSecuritySubmit = () => {
+        //setLoading(true); // Show loading modal
+  
+      // const data = {
+      //   ...user,
+      //   expireDate: user.expireDate ? user.expireDate.toISOString() : null,
+      // };
+  
+      setTimeout(async () => {
+        try {
+          const response = await AccessRequest(user);
+          //setLoading(false); // Hide loading modal
+          // Handle successful response
+          console.log('Credential created successfully', response);
+        } catch (error) {
+         //setLoading(false); // Hide loading modal
+          // Handle error response
+          console.error('Error creating credential', error);
+        }
+      }, 2000);
+    };
+  
+    const handleSubmit = (event) => {
+      event.preventDefault();
+      handleSecuritySubmit();
+    };
+
+    const handleDeleteAccess = (access_id) => {
+      alert("Eliminar acceso: " + access_id);
+    }
+  
+    
+      // Función que realiza la búsqueda del usuario en la API
+      const searchUser = async (code) => {
+        try {
+          const response = await GetUserByCode(code);
+          console.log(response.data);
+          if (response.status === 284) {
+            setUsuario('');
+            return;
+          }
+          setUsuario(response.data);
+          if(response.data){
+            console.log("Usuario encontrado");
+            setUsuario(response.data);
+          }
+          console.log(response);
+        } catch (error) {
+          console.error('Error getting user', error);
+          setUsuario('');
+        }
+      };
+    
+      // Memorizar la función de búsqueda utilizando useCallback
+      const debouncedBuscarUsuario = useCallback(
+        _.debounce((codigo) => {
+          searchUser(codigo);
+        }, 500),
+        [] // Solo se crea una vez al montar el componente
+      );
+    
+      // Manejar cambios en el código ingresado por el usuario
+      useEffect(() => {
+        if (codigo === '') {
+          setUsuario('');
+          return;
+        }
+        // Llamar a la función debounced cada vez que cambia el código
+        debouncedBuscarUsuario(codigo);
+        // Limpiar debounce cuando el componente se desmonte o cambie "codigo"
+        return () => {
+          debouncedBuscarUsuario.cancel(); // Cancela cualquier búsqueda en curso
+        };
+      }, [codigo, debouncedBuscarUsuario]); // Dependencias
+  
+    return (
+      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+        <Paper sx={{ p: 3 }}>
+          <Typography variant="h5" gutterBottom>
+            Eliminar accesos
+          </Typography>
+          <form onSubmit={handleSubmit}>
+            <Grid container spacing={2}>
              
-            <Grid item xs={12}>
-              <FormControl fullWidth variant="outlined" required>
-                <InputLabel id="group-label">Grupo</InputLabel>
-                <Select
-                  labelId="group-label"
-                  name="group_id"
-                  value={data.group_id}
-                  onChange={handleChange}
-                  label="Grupo"
-                >
-                  <MenuItem value="-1"><em>None</em></MenuItem>
-                  <MenuItem value="1">Grupo 1</MenuItem>
-                  <MenuItem value="2">Grupo 2</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
+              <Grid item xs={6}>
+                <FormControl fullWidth variant="outlined" required>
+                  <TextField
+                    labelId="userCode-label"
+                    name="userCode"
+                    value={codigo}
+                    onChange={(e) => setCodigo(e.target.value)}
+                    label="Código de Usuario"
+                  />
+  
+               
+                </FormControl>
+  
+              </Grid>
 
-            <Grid item xs={12}>
-              <FormControl fullWidth variant="outlined" required>
-                <InputLabel id="server-label">Aprobador</InputLabel>
-                <Select
-                  labelId="aprover-label"
-                  name="approver_id"
-                  value={data.approver_id}
-                  onChange={handleChange}
-                  label="Aprobador"
-                >
-                  <MenuItem value="-1"><em>None</em></MenuItem>
-                  {
-                    
-                    aprover ? aprover.map((aprover) => (
-                      <MenuItem key={aprover.user_id} value={aprover.user_id}>{aprover.first_name + " " + aprover.last_name}</MenuItem>
-                    )) : null
-                  }
-                </Select>
-              </FormControl>
-            </Grid>
+              <Grid item xs={6}>
+                <FormControl fullWidth variant="outlined" required>
+                <TextField
+                  variant="outlined"
+                  disabled
+                  value={usuario ? usuario.first_name + " " + usuario.last_name : 'No encontrado'}
+                ></TextField>
+                </FormControl>
+  
+              </Grid>
 
-            <Grid item xs={12}>
-              <Button variant="contained" color="primary" type="submit">
-                Crear
-              </Button>
-            </Grid>
-          </Grid>
-        </form>
-      </Paper>
+                <Grid item xs={12}>
+                <TableContainer component={Paper}>
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                                <TableCell>Servidor</TableCell>
+                                <TableCell>Access ID</TableCell>
+                                <TableCell>Rol</TableCell>
+                                <TableCell>Activo Desde</TableCell>
+                                <TableCell>Estatus</TableCell>
+                                <TableCell></TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {Access.map((access) => (
+                            <TableRow key={access.id}>
+                                <TableCell>{access.server_id}</TableCell>
+                                <TableCell>{access.access_name}</TableCell>
+                                <TableCell>{access.user_groups}</TableCell>
+                                <TableCell>{access.created_at}</TableCell>
+                                <TableCell>{access.status ? "Activo" : "Inactivo"}</TableCell>
+                                <TableCell><IconButton aria-label="delete" onClick={() => handleDeleteAccess(access.access_id)}><DeleteIcon /></IconButton></TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+                </Grid>
 
-      <RequestModal status={status} handleClose={handleRequestChange} ></RequestModal>
-    </Container>
-  );
+            </Grid>
+          </form>
+        </Paper>
+  
+      </Container>
+    );
 };

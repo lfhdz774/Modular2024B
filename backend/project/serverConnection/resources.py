@@ -404,3 +404,21 @@ class ApproveRequest(Resource):
 
 
         return userCreated
+
+class GetAccessByUser(Resource):
+    @jwt_required()
+    def post(self,user_id):
+
+        claims = get_jwt()
+        requester_id = claims.get('user_id')
+        requester_user = db.session().query(UserModel).filter_by(user_id=requester_id).first()
+
+        if not requester_user:
+            return {'message': 'User not Found'},404
+        
+        if requester_user.role_id != 7:
+            return {'message': 'Unauthorized access'},403
+        
+        UserAccesses = db.session().query(Access).filter_by(user_id=user_id).all()
+        
+        return [access.json() for access in UserAccesses]

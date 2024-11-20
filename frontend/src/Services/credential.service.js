@@ -62,3 +62,12 @@ export const ApproveRequest = async (requestId) => {
         return error;
     }
 }
+
+export const AccessesByUser = async (userId) => {
+    try {
+        const response = await http.post(`/api/admin/GetAccessByUser/${userId}`);
+        return response;
+    } catch (error) {
+        return error;
+    }
+}

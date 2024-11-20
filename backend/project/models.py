@@ -153,6 +153,7 @@ class Access(db.Model):
                 'created_at' : str(self.created_at),
                 'expires_at' : str(self.expires_at),
                 'user_groups' : self.user_groups,
+                'status' : self.status
                 }
     #approved_by = db.Column(db.Integer,db.ForeignKey('users.user_id'))  PENDING CHECK HOW TO DISPLAY WHO APPROVED THE REQUEST AND IF IS REQUIRED A DIFERENT TABLE? 
     

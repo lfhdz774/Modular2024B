@@ -1,6 +1,8 @@
 import random
 import json
 import csv
+import string
+
 plantillas_crear_usuario  = [
     "Necesito crear un usuario nuevo para {codigo_empleado} ",
     "Agregar acceso al usuario {codigo_empleado} ",
@@ -130,9 +132,9 @@ plantillas_solicitar_info  = [
 ]
 
 Resetear_contraseña = [
-    "Resetea la contraseña del accesos {codigo_de_acceso}",
-    "Reinicia la contraseña del accesos {codigo_de_acceso}",
-    "Cambia la contraseña del accesos {codigo_de_acceso}"
+    "Resetea la contraseña del acceso {codigo_de_acceso}",
+    "Reinicia la contraseña del acceso {codigo_de_acceso}",
+    "Cambia la contraseña del acceso {codigo_de_acceso}"
 ]
 
 plantillas_por_intencion = {
@@ -141,9 +143,13 @@ plantillas_por_intencion = {
     "resetear_contraseña": Resetear_contraseña
 }
 
-servidores = ["servidor de ventas", "servidor principal", "servidor de desarrollo", "servidor de pruebas"]
+servidores = [["servidor de ventas", "SRVTAS"], ["servidor principal", "SRVPRAL"], ["servidor de desarrollo", "SRVDLLO"], ["servidor de pruebas", "SRVPRBS"], ["Servidor Demo", "SRVDMO"]]
 codigos_empleado = [str(i).zfill(4) for i in range(1000, 9999)]
+codigos_de_acceso = ["".join(["".join(map(str, (str(i).zfill(4) for i in range(1000, 9999)))) , random.choice(servidores[1]) , "".join(map(str, (str(i).zfill(2) for i in range(10, 99))))])  ]
 
+print(random.choice(codigos_de_acceso))
+
+exit
 datos_entrenamiento_intenciones = []
 TRAIN_DATA = []
 
@@ -151,7 +157,8 @@ for intencion, plantillas in plantillas_por_intencion.items():
     for plantilla in plantillas:
         for _ in range(50):  # Número de ejemplos a generar por plantilla
             codigo_empleado = random.choice(codigos_empleado)
-            servidor = random.choice(servidores)
+            servidor = random.choice(servidores[0])
+            codigo_de_acceso = random.choice(codigos_de_acceso)
             
             # Determinar qué entidades están en la plantilla
             entities_in_template = []
@@ -162,6 +169,9 @@ for intencion, plantillas in plantillas_por_intencion.items():
             if "{servidor}" in plantilla:
                 entities_in_template.append("servidor")
                 params["servidor"] = servidor
+            if "{codigo_de_acceso}" in plantilla:
+                entities_in_template.append("codigo_de_acceso")
+                params["codigo_de_acceso"] = codigo_de_acceso
             
             # Generar el comando
             comando = plantilla.format(**params)

@@ -50,3 +50,13 @@ export const UpdateServer = async (ServerModel) => {
         return error;
     }
 };
+
+export const GetRolesFromServer = async(serverId) => {
+    try {
+        const response = await http.get('/api/admin/GetRolesFromServer/' + serverId);
+        return response;
+    } catch (error) {
+        console.log(error);
+        return error;
+    }
+}

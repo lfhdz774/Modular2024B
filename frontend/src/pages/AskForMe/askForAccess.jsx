@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback} from 'react';
 import { Container, Paper, Typography, TextField, Button, Grid, MenuItem, Select, FormControl, InputLabel, Checkbox, FormControlLabel, Backdrop, Box, Modal, Fade, FormLabel } from '@mui/material';
 import 'dayjs/locale/es-mx'; // Import the Mexican Spanish locale for Day.js
 import { AccessRequestForMe} from 'src/Services/credential.service'; // Reemplaza con la ruta actual al servicio
-import { GetServers } from 'src/Services/servers.service';
+import { GetServers , GetRolesFromServer} from 'src/Services/servers.service';
 import {  GetUsersByRole } from 'src/Services/user.service';
 import RequestModal from 'src/components/RequestModal';
 import _, { set } from 'lodash';
@@ -20,11 +20,18 @@ const style = {
 };
 
 const AskForAccess = () => {
-const [data, setData] = useState([]);
+const [data, setData] = useState([
+  // {
+  //   server_id: -1,
+  //   group_id: -1,
+  //   approver_id: -1
+  // }
+]);
 const [servers, setServers] = useState([]);
 const [loading, setLoading] = useState(false);
 const [status, setStatus] = useState('');
 const [aprover, setAprover] = useState([]);
+const [groups, setGroups] = useState([]);
 
 
   useEffect(() => {
@@ -40,6 +47,19 @@ const [aprover, setAprover] = useState([]);
       console.error('Error getting servers', error);
     }
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      let response = await GetRolesFromServer(data.server_id);
+      if( response.status === 200)
+        setGroups(response.data);
+      else
+        setGroups([]);
+      console.log(response);
+    };
+
+    fetchData();
+  }, [data.server_id]);
 
   const GetAprovers = async() => {
     try {
@@ -137,8 +157,11 @@ const [aprover, setAprover] = useState([]);
                   label="Grupo"
                 >
                   <MenuItem value="-1"><em>None</em></MenuItem>
-                  <MenuItem value="1">Grupo 1</MenuItem>
-                  <MenuItem value="2">Grupo 2</MenuItem>
+                  {
+                    groups ? groups.map((group) => (
+                      <MenuItem key={group.group_id} value={group.group_id}>{group.group_name}</MenuItem>
+                    )) : null
+                  }
                 </Select>
               </FormControl>
             </Grid>

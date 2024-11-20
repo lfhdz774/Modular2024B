@@ -101,3 +101,17 @@ class AddGroup(Resource):
         db.session.add(server)
         db.session.commit()
         return {'msg': 'Servers Added'}
+
+class GetRolesFromServer(Resource):
+    @swag_from('project/swagger.yaml') 
+    def get(self,server_id):
+        #get the roles that are in the array groups
+        server = db.session().query(Server).filter_by(server_id=server_id)\
+            .join(Group,Server.server_id == Group.server_id).all()\
+                .with_entities(Group.group_name, Group.group_id)\
+            .first()
+
+        if server:
+            return server.json()
+        else:
+            return {'server_id': 'not found'},404

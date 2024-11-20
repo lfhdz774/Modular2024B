@@ -211,7 +211,7 @@ export const DeleteAccess = () => {
                     <TableBody>
                         {Access.map((access) => (
                             <TableRow key={access.id}>
-                                <TableCell>{access.server_id}</TableCell>
+                                <TableCell>{access.server_name}</TableCell>
                                 <TableCell>{access.access_name}</TableCell>
                                 <TableCell>{access.user_groups}</TableCell>
                                 <TableCell>{access.created_at}</TableCell>

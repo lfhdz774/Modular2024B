@@ -181,3 +181,20 @@ class UpdateGroup(Resource):
         
         db.session().commit()
         return {'message': 'Group updated successfully'}, 200
+
+class GetRolesFromServer(Resource):
+    @swag_from('project/swagger.yaml') 
+    def get(self, server_id):
+        # Obtener roles (grupos) asociados al servidor
+        groups = db.session.query(Group.group_name, Group.group_id)\
+            .join(Server, Server.server_id == Group.server_id)\
+            .filter(Server.server_id == server_id)\
+            .all()
+
+        if groups:
+            # Convertir resultados en una lista de diccionarios
+            result = [{'group_name': group.group_name, 'group_id': group.group_id} for group in groups]
+            print(result)
+            return result, 200
+        else:
+            return {'server_id': 'not found'}, 404

@@ -11,6 +11,8 @@ import paramiko
 from datetime import date
 from sqlalchemy.orm import joinedload
 import time
+from datetime import datetime
+
 
 
 from Exceptions.ServersExceptions import ServerNotFoundError,AccessAlreadyExists,AccessNotFound,GroupNotFound
@@ -149,6 +151,7 @@ class DeleteAccess(Resource):
             c.close()
 
             access.status = False
+
             db.session.commit()
             return {'msg': str(stderr.read().decode())}
         except Exception as e:
@@ -434,6 +437,26 @@ class GetAccessByUser(Resource):
         if requester_user.role_id != 7:
             return {'message': 'Unauthorized access'},403
         
-        UserAccesses = db.session().query(Access).filter_by(user_id=user_id).all()
+        UserAccesses = db.session().query(Access).filter_by(user_id=user_id)\
+            .join(Server, Access.server_id == Server.server_id)\
+            .with_entities(
+                Access.access_name,
+                Access.user_groups,
+                Access.created_at,
+                Access.status,
+                Server.name
+                )\
+            .all()
         
-        return [access.json() for access in UserAccesses]
+        result = [
+            {
+                'access_name': access.access_name,
+                'user_groups': access.user_groups,
+                'created_at': access.created_at.isoformat() if isinstance(access.created_at, datetime) else str(access.created_at),
+                'status': access.status,
+                'server_name': access.name,
+            }
+            for access in UserAccesses
+        ]
+
+        return result, 200

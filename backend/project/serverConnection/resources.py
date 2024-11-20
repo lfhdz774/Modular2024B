@@ -111,6 +111,7 @@ class DeleteAccess(Resource):
         access_name = args['username']
         server_id = args['server_id']
         server = db.session().query(Server).filter_by(server_id=server_id).first()
+
         try:
             server = db.session().query(Server).filter_by(server_id=server_id).first()
             if not server:
@@ -123,24 +124,38 @@ class DeleteAccess(Resource):
                 raise AccessNotFound(access_name)
         except ServerNotFoundError as e:
             abort(404, description=str(e))
-        #create Acces on DB side
-        db.session.delete(access)
-        db.session.commit()
-        #Delete Access on the Server Side
-        pem_key = server.pkey.replace("\\n","\n")
-        pem_key = StringIO(pem_key)
-        k = paramiko.RSAKey.from_private_key(pem_key)
-        c = paramiko.SSHClient()
-        c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        print ("connecting")
-        c.connect( hostname = server.hostname, username = server.username, pkey = k )
-        commands = [ f"sudo userdel -r {args['username']}"]
-        for command in commands:
-            print ("Executing {}".format( command ))
-            stdin , stdout, stderr = c.exec_command(command)
-            print (stdout.read())
-        c.close()
-        return {'msg': str(stderr.read().decode())}
+
+        try:
+
+            pem_key = server.pkey.replace("\\n","\n")
+            pem_key = StringIO(pem_key)
+            k = paramiko.RSAKey.from_private_key(pem_key)
+            c = paramiko.SSHClient()
+            c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            print ("connecting")
+            c.connect( hostname = server.hostname, username = server.username, pkey = k )
+            commands = [ f"sudo usermod -L -e 1 {access.access_name}"]
+            for command in commands:
+                print ("Executing {}".format( command ))
+                stdin , stdout, stderr = c.exec_command(command)
+                output = stdout.read().decode().strip()
+                error = stderr.read().decode().strip()
+
+                if error:
+                    print(f"Error: {error}")
+                    abort(500, description=f"Failed to execute command: {error}")
+
+                print(f"Command output: {output}")
+            c.close()
+
+            access.status = False
+            db.session.commit()
+            return {'msg': str(stderr.read().decode())}
+        except Exception as e:
+            print(e)
+            return {'msg': str(e)},500
+
+        
 
 class AddGroupToAccess(Resource):
     @swag_from('project/swagger.yaml') 

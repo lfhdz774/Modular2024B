@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback} from 'react';
 import { Container, Paper, Typography, TextField, Button, Grid, FormControl, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
-import { AccessRequest,AccessesByUser} from 'src/Services/credential.service'; // Reemplaza con la ruta actual al servicio
+import { AccessRequest,AccessesByUser, DeactivateAccess} from 'src/Services/credential.service'; // Reemplaza con la ruta actual al servicio
 import DeleteIcon from '@mui/icons-material/Delete';
 import { GetUserByCode, GetUsersByRole } from 'src/Services/user.service';
 import IconButton from '@mui/material/IconButton';
@@ -110,8 +110,10 @@ export const DeleteAccess = () => {
       handleSecuritySubmit();
     };
 
-    const handleDeleteAccess = (access_id) => {
-      alert("Eliminar acceso: " + access_id);
+    const handleDeleteAccess  = async(access_id, server_id) => {
+      let result = await DeactivateAccess(access_id, server_id); 
+
+      console.log(result);
     }
   
     
@@ -214,7 +216,7 @@ export const DeleteAccess = () => {
                                 <TableCell>{access.user_groups}</TableCell>
                                 <TableCell>{access.created_at}</TableCell>
                                 <TableCell>{access.status ? "Activo" : "Inactivo"}</TableCell>
-                                <TableCell><IconButton aria-label="delete" onClick={() => handleDeleteAccess(access.access_id)}><DeleteIcon /></IconButton></TableCell>
+                                <TableCell><IconButton aria-label="delete" onClick={() => handleDeleteAccess(access.access_name, access.server_id)}><DeleteIcon /></IconButton></TableCell>
                             </TableRow>
                         ))}
                     </TableBody>

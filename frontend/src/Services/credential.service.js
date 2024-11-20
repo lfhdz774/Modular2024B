@@ -71,3 +71,22 @@ export const AccessesByUser = async (userId) => {
         return error;
     }
 }
+
+export const DeactivateAccess = async (accessName, serverId) => {
+    try {
+        let data = {
+            "username": accessName,
+            "server_id":serverId
+        }
+
+        const response = await http.delete(`/api/admin/DeleteAccess`, {
+            data: data, 
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        return response;
+    } catch (error) {
+        return error;
+    }
+}

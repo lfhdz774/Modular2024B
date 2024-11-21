@@ -153,13 +153,11 @@ class DeleteAccess(Resource):
 
                 if error:
                     print(f"Error: {error}")
-                    abort(500, description=f"Failed to execute command: {error}")
 
                 print(f"Command output: {output}")
             c.close()
 
-            access.status = False
-            db.delete(access) 
+            db.session.delete(access)
             db.session.commit()
             return {'msg': str(stderr.read().decode())}
         except Exception as e:
@@ -479,9 +477,6 @@ class GetAccessMyUser(Resource):
 
         if not requester_user:
             return {'message': 'User not Found'},404
-        
-        if requester_user.role_id != 7:
-            return {'message': 'Unauthorized access'},403
         
         UserAccesses = db.session().query(Access).filter_by(user_id=requester_id)\
             .join(Server, Access.server_id == Server.server_id)\

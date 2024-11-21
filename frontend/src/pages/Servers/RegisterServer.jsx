@@ -50,6 +50,7 @@ const RegisterServer = ({ isEditing }) => {
         username: server.data.username || '',
         pkey: server.data.pkey || '',
         operating_system: server.data.operating_system || '',
+        short_name: server.data.short_name || '',
       });
     } catch (error) {
       console.error('Error fetching server details:', error);
@@ -130,11 +131,22 @@ const RegisterServer = ({ isEditing }) => {
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Name"
+                label="Nombre"
                 variant="outlined"
                 required
                 name="name"
                 value={formData.name}
+                onChange={handleChange}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Nombre corto"
+                variant="outlined"
+                required
+                name="Nombre corto"
+                value={formData.short_name}
                 onChange={handleChange}
               />
             </Grid>
@@ -152,7 +164,7 @@ const RegisterServer = ({ isEditing }) => {
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="IP Address"
+                label="Dirreción IP"
                 variant="outlined"
                 required
                 name="ip_address"
@@ -163,7 +175,7 @@ const RegisterServer = ({ isEditing }) => {
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Username"
+                label="Usuario SSH"
                 variant="outlined"
                 required
                 name="username"
@@ -174,7 +186,7 @@ const RegisterServer = ({ isEditing }) => {
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Private Key"
+                label="Llave SSH"
                 variant="outlined"
                 required
                 name="pkey"
@@ -185,7 +197,7 @@ const RegisterServer = ({ isEditing }) => {
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Operating System"
+                label="Sistema Operativo"
                 variant="outlined"
                 required
                 name="operating_system"

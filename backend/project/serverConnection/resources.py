@@ -14,7 +14,6 @@ import time
 from datetime import datetime
 
 
-
 from Exceptions.ServersExceptions import ServerNotFoundError,AccessAlreadyExists,AccessNotFound,GroupNotFound
 from Exceptions.ServersExceptions import AccessAlreadyExistsError, ServerNotFoundError,AccessAlreadyExists,AccessAlreadyAdded
 
@@ -160,7 +159,7 @@ class DeleteAccess(Resource):
             c.close()
 
             access.status = False
-
+            db.delete(access) 
             db.session.commit()
             return {'msg': str(stderr.read().decode())}
         except Exception as e:

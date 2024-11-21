@@ -4,6 +4,7 @@ import { AccessRequest,AccessesByUser, DeactivateAccess} from 'src/Services/cred
 import DeleteIcon from '@mui/icons-material/Delete';
 import { GetUserByCode, GetUsersByRole } from 'src/Services/user.service';
 import IconButton from '@mui/material/IconButton';
+import RequestModal from 'src/components/RequestModal';
 import _ from 'lodash';
 
 const style = {
@@ -31,7 +32,7 @@ export const DeleteAccess = () => {
       username: '',
     });
     const [Access, setAccess] = useState([]);
-    
+    const [status, setStatus] = useState('');
     const [usuario, setUsuario] = useState('');
   
   
@@ -111,7 +112,13 @@ export const DeleteAccess = () => {
     };
 
     const handleDeleteAccess  = async(access_id, server_id) => {
+      setStatus("loading");
       let result = await DeactivateAccess(access_id, server_id); 
+      if(result.status === 200){
+        setStatus("success");
+      }else{
+        setStatus("error");
+      }
 
       console.log(result);
     }
@@ -227,6 +234,8 @@ export const DeleteAccess = () => {
             </Grid>
           </form>
         </Paper>
+
+        <RequestModal status={status} handleClose={() => console.log("closing")} ></RequestModal>
   
       </Container>
     );

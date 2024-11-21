@@ -19,6 +19,12 @@ class ChartReport(Resource):
 
         return jsonify(chart_data)
 
+class recenAccessReport(Resource):
+    @swag_from('project/swagger.yaml') 
+    def get(self):
+        #select the last 3 accesses created
+        accesses = Access.query.order_by(Access.created_at.desc(), Access.access_id.desc()).limit(3).all()
+
 class ReportGenerator(Resource):
     @swag_from('project/swagger.yaml') 
     def post(self):

@@ -399,11 +399,13 @@ class ApproveRequest(Resource):
         data = db.session.query(AccessRequestModel).filter_by(request_id=request_id)\
             .join(Server, AccessRequestModel.server_id == Server.server_id)\
             .join(UserModel, AccessRequestModel.requester_id == UserModel.user_id)\
+            .join(Group, AccessRequestModel.group_id == Group.group_id)\
             .with_entities(
                 UserModel.employee_code,
                 Server.short_name,
                 UserModel.email,
-                Server.hostname
+                Server.hostname,
+                Group.group_name
                 )\
             .first()
        
@@ -417,7 +419,7 @@ class ApproveRequest(Resource):
 
         request.status = 'Approved'
 
-        userCreated = generate_access_instance.crear_usuario(userName, request.server_id, data.email, request.group_id, data.hostname )
+        userCreated = generate_access_instance.crear_usuario(userName, request.server_id, data.email, data.group_name, data.hostname )
 
         if not userCreated['result']:
             return userCreated,500

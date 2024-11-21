@@ -434,7 +434,21 @@ class ApproveRequest(Resource):
 
 
         return userCreated
+class DenyRequest(Resource):
+    @jwt_required()
+    def post(self,request_id):
+        claims = get_jwt()
+        aprover_id = claims.get('user_id')
+        request = db.session().query(AccessRequestModel).filter_by(request_id=request_id).first()
+        if not request:
+            return {'message': 'Request not Found'},404
+        if request.approver_id != aprover_id:
+            return {'message': 'You are not the aprover of this request'},403
+        request.status = 'Denied'
+        db.session.commit()
+        return {'message': 'Request Denied'},200
 
+        
 class GetAccessByUser(Resource):
     @jwt_required()
     def post(self,user_id):

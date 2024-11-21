@@ -23,8 +23,9 @@ import {
 } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import {ApproveRequest} from 'src/Services/credential.service';
+import {ApproveRequest, DenyRequest} from 'src/Services/credential.service';
 import RequestModal from 'src/components/RequestModal';
+import { set } from 'lodash';
 // Estilo para la estructura del contenedor principal
 const containerStyle = {
   marginTop: 4,
@@ -69,8 +70,12 @@ const Row = ({ row, onUpdate }) => {
 
   const approveRequest = async (requestId) => {
     try {
+      setStatus('loading');
       const response = await ApproveRequest(requestId);
-      console.log('Request approved:', response.data);
+      if (response.status === 200)
+        setStatus('success');
+      else
+        setStatus('error');
       return response;
     } catch (error) {
       console.error('Error approving request:', error);
@@ -83,13 +88,17 @@ const Row = ({ row, onUpdate }) => {
   
   // Función para manejar el rechazo del request
   const rejectRequest = async (requestId) => {
-    // try {
-    //   const response = await axios.post(`/api/requests/${requestId}/reject`);
-    //   console.log('Request rejected:', response.data);
-    //   return response.data;
-    // } catch (error) {
-    //   console.error('Error rejecting request:', error);
-    // }
+    try {
+      setStatus('loading');
+      const response = await DenyRequest(requestId);
+      if (response.status === 200)
+        setStatus('success');
+      else
+        setStatus('error');
+      return response;
+    } catch (error) {
+      console.error('Error approving request:', error);
+    }
   };
 
   return (

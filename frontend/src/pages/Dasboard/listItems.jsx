@@ -69,23 +69,23 @@ export const MainListItems = () => {
 
       <Divider sx={{ my: 1 }} />
 
-      <ProtectedMenu allowedRoles={[7]} userRole={userRoles}>
+      {/* <ProtectedMenu allowedRoles={[7]} userRole={userRoles}>
         <ListItemButton onClick={() => navigate("/user-credential-creation")}>
           <ListItemIcon>
             <PersonAddIcon />
           </ListItemIcon>
           <ListItemText primary="Crear credencial" />
         </ListItemButton>
-      </ProtectedMenu>
+      </ProtectedMenu> */}
 
-      <ProtectedMenu allowedRoles={[7]} userRole={userRoles}>
+      {/* <ProtectedMenu allowedRoles={[7]} userRole={userRoles}>
         <ListItemButton onClick={() => navigate("/user-credential-management")}>
           <ListItemIcon>
             <PersonSearchIcon />
           </ListItemIcon>
           <ListItemText primary="Administrar credenciales" />
         </ListItemButton>
-      </ProtectedMenu>
+      </ProtectedMenu> */}
 
       <ProtectedMenu allowedRoles={[7]} userRole={userRoles}>
         <ListItemButton onClick={() => navigate("/server-creation")}>
@@ -127,7 +127,7 @@ export const MainListItems = () => {
           </ListItemIcon>
           <ListItemText primary="Mis accesos" />
         </ListItemButton>
-        
+
       <ProtectedMenu allowedRoles={[7]} userRole={userRoles}>
         <ListItemButton onClick={() => navigate("/delete_access")}>
           <ListItemIcon>

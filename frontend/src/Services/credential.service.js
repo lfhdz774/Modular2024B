@@ -63,6 +63,16 @@ export const ApproveRequest = async (requestId) => {
     }
 }
 
+export const DenyRequest = async (requestId) => {
+    try {
+        const response = await http.post(`/api/admin/DenyRequest/${requestId}`);
+        return response;
+    } catch (error) {
+        return error;
+    }
+}
+
+
 export const AccessesByUser = async (userId) => {
     try {
         const response = await http.post(`/api/admin/GetAccessByUser/${userId}`);

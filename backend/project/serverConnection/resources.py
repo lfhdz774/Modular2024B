@@ -399,7 +399,7 @@ class ApproveRequest(Resource):
         data = db.session.query(AccessRequestModel).filter_by(request_id=request_id)\
             .join(Server, AccessRequestModel.server_id == Server.server_id)\
             .join(UserModel, AccessRequestModel.requester_id == UserModel.user_id)\
-            .join(Group, AccessRequestModel.group_id == Group.group_id)\
+            .join(Group, request.group_id == Group.group_id)\
             .with_entities(
                 UserModel.employee_code,
                 Server.short_name,

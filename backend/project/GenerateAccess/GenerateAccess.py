@@ -172,10 +172,10 @@ class GenerateAccess:
             c.connect( hostname = server.hostname, username = server.username, pkey = k )
 
             # Comandos para crear el usuario y establecer la contraseña
-            if group_id != None:
-                commandos = [ f"sudo useradd -m -d /home/{usename} -G {group} {usename}"]
+            if group != "none":
+                comandos = [ f"sudo useradd -m -d /home/{username} -G {group} {username}"]
             else:
-                commandos = [ f"sudo useradd -m {usename} -d /home/{usename}"]
+                comandos = [ f"sudo useradd -m {username} -d /home/{username}"]
 
             for comando in comandos:
                 stdin, stdout, stderr = c.exec_command(comando)

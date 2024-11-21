@@ -145,7 +145,7 @@ class DeleteAccess(Resource):
             c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             print ("connecting")
             c.connect( hostname = server.hostname, username = server.username, pkey = k )
-            commands = [ f"sudo usermod -L -e 1 {access.access_name}"]
+            commands = [ f"sudo userdel -f -r {access.access_name}"]
             for command in commands:
                 print ("Executing {}".format( command ))
                 stdin , stdout, stderr = c.exec_command(command)

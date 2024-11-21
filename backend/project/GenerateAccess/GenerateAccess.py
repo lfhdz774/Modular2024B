@@ -22,7 +22,7 @@ from project.models import Access, Server
 
 
 class GenerateAccess:
-    def crear_usuario(self, username, server_id, email, group):
+    def crear_usuario(self, username, server_id, email, group, hostname):
         if not self.es_nombre_usuario_valido(username):
             return {"message": f"El nombre de usuario '{username}' no es válido.", "link": ""}
         
@@ -101,6 +101,7 @@ class GenerateAccess:
         <div class="message">
             <p>Se ha creado un usuario para usted en el servidor.</p>
             <p>Su nombre de usuario es: <strong>{username}</strong></p>
+            <p>En el servidor <strong>{hostname}</strong></p>
             <p>Para acceder y ver su contraseña, haga clic en el enlace a continuación:</p>
             <a href="{enlace}" class="button">Obtener contraseña</a>
         </div>

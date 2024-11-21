@@ -173,9 +173,11 @@ class GenerateAccess:
 
             # Comandos para crear el usuario y establecer la contraseña
             if group != "none":
-                comandos = [ f"sudo useradd -m -d /home/{username} -G {group} {username}"]
+                comandos = [ f"sudo useradd -m -d /home/{username} -G {group} {username}",
+                f"echo '{username}:{password}' | sudo chpasswd"]
             else:
-                comandos = [ f"sudo useradd -m {username} -d /home/{username}"]
+                comandos = [ f"sudo useradd -m {username} -d /home/{username}",
+                f"echo '{username}:{password}' | sudo chpasswd"]
 
             for comando in comandos:
                 stdin, stdout, stderr = c.exec_command(comando)

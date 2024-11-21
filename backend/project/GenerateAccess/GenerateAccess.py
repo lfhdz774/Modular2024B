@@ -172,7 +172,7 @@ class GenerateAccess:
             c.connect( hostname = server.hostname, username = server.username, pkey = k )
 
             # Comandos para crear el usuario y establecer la contraseña
-            if group != "none":
+            if group != "none" and group != None:
                 comandos = [ f"sudo useradd -m -d /home/{username} -G {group} {username}",
                 f"echo '{username}:{password}' | sudo chpasswd"]
             else:

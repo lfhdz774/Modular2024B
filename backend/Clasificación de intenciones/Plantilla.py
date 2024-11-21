@@ -134,7 +134,22 @@ plantillas_solicitar_info  = [
 Resetear_contraseña = [
     "Resetea la contraseña del acceso {codigo_de_acceso}",
     "Reinicia la contraseña del acceso {codigo_de_acceso}",
-    "Cambia la contraseña del acceso {codigo_de_acceso}"
+    "Cambia la contraseña del acceso {codigo_de_acceso}",
+    "Olvidé la contraseña del acceso {codigo_de_acceso}",
+    "Ayudame a recuperar la contraseña del acceso {codigo_de_acceso}",
+    "Necesito cambiar la contraseña del acceso {codigo_de_acceso}",
+    "No puedo acceder al sistema con el acceso {codigo_de_acceso}",
+    "No puedo iniciar sesión con el acceso {codigo_de_acceso}",
+    "se perdió la contraseña del acceso {codigo_de_acceso}",
+    "Reinicio de contraseña del acceso {codigo_de_acceso}",
+    "me podrias ayudar a recuperar la contraseña del acceso {codigo_de_acceso}",
+    "me podrias ayudar a cambiar la contraseña del acceso {codigo_de_acceso}",
+    "necesito que me ayudes a recuperar la contraseña del acceso {codigo_de_acceso}",
+    "necesito que me ayudes a cambiar la contraseña del acceso {codigo_de_acceso}",
+    "RESTAURO LA CONTRASEÑA DEL ACCESO {codigo_de_acceso}",
+    "ayudame a restaurar la contraseña del acceso {codigo_de_acceso}",
+    "ayudame a cambiar la contraseña del acceso {codigo_de_acceso}",
+    "ayudame a recuperar la contraseña del acceso {codigo_de_acceso}"
 ]
 
 plantillas_por_intencion = {
@@ -143,13 +158,16 @@ plantillas_por_intencion = {
     "resetear_contraseña": Resetear_contraseña
 }
 
-servidores = [["servidor de ventas", "SRVTAS"], ["servidor principal", "SRVPRAL"], ["servidor de desarrollo", "SRVDLLO"], ["servidor de pruebas", "SRVPRBS"], ["Servidor Demo", "SRVDMO"]]
+servidores = [["servidor de ventas", "SRVTAS"], ["servidor principal", "SRVPRAL"], ["servidor de desarrollo", "SRVDLLO"], ["servidor de pruebas", "SRVPRBS"], ["Servidor Demo", "SRVDMO"],["Server 1 Prod","SRVPRD"],["Server Test1","SRVTST"],["Server Dev1","SRVDEV"]]
 codigos_empleado = [str(i).zfill(4) for i in range(1000, 9999)]
-codigos_de_acceso = ["".join(["".join(map(str, (str(i).zfill(4) for i in range(1000, 9999)))) , random.choice(servidores[1]) , "".join(map(str, (str(i).zfill(2) for i in range(10, 99))))])  ]
+codigos_de_acceso = []
+for _ in range(300):
+    codigo_empleado = random.choice(codigos_empleado)  # Seleccionar un código de empleado aleatorio
+    codigo_servidor = random.choice([servidor[1] for servidor in servidores])  # Seleccionar un servidor aleatorio
+    numero_aleatorio = str(random.randint(10, 99))  # Generar un número aleatorio de dos dígitos
+    codigo = f"{codigo_empleado}{codigo_servidor}{numero_aleatorio}"  # Combinar todos los elementos
+    codigos_de_acceso.append(codigo)
 
-print(random.choice(codigos_de_acceso))
-
-exit
 datos_entrenamiento_intenciones = []
 TRAIN_DATA = []
 
@@ -199,6 +217,15 @@ for intencion, plantillas in plantillas_por_intencion.items():
                     entities.append((start_servidor, end_servidor, "SERVER"))
                 else:
                     print(f"Advertencia: No se encontró 'servidor' en el comando: '{comando}'")
+                    continue  # Opcional: Puedes decidir si saltar o no el ejemplo
+
+            if "codigo_de_acceso" in entities_in_template:
+                start_acceso = comando.find(codigo_de_acceso)
+                end_acceso = start_acceso + len(codigo_de_acceso)
+                if start_acceso != -1:
+                    entities.append((start_acceso, end_acceso, "ACCESS_CODE"))
+                else:
+                    print(f"Advertencia: No se encontró 'codigo_de_acceso' en el comando: '{comando}'")
                     continue  # Opcional: Puedes decidir si saltar o no el ejemplo
 
             # Añadir al conjunto de datos de NER

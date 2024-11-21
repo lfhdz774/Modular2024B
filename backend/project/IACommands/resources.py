@@ -2,13 +2,19 @@ import re
 import unicodedata
 from flask_restful import Resource, reqparse
 from flask import abort, session
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt
 import joblib
 import spacy
+from project import db
 from spacy.matcher import Matcher
 from project.GenerateAccess.GenerateAccess import GenerateAccess
+from project.models import UserModel, Server, AccessRequestModel, Access
+from sqlalchemy import func
 
 class ProcesarComando(Resource):
+
+   
+
     def __init__(self):
         self.parser = reqparse.RequestParser()
         self.parser.add_argument('comando', type=str, help='Comando en lenguaje natural', required=True)
@@ -16,7 +22,7 @@ class ProcesarComando(Resource):
         self.modelo_intenciones = joblib.load('Clasificación de intenciones/modelo_intenciones.pkl')
         # Load the spaCy Spanish model
         self.nlp = spacy.load('Clasificación de intenciones/modelo_ner')
-
+        self.requester_id = None
 
     @jwt_required()
     def post(self):
@@ -24,6 +30,8 @@ class ProcesarComando(Resource):
             args = self.parser.parse_args()
             comando = args['comando']
             respuesta = None
+            claims = get_jwt()  
+            self.requester_id = claims.get('user_id')
 
             if 'pending_data' in session:
                 print("Pending action:", session['pending_data'])
@@ -49,7 +57,7 @@ class ProcesarComando(Resource):
                 if datos['informacion_faltante']:
                     # Aún falta información
                     session['pending_data'] = datos
-                    return {"message": f"No pude detectar {', '.join(datos['informacion_faltante'])}. Por favor, proporcione la información faltante.", "link": ""}
+                    return {"message": f"No pude detectar {', '.join(datos['informacion_faltante'])}. Por favor, proporcione la información faltante.", "type": "text"}
                 else:
                     # Proceder con la acción
                     respuesta = self.ejecutar_accion(datos)
@@ -103,27 +111,94 @@ class ProcesarComando(Resource):
         if datos['informacion_faltante']:
             session['pending_data'] = datos
             print("Pending action:", session['pending_data'])
-            return {"message": f"No pude detectar {', '.join(datos['informacion_faltante'])}. Por favor, proporcione la información faltante.", "link": ""}
+            return {"message": f"No pude detectar {', '.join(datos['informacion_faltante'])}. Por favor, proporcione la información faltante.", "type": "text"}
         else:
             # Proceder con la acción
             return self.ejecutar_accion(datos)
 
+    def intencion_requiere_entidad(self, intencion, entidad):
+        # Determinar si la intención requiere una entidad específica
+        if intencion == 'crear_usuario':
+            return entidad in ['employee_code', 'server']
+        elif intencion == 'info_usuario':
+            return entidad == 'employee_code'
+        else:
+            return False
     def ejecutar_accion(self, datos):
         if datos['accion'] == 'crear_usuario':
             if datos['employee_code'] and datos['server']:
-                #generate_access_instance = GenerateAccess()
-                #return generate_access_instance.crear_usuario(datos['employee_code'], datos['server'])
-                print("Creando usuario...")
-                return {"message": f"Usuario creado para el código de empleado {datos['employee_code']} en el servidor {datos['server']}.", "link": ""}
+                #server = db.session().query(Server).filter_by(server_id=server_id).first()
+                userData = db.session().query(UserModel).filter_by(employee_code = datos['employee_code']).first()
+                if not userData:
+                    return {"message": f"No se encontró información para el código de empleado {datos['employee_code']}.", "type": "text"}
+                server = db.session().query(Server).filter(func.lower(Server.name) == func.lower(datos['server'])).first()
+                if not server:
+                    return {"message": f"No se encontró información para el servidor {datos['server']}.", "type": "text"}
+
+                if self.requester_id is None:
+                    return {"message": "No se pudo determinar el usuario solicitante.", "type": "text"}
+
+                newRequest = AccessRequestModel(userData.user_id, server.server_id, self.requester_id,None, self.requester_id, None)
+                db.session.add(newRequest)
+                db.session.commit()
+                return {"message": f"Solicitud de acceso creada para el código de empleado {datos['employee_code']} en el servidor {datos['server']}.", "type": "text"}
+                # generate_access_instance = GenerateAccess()
+                # return generate_access_instance.crear_usuario(datos['employee_code'], datos['server'], userData.email, 'none', server.hostname)
+                # print("Creando usuario...")
+                # return {"message": f"Usuario creado para el código de empleado {datos['employee_code']} en el servidor {datos['server']}.", "type": ""}
             else:
-                return {"message": "Faltan datos para crear el usuario.", "link": ""}
+                return {"message": "Faltan datos para crear el usuario.", "type": "text"}
         elif datos['accion'] == 'info_usuario':
             if datos['employee_code']:
                 return self.consultar_usuario(datos['employee_code'])
             else:
-                return {"message": "Falta el código de empleado para consultar la información.", "link": ""}
+                return {"message": "Falta el código de empleado para consultar la información.", "type": "text"}
         else:
-            return {"message": "Acción no reconocida.", "link": ""}
+            return {"message": "Acción no reconocida.", "type": "text"}
+
+    def consultar_usuario(self, codigo_empleado):
+        # Obtener los datos del usuario
+        userData = db.session().query(UserModel).filter_by(employee_code=codigo_empleado).first()
+        if not userData:
+            return {"message": f"No se encontró información para el código de empleado {codigo_empleado}.", "type": "text"}
+
+        # Obtener los accesos del usuario
+        accessData = db.session().query(Access).filter_by(user_id=userData.user_id).all()
+        if not accessData:
+            return {"message": f"No se encontraron accesos para el código de empleado {codigo_empleado}.", "type": "text"}
+        accessList = []
+        for access in accessData:
+            server = db.session().query(Server).filter_by(server_id=access.server_id).first()
+            accessList.append({"Servidor": server.name, "ID": access.access_name, "Activo desde": access.created_at.strftime('%Y-%m-%d')})
+
+        # Formar la respuesta
+        return {
+            "message": [
+                {
+                    "Usuario": {
+                        "type": "text",
+                        "message": userData.username  
+                    }
+                },
+                {
+                    "Correo": {
+                        "type": "text",
+                        "message": userData.email 
+                    }
+                },
+                {
+                    "Tabla": {
+                        "type": "table",
+                        
+                        "message": accessList  
+                    },
+                    "title" : "Accesos"
+                }
+            ],
+            
+            "type": "data"
+        }
+
 
     def extraer_username_con_matcher(self, doc):
         matches = self.matcher(doc)

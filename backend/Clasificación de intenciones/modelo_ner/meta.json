@@ -18,6 +18,7 @@
   },
   "labels":{
     "ner":[
+      "ACCESS_CODE",
       "EMPLOYEE_CODE",
       "SERVER"
     ]

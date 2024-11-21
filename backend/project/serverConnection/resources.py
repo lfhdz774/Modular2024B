@@ -395,11 +395,11 @@ class ApproveRequest(Resource):
             return {'message': 'You are not the aprover of this request'},403
         request.status = 'Approved'
 
-
+        print(request.user_id)
         data = db.session.query(AccessRequestModel).filter_by(request_id=request_id)\
             .join(Server, AccessRequestModel.server_id == Server.server_id)\
             .join(UserModel, AccessRequestModel.requester_id == UserModel.user_id)\
-            .join(Group, request.group_id == Group.group_id)\
+            .join(Group, request.group_id == Group.group_id, isouter=True)\
             .with_entities(
                 UserModel.employee_code,
                 Server.short_name,
@@ -408,6 +408,9 @@ class ApproveRequest(Resource):
                 Group.group_name
                 )\
             .first()
+
+        if not data:
+            return {'message': 'Data not Found'},404
        
         generate_access_instance = GenerateAccess()
 

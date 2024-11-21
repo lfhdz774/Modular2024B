@@ -26,6 +26,8 @@ const HomePage = () => {
     getChartData();
   }, []);
 
+  
+
 
   const credentials = [
     { id: 1, server: 'Servidor 1', username: 'usuario1', expireDate: '2023-12-31' },

@@ -7,7 +7,7 @@ from project import app
 from .resources import CreateAccess,DeleteAccess,TestConnection,GetAccess,GetAllAccesses,AddGroupToAccess
 from .resources import CreateAccess,DeleteAccess,TestConnection,GetAccess, AccessRequest, GetAllRequests, ApproveRequest,RemoveGroupFromAccess
 from .resources import AccessRequestForMe
-from .resources import GetAccessByUser
+from .resources import GetAccessByUser, GetAccessMyUser
 serverConnection_blueprint = Blueprint('serverConnection', __name__, url_prefix='/api/admin')
 api = Api(serverConnection_blueprint)
 
@@ -23,5 +23,7 @@ api.add_resource(AddGroupToAccess,'/AddGroupToAccess')
 api.add_resource(RemoveGroupFromAccess,'/RemoveGroupFromAccess')
 api.add_resource(AccessRequestForMe,'/AccessRequestForMe')
 api.add_resource(GetAccessByUser,'/GetAccessByUser/<int:user_id>')
+api.add_resource(GetAccessMyUser,'/GetAccessMyUser')
+
 
 

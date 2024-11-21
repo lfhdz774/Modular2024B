@@ -20,6 +20,7 @@ class GroupAdmin(Resource):
             return server.json()
         else:
             return {'server_id': 'not found'},404
+            
     @swag_from('project/swagger.yaml') 
     def put(self,server_id):
         data = request.get_json()

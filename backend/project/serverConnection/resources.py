@@ -418,7 +418,7 @@ class ApproveRequest(Resource):
 
         request.status = 'Approved'
 
-        userCreated = generate_access_instance.crear_usuario(userName, request.server_id, data.email)
+        userCreated = generate_access_instance.crear_usuario(userName, request.server_id, data.email, request.group_id)
 
         if not userCreated['result']:
             return userCreated,500
@@ -446,6 +446,44 @@ class GetAccessByUser(Resource):
             return {'message': 'Unauthorized access'},403
         
         UserAccesses = db.session().query(Access).filter_by(user_id=user_id)\
+            .join(Server, Access.server_id == Server.server_id)\
+            .with_entities(
+                Access.access_name,
+                Access.user_groups,
+                Access.created_at,
+                Access.status,
+                Server.name,
+                Server.server_id
+                )\
+            .all()
+        
+        result = [
+            {
+                'access_name': access.access_name,
+                'user_groups': access.user_groups,
+                'created_at': access.created_at.isoformat() if isinstance(access.created_at, datetime) else str(access.created_at),
+                'status': access.status,
+                'server_name': access.name,
+                'server_id': access.server_id
+            }
+            for access in UserAccesses
+        ]
+
+        return result, 200
+class GetAccessMyUser(Resource):
+    @jwt_required()
+    def get(self):
+        claims = get_jwt()
+        requester_id = claims.get('user_id')
+        requester_user = db.session().query(UserModel).filter_by(user_id=requester_id).first()
+
+        if not requester_user:
+            return {'message': 'User not Found'},404
+        
+        if requester_user.role_id != 7:
+            return {'message': 'Unauthorized access'},403
+        
+        UserAccesses = db.session().query(Access).filter_by(user_id=requester_id)\
             .join(Server, Access.server_id == Server.server_id)\
             .with_entities(
                 Access.access_name,

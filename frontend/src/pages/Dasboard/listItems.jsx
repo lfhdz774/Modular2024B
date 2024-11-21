@@ -121,12 +121,13 @@ export const MainListItems = () => {
         <ListItemText primary="Solicitar accesos" />
       </ListItemButton>
 
-      {/* <ListItemButton onClick={() => navigate("/my_access")}>
+      <ListItemButton onClick={() => navigate("/my_access")}>
           <ListItemIcon>
             <CameraFrontIcon />
           </ListItemIcon>
           <ListItemText primary="Mis accesos" />
-        </ListItemButton> */}
+        </ListItemButton>
+        
       <ProtectedMenu allowedRoles={[7]} userRole={userRoles}>
         <ListItemButton onClick={() => navigate("/delete_access")}>
           <ListItemIcon>

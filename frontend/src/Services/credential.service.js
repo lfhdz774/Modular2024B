@@ -72,6 +72,15 @@ export const AccessesByUser = async (userId) => {
     }
 }
 
+export const AccessesMyUser = async () => {
+    try {
+        const response = await http.get(`/api/admin/GetAccessMyUser`);
+        return response;
+    } catch (error) {
+        return error;
+    }
+}
+
 export const DeactivateAccess = async (accessName, serverId) => {
     try {
         let data = {

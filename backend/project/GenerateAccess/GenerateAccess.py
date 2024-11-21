@@ -22,7 +22,7 @@ from project.models import Access, Server
 
 
 class GenerateAccess:
-    def crear_usuario(self, username, server_id, email):
+    def crear_usuario(self, username, server_id, email, group):
         if not self.es_nombre_usuario_valido(username):
             return {"message": f"El nombre de usuario '{username}' no es válido.", "link": ""}
         
@@ -34,7 +34,7 @@ class GenerateAccess:
         token = self.generar_token_con_password(password)
 
         # Crear el usuario en el servidor
-        resultado = self.crear_usuario_servidor(username, password, server_id)
+        resultado = self.crear_usuario_servidor(username, password, server_id, group)
         
         if resultado['exito']:
             # Crear un token JWT que contenga la contraseña
@@ -149,7 +149,7 @@ class GenerateAccess:
         username = data[0] + data[1] + str(random.randint(10,99))
         return username
 
-    def crear_usuario_servidor(self, username, password, server_id):
+    def crear_usuario_servidor(self, username, password, server_id, group):
         try:
             server = db.session().query(Server).filter_by(server_id=server_id).first()
             if not server:
@@ -171,7 +171,7 @@ class GenerateAccess:
 
             # Comandos para crear el usuario y establecer la contraseña
             comandos = [
-                f"sudo useradd {username}",
+                f"sudo useradd -m -d /home/{username} -G {group} {username}",
                 f"echo '{username}:{password}' | sudo chpasswd"
             ]
 

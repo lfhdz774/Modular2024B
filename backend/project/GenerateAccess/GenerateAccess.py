@@ -100,6 +100,7 @@ class GenerateAccess:
         </div>
         <div class="message">
             <p>Se ha creado un usuario para usted en el servidor.</p>
+            <p>Su nombre de usuario es: <strong>{username}</strong></p>
             <p>Para acceder y ver su contraseña, haga clic en el enlace a continuación:</p>
             <a href="{enlace}" class="button">Obtener contraseña</a>
         </div>

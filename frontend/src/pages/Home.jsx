@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Grid, Paper, Typography, Card, CardContent, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Box, useTheme } from '@mui/material';
 import { BarChart } from '@mui/x-charts';
-import { GetServers } from 'src/Services/servers.service';
+import { recentAccessReport } from 'src/Services/Report.Service';
 import {GetChartReport} from 'src/Services/Report.Service';
 const HomePage = () => {
   const theme = useTheme();
   const [servers, setServers] = React.useState([]);
+  const [credentials, setCredentials] = React.useState([]);
 
   const [chartData, setChartData] = useState([
     { server_name: 'Servidor 1', credentials_count: 12 },
@@ -19,7 +20,12 @@ const HomePage = () => {
     setChartData([]);
     setChartData(chartDataResponse);
 
-    console.log(chartDataResponse);
+    const recentAccessReportResponse = await recentAccessReport();
+    if (recentAccessReportResponse.status === 200)
+      setCredentials(recentAccessReportResponse.data);
+    else
+      setCredentials([]);
+    console.log(recentAccessReportResponse);
   }
 
   useEffect(() => {
@@ -29,19 +35,11 @@ const HomePage = () => {
   
 
 
-  const credentials = [
-    { id: 1, server: 'Servidor 1', username: 'usuario1', expireDate: '2023-12-31' },
-    { id: 2, server: 'Servidor 2', username: 'usuario2', expireDate: '2024-01-15' },
-    { id: 3, server: 'Servidor 3', username: 'usuario3', expireDate: '2024-02-20' },
-  ];
-
-  const today = new Date();
-  const expiringSoon = credentials.filter(credential => {
-    const expireDate = new Date(credential.expireDate);
-    const timeDiff = expireDate - today;
-    const daysDiff = timeDiff / (1000 * 3600 * 24);
-    return daysDiff <= 30; // Expiring within the next 30 days
-  });
+  // const credentials = [
+  //   { id: 1, server: 'Servidor 1', username: 'usuario1', expireDate: '2023-12-31' },
+  //   { id: 2, server: 'Servidor 2', username: 'usuario2', expireDate: '2024-01-15' },
+  //   { id: 3, server: 'Servidor 3', username: 'usuario3', expireDate: '2024-02-20' },
+  // ];
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
@@ -52,44 +50,23 @@ const HomePage = () => {
         Maneja tus Servidores y Acceso de forma sencilla.
       </Typography>
       <Grid container spacing={3}>
-        {/* Chart */}
-        <Grid item xs={12} md={8} lg={9}>
-          <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 260 }}>
-            <Typography variant="h6" gutterBottom>
-              Credenciales activas por servidor
-            </Typography>
-            <BarChart
-              xAxis={[{ dataKey: 'server_name', label: 'Servidor', scaleType: 'band' }]}
-              series={[{ dataKey: 'credentials_count', label: 'Credenciales Activas' }]}
-              dataset={chartData}
-              height={200}
-            />
-          </Paper>
-        </Grid>
-        {/* Credentials Expiring Soon */}
-        <Grid item xs={12} md={4} lg={3}>
-          <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 260 , backgroundColor: theme.palette.background.paper }}>
-            <Typography variant="h6" gutterBottom>
-              Credenciales por expirar
-            </Typography>
-            {expiringSoon.length > 0 ? (
-              expiringSoon.map(credential => (
-                <Box key={credential.id} sx={{ p: 1, mb: 1, border: `1px solid ${theme.palette.divider}`, borderRadius: '4px', backgroundColor: theme.palette.background.default }}>
-                  <Typography variant="body2" color={theme.palette.text.primary}>
-                    <strong>{credential.username}</strong> en <strong>{credential.server}</strong>
-                  </Typography>
-                  <Typography variant="body2" color={theme.palette.text.secondary}>
-                    Expira el {credential.expireDate}
-                  </Typography>
-                </Box>
-              ))
-            ) : (
-              <Typography variant="body2" color={theme.palette.text.secondary}>No hay credenciales por expirar pronto.</Typography>
-            )}
-          </Paper>
-        </Grid>
+      
+      <Grid item xs={12} md={8} lg={9}>
+      <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 260 }}>
+        <Typography variant="h6" gutterBottom>
+          Credenciales activas por servidor
+        </Typography>
+        <BarChart
+          xAxis={[{ dataKey: 'server_name', label: 'Servidor', scaleType: 'band' }]}
+          series={[{ dataKey: 'credentials_count', label: 'Credenciales Activas' }]}
+          dataset={chartData}
+          height={200}
+        />
+      </Paper>
+    </Grid> 
+        
         {/* Create Credential */}
-        <Grid item xs={12} md={4}>
+        {/* <Grid item xs={12} md={4}>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
@@ -100,9 +77,9 @@ const HomePage = () => {
               </Button>
             </CardContent>
           </Card>
-        </Grid>
+        </Grid> */}
         {/* Remove Credential */}
-        <Grid item xs={12} md={4}>
+        {/* <Grid item xs={12} md={4}>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
@@ -113,7 +90,7 @@ const HomePage = () => {
               </Button>
             </CardContent>
           </Card>
-        </Grid>
+        </Grid> */}
         {/* Recent Orders */}
         <Grid item xs={12}>
           <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
@@ -126,17 +103,17 @@ const HomePage = () => {
                   <TableRow>
                     <TableCell>Servidor</TableCell>
                     <TableCell>Nombre de Usuario</TableCell>
-                    <TableCell>Fecha de Expiración</TableCell>
+                    <TableCell>Fecha de creación</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {credentials.map((credential) => (
+                  { credentials ? credentials.map((credential) => (
                     <TableRow key={credential.id}>
                       <TableCell>{credential.server}</TableCell>
                       <TableCell>{credential.username}</TableCell>
-                      <TableCell>{credential.expireDate}</TableCell>
+                      <TableCell>{credential.createdAt}</TableCell>
                     </TableRow>
-                  ))}
+                  )) : null}
                 </TableBody>
               </Table>
             </TableContainer>

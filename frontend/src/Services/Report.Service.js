@@ -22,3 +22,11 @@ export const postReportGenerator = async (reportData) => {
         return error;
     }
 }
+export const recentAccessReport = async () => {
+    try {
+        const response = await http.get('/api/admin/report/RecentAccesses');
+        return response;
+    } catch (error) {
+        return error;
+    }
+}

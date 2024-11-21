@@ -19,11 +19,24 @@ class ChartReport(Resource):
 
         return jsonify(chart_data)
 
-class recenAccessReport(Resource):
+class recentAccessReport(Resource):
     @swag_from('project/swagger.yaml') 
     def get(self):
-        #select the last 3 accesses created
-        accesses = Access.query.order_by(Access.created_at.desc(), Access.access_id.desc()).limit(3).all()
+        #select the last 3 accesses created and join with the server table
+        accesses = db.session.query(Access, Server)\
+            .join(Server)\
+            .order_by(Access.created_at.desc())\
+            .limit(3)\
+            .all()
+        print(accesses[0])
+        recent_accesses = [{
+            'id': access.access_id,
+            'username': access.access_name,
+            'server': server.name,
+            'createdAt': access.created_at.strftime('%Y-%m-%d')
+        } for access, server in accesses]
+
+        return recent_accesses, 200
 
 class ReportGenerator(Resource):
     @swag_from('project/swagger.yaml') 

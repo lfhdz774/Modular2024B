@@ -403,7 +403,7 @@ class ApproveRequest(Resource):
                 UserModel.employee_code,
                 Server.short_name,
                 UserModel.email,
-                Server.host_name
+                Server.hostname
                 )\
             .first()
        
@@ -417,7 +417,7 @@ class ApproveRequest(Resource):
 
         request.status = 'Approved'
 
-        userCreated = generate_access_instance.crear_usuario(userName, request.server_id, data.email, request.group_id, data.host_name )
+        userCreated = generate_access_instance.crear_usuario(userName, request.server_id, data.email, request.group_id, data.hostname )
 
         if not userCreated['result']:
             return userCreated,500

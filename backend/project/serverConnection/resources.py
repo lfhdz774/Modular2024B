@@ -48,12 +48,13 @@ class CreateAccess(Resource):
         self.parser.add_argument('server_id', type=str, help='Missing Server_id where to create the Access', required=True)
         self.parser.add_argument('user_id', type=str, help='Missing user_id owner of the Access', required=True)
         self.parser.add_argument('expiration_date', type=str, help='expiration_date of the Access', required=True)
+        self.parser.add_argument('group_id', type=str, help='Group_ID of the Access', required=False,default=None)
     def post(self):
         args = self.parser.parse_args()
         access_name = args['username']
         server_id = args['server_id']
         user_id = args['user_id']
-        
+        group_id = args['group_id']
         #Verify that the Server Exist by Server_id
         try:
             server = db.session().query(Server).filter_by(server_id=server_id).first()
@@ -72,7 +73,11 @@ class CreateAccess(Resource):
             abort(404, description=str(e))
         #create Acces on DB side
         created_at = date.today()
-        groups = []
+        if group_id != None:
+            group = db.session().query(Group).filter_by(group_id = group_id,server_id=server_id).first()
+            groups = [group_id]
+        else:
+            groups = []
         newAcess = Access(access_name,user_id,server_id,created_at,args['expiration_date'],groups)
         db.session.add(newAcess)
         db.session.commit()
@@ -85,7 +90,11 @@ class CreateAccess(Resource):
         c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         print ("connecting")
         c.connect( hostname = server.hostname, username = server.username, pkey = k )
-        commands = [ f"sudo useradd -m {args['username']}"]
+        if group_id != None:
+            commands = [ f"sudo useradd -m -d /home/{args['username']} -G {group.group_name} {args['username']}"]
+        else:
+            commands = [ f"sudo useradd -m {args['username']} -d /home/{args['username']}"]
+
         for command in commands:
             print ("Executing {}".format( command ))
             stdin , stdout, stder = c.exec_command(command)

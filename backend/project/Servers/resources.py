@@ -33,7 +33,7 @@ class AddServer(Resource):
         self.parser.add_argument('ip_address', type=str, help='ip_address of the Server', required=True)
         self.parser.add_argument('username', type=str, help='username of the Server', required=True)
         self.parser.add_argument('pkey', type=str, help='pkey of the Server', required=True)
-        self.parser.add_argument('short_name', type=list,  help='short_name of the Server', required=True)
+        self.parser.add_argument('short_name', type=str,  help='short_name of the Server', required=True)
         self.parser.add_argument('operating_system', type=str, help='OS in the application of the Server', required=True)
 
     @swag_from('project/swagger.yaml')

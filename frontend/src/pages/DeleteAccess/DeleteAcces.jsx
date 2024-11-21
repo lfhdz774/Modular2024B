@@ -216,7 +216,7 @@ export const DeleteAccess = () => {
                                 <TableCell>{access.user_groups}</TableCell>
                                 <TableCell>{access.created_at}</TableCell>
                                 <TableCell>{access.status ? "Activo" : "Inactivo"}</TableCell>
-                                <TableCell><IconButton aria-label="delete" onClick={() => handleDeleteAccess(access.access_name, access.server_id)}><DeleteIcon /></IconButton></TableCell>
+                                <TableCell > {access.status ? <IconButton aria-label="delete"  onClick={() => handleDeleteAccess(access.access_name, access.server_id)}><DeleteIcon /> </IconButton> : <></> }</TableCell>
                             </TableRow>
                         ))}
                     </TableBody>

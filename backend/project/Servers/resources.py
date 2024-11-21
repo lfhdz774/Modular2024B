@@ -33,7 +33,7 @@ class AddServer(Resource):
         self.parser.add_argument('ip_address', type=str, help='ip_address of the Server', required=True)
         self.parser.add_argument('username', type=str, help='username of the Server', required=True)
         self.parser.add_argument('pkey', type=str, help='pkey of the Server', required=True)
-        #self.parser.add_argument('user_groups', type=list, action='append', help='user_groups of the Server', required=True)
+        self.parser.add_argument('short_name', type=list,  help='short_name of the Server', required=True)
         self.parser.add_argument('operating_system', type=str, help='OS in the application of the Server', required=True)
 
     @swag_from('project/swagger.yaml')
@@ -49,12 +49,13 @@ class AddServer(Resource):
             #user_groups = data['user_groups']
             #user_groups = [1,2,3,4,5]
             operating_system = args['operating_system']
-            server = Server(name,hostname,ip_address,username,pkey,operating_system)
+            short_name = args['short_name']
+            server = Server(name,hostname,ip_address,username,pkey,operating_system,short_name)
             db.session.add(server)
             db.session.commit()
             return {'msg': 'Server Added'}
         except Exception as e:
-            abort(808, description="Server not Found")
+            return {'msg': 'Server not Added ' + str(e)},404
         
     
 class DeleteServer(Resource):

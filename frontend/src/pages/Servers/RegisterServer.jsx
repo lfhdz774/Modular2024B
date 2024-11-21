@@ -11,6 +11,7 @@ const RegisterServer = ({ isEditing }) => {
     username: '',
     pkey: '',
     operating_system: '',
+    short_name: '',
   });
   const [servers, setServers] = useState([]);
   const [selectedServerId, setSelectedServerId] = useState('');
@@ -145,7 +146,7 @@ const RegisterServer = ({ isEditing }) => {
                 label="Nombre corto"
                 variant="outlined"
                 required
-                name="Nombre corto"
+                name="short_name"
                 value={formData.short_name}
                 onChange={handleChange}
               />

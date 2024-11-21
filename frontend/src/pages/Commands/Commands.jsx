@@ -464,12 +464,12 @@ function Command() {
                     maxWidth: '100%',
                   }}
                 >
-                  <Typography variant="subtitle1">{message.title}</Typography>
+                  <Typography variant="subtitle1">Información</Typography>
                   <TableContainer component={Paper}>
                     <Table size="small">
                       <TableHead>
                         <TableRow>
-                          {Object.keys(message.data[1]).map((key) => (
+                          {Object.keys(message.data[0]).map((key) => (
                             <TableCell key={key}>{key}</TableCell>
                           ))}
                         </TableRow>

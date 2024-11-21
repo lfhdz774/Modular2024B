@@ -119,7 +119,7 @@ export const DeleteAccess = () => {
       }else{
         setStatus("error");
       }
-
+      await GetAccessFromUser(usuario.user_id);
       console.log(result);
     }
   
